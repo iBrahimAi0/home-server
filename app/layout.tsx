@@ -1,18 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { BRANDING } from '@/lib/branding';
 
 export const metadata: Metadata = {
-  title: 'NexusPanel - Home Server Controller',
-  description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
-  openGraph: {
-    title: 'NexusPanel - Home Server Controller',
-    description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'NexusPanel - Home Server Controller',
-    description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
+  title: `${BRANDING.name} — ${BRANDING.subtitle}`,
+  description: BRANDING.description,
+  icons: {
+    icon: '/favicon.ico',
   },
 };
 
@@ -25,11 +19,10 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         suppressHydrationWarning
-        className="bg-[#0A0E17] text-slate-100 min-h-screen font-sans antialiased selection:bg-purple-500/30 selection:text-purple-200"
+        className="bg-[#0B0D13] text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200"
       >
         {children}
       </body>
     </html>
   );
 }
-

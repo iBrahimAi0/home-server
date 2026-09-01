@@ -1,18 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Bot, 
   Search, 
   Plus, 
-  Filter, 
   CheckCircle2, 
   AlertTriangle, 
-  RotateCw, 
   Play, 
   Square,
-  Sparkles,
   Info
 } from 'lucide-react';
 import { BotData, SystemStatus as SystemStatusType } from '@/lib/types';
@@ -100,7 +97,6 @@ export default function BotsPage() {
     setTimeout(() => setActionFeedback(null), 4000);
   };
 
-  // Mass action handlers
   const handleStartAll = async () => {
     const offlineBots = bots.filter((b) => b.status === 'offline' || b.status === 'crashed');
     if (offlineBots.length === 0) return;
@@ -146,7 +142,7 @@ export default function BotsPage() {
   const crashedCount = bots.filter((b) => b.status === 'crashed').length;
 
   return (
-    <div className="flex min-h-screen bg-[#0A0E17]">
+    <div className="flex min-h-screen bg-[#0B0D13]">
       <Sidebar
         serverStatus={systemStatus?.status || 'online'}
         serverUptime={systemStatus?.uptime}
@@ -154,19 +150,19 @@ export default function BotsPage() {
 
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
         <Header
-          title="Discord Bot Manager"
-          subtitle="Direct process management, lifecycle controls, and status monitoring"
+          title="Discord Bot Inventory"
+          subtitle="Direct process management, file inspection, and lifecycle controller"
           bots={bots}
           systemStatus={systemStatus}
           onRefresh={handleRefresh}
           isRefreshing={refreshing}
         />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-5">
           {/* Action Feedback Banner */}
           {actionFeedback && (
             <div
-              className={`rounded-xl p-4 flex items-center justify-between text-xs font-semibold border ${
+              className={`rounded-md p-3.5 flex items-center justify-between text-xs font-mono font-semibold border ${
                 actionFeedback.type === 'success'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
                   : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
@@ -182,7 +178,7 @@ export default function BotsPage() {
               </div>
               <button
                 onClick={() => setActionFeedback(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white cursor-pointer"
               >
                 &times;
               </button>
@@ -190,75 +186,75 @@ export default function BotsPage() {
           )}
 
           {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-4 flex items-center justify-between">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase">Total Configured</span>
-                <p className="text-2xl font-bold font-mono text-white mt-1">{bots.length}</p>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono">Total Configured</span>
+                <p className="text-xl font-bold font-mono text-white mt-0.5">{bots.length}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                <Bot className="w-5 h-5" />
+              <div className="p-2 rounded-lg bg-[#182133] border border-[#232E44] text-indigo-400">
+                <Bot className="w-4 h-4" />
               </div>
             </div>
 
-            <div className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-4 flex items-center justify-between">
+            <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase">Online & Active</span>
-                <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">{onlineCount}</p>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono">Online</span>
+                <p className="text-xl font-bold font-mono text-emerald-400 mt-0.5">{onlineCount}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <Play className="w-5 h-5 fill-current" />
+              <div className="p-2 rounded-lg bg-[#122620] border border-[#183B30] text-emerald-400">
+                <Play className="w-4 h-4 fill-current" />
               </div>
             </div>
 
-            <div className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-4 flex items-center justify-between">
+            <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase">Offline</span>
-                <p className="text-2xl font-bold font-mono text-slate-400 mt-1">{offlineCount}</p>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono">Offline</span>
+                <p className="text-xl font-bold font-mono text-slate-400 mt-0.5">{offlineCount}</p>
               </div>
-              <div className="p-2.5 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-400">
-                <Square className="w-5 h-5 fill-current" />
+              <div className="p-2 rounded-lg bg-[#182030] border border-[#232E44] text-slate-400">
+                <Square className="w-4 h-4 fill-current" />
               </div>
             </div>
 
-            <div className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-4 flex items-center justify-between">
+            <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-400 uppercase">Crashed</span>
-                <p className={`text-2xl font-bold font-mono mt-1 ${crashedCount > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
+                <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono">Crashed</span>
+                <p className={`text-xl font-bold font-mono mt-0.5 ${crashedCount > 0 ? 'text-rose-400' : 'text-slate-400'}`}>
                   {crashedCount}
                 </p>
               </div>
-              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
-                <AlertTriangle className="w-5 h-5" />
+              <div className="p-2 rounded-lg bg-[#261418] border border-[#3E1C24] text-rose-400">
+                <AlertTriangle className="w-4 h-4" />
               </div>
             </div>
           </div>
 
-          {/* Search, Filter & Bulk Action Controls */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#111726]/90 border border-[#1E293B] p-4 rounded-xl">
-            <div className="flex items-center gap-3 flex-1">
+          {/* Search, Filter & Bulk Action Toolbar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#121722] border border-[#1E273A] p-3.5 rounded-lg">
+            <div className="flex items-center gap-2.5 flex-1">
               {/* Search Box */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <div className="relative flex-1 max-w-sm">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   id="input-bots-search"
                   placeholder="Search bots by name, ID, or path..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0A0E17] text-white placeholder-slate-500 pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-700/70 focus:outline-none focus:border-purple-500 transition-colors"
+                  className="w-full bg-[#0B0E14] text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-md border border-[#1E273A] focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
               {/* Status Filter Dropdown */}
-              <div className="flex items-center gap-1 bg-[#0A0E17] p-1 rounded-lg border border-slate-700/70 text-xs">
+              <div className="flex items-center gap-0.5 bg-[#0B0E14] p-0.5 rounded-md border border-[#1E273A] text-xs font-mono">
                 {(['all', 'online', 'offline', 'crashed'] as const).map((st) => (
                   <button
                     key={st}
                     onClick={() => setStatusFilter(st)}
-                    className={`px-2.5 py-1 rounded capitalize font-medium transition-colors text-xs ${
+                    className={`px-2 py-0.5 rounded capitalize font-medium transition-colors text-[11px] cursor-pointer ${
                       statusFilter === st
-                        ? 'bg-purple-600 text-white shadow-sm'
+                        ? 'bg-indigo-600 text-white font-semibold'
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
@@ -274,9 +270,9 @@ export default function BotsPage() {
                 id="btn-start-all"
                 onClick={handleStartAll}
                 disabled={onlineCount === bots.length}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
+                <Play className="w-3 h-3 fill-current" />
                 <span>Start All</span>
               </button>
 
@@ -284,15 +280,15 @@ export default function BotsPage() {
                 id="btn-stop-all"
                 onClick={handleStopAll}
                 disabled={onlineCount === 0}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
-                <Square className="w-3.5 h-3.5 fill-current" />
+                <Square className="w-3 h-3 fill-current" />
                 <span>Stop All</span>
               </button>
 
               <Link
                 href="/settings"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/20 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Bot</span>
@@ -302,40 +298,39 @@ export default function BotsPage() {
 
           {/* Bots Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-56 rounded-xl bg-[#111726]/60 border border-[#1E293B] animate-pulse" />
+                <div key={i} className="h-52 rounded-lg bg-[#121722] border border-[#1E273A] animate-pulse" />
               ))}
             </div>
           ) : filteredBots.length === 0 ? (
-            <div className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-12 text-center">
-              <Bot className="w-12 h-12 text-slate-500 mx-auto mb-3 opacity-60" />
-              <h3 className="text-base font-bold text-white">No Discord Bots Found</h3>
+            <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-10 text-center font-mono">
+              <Bot className="w-10 h-10 text-slate-500 mx-auto mb-2 opacity-50" />
+              <h3 className="text-sm font-bold text-white font-sans">No Bots Found</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
                 {searchQuery || statusFilter !== 'all'
-                  ? 'No bots match your current search or status filter.'
+                  ? 'No bots match your current filter parameters.'
                   : 'Configure bots in backend/config/bots.json.'}
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredBots.map((bot) => (
                 <BotCard key={bot.id} bot={bot} onRefresh={handleRefresh} />
               ))}
             </div>
           )}
 
-          {/* Discord Bot Path & Cloned Folder Guide */}
-          <div className="rounded-xl bg-[#111726]/70 border border-[#1E293B] p-5 flex items-start gap-3.5 text-xs text-slate-400">
-            <Info className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
+          {/* Directory Configuration Guide */}
+          <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-4 flex items-start gap-3 text-xs text-slate-400 font-mono">
+            <Info className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
             <div>
-              <p className="text-slate-200 font-semibold mb-1">
-                Ubuntu Directory Configuration
+              <p className="text-slate-200 font-semibold mb-0.5">
+                Bot Host Path Standard
               </p>
               <p>
-                Discord bot projects should be cloned into <code className="text-purple-300 font-mono">/home/ibra/home-server/bots/&lt;bot-id&gt;</code>. 
-                Each folder should have its own <code className="text-slate-300 font-mono">package.json</code> with a <code className="text-slate-300 font-mono">start</code> script. 
-                The dashboard will spawn them using <code className="text-slate-300 font-mono">child_process.spawn()</code> and keep them persistent.
+                Place bot project folders in <code className="text-indigo-300">/home/ibra/home-server/bots/&lt;bot-id&gt;</code>. 
+                Each folder is managed within its own process group with full file management and safe GitHub sync.
               </p>
             </div>
           </div>

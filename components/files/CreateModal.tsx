@@ -38,43 +38,44 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
       setInitialContent('');
       onCreated();
       onClose();
-    } catch (err: any) {
-      setError(err.message || `Failed to create ${type}.`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : `Failed to create ${type}.`;
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="flex flex-col w-full max-w-md bg-[#0E1526] border border-[#1E293B] rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#131B2E] border-b border-[#1E293B]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+      <div className="flex flex-col w-full max-w-md bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
+        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               {type === 'file' ? <FilePlus className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />}
             </div>
-            <h3 className="font-semibold text-white text-sm">
+            <h3 className="font-semibold text-white text-xs">
               {type === 'file' ? 'Create New File' : 'Create New Folder'}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-3.5">
           {error && (
-            <div className="flex items-start gap-2 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-xs">
+            <div className="flex items-start gap-2 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-md text-rose-400 text-xs font-mono">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
               {type === 'file' ? 'File Name' : 'Folder Name'}
             </label>
             <input
@@ -84,17 +85,17 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={type === 'file' ? 'e.g. config.json or bot.js' : 'e.g. commands or utils'}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#0A0E17] border border-[#1E293B] text-white text-sm focus:outline-none focus:border-purple-500 transition-colors placeholder:text-slate-400"
+              placeholder={type === 'file' ? 'e.g. index.js or config.json' : 'e.g. commands or services'}
+              className="w-full px-3 py-2 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
             />
-            <p className="text-[11px] text-slate-400 mt-1">
-              Target location: <span className="font-mono text-purple-300">/{parentPath || 'root'}</span>
+            <p className="text-[11px] text-slate-400 mt-1 font-mono">
+              Location: /{parentPath || 'root'}
             </p>
           </div>
 
           {type === 'file' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
                 Initial Content (Optional)
               </label>
               <textarea
@@ -102,17 +103,17 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
                 rows={4}
                 value={initialContent}
                 onChange={(e) => setInitialContent(e.target.value)}
-                placeholder="// Initial file content..."
-                className="w-full p-3 rounded-xl bg-[#0A0E17] border border-[#1E293B] text-white font-mono text-xs focus:outline-none focus:border-purple-500 transition-colors placeholder:text-slate-400 resize-none"
+                placeholder="// Initial content..."
+                className="w-full p-2.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white font-mono text-xs focus:outline-none focus:border-indigo-500 placeholder:text-slate-500 resize-none"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1E293B]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -120,7 +121,7 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
               id="btn-create-submit"
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-purple-600/20 disabled:opacity-50 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium disabled:opacity-50 transition-all cursor-pointer"
             >
               {isLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>{type === 'file' ? 'Create File' : 'Create Folder'}</span>

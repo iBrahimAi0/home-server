@@ -21,6 +21,10 @@ export interface BotConfig {
   args?: string[];
   autoStart?: boolean;
   env?: Record<string, string>;
+  git?: {
+    repoUrl?: string;
+    branch?: string;
+  };
 }
 
 export interface BotData {
@@ -116,3 +120,64 @@ export interface FileListResult {
   items: BotFileItem[];
 }
 
+export interface ZipEntryPreview {
+  name: string;
+  size: number;
+  isDirectory: boolean;
+  isSensitive: boolean;
+}
+
+export interface ZipArchiveInspection {
+  fileCount: number;
+  totalUncompressedBytes: number;
+  entries: ZipEntryPreview[];
+}
+
+export interface GitCommit {
+  hash: string;
+  shortHash: string;
+  message: string;
+  author: string;
+  date: string;
+}
+
+export interface GitStatus {
+  isGitRepo: boolean;
+  branch: string | null;
+  remoteUrl: string | null;
+  currentCommit: GitCommit | null;
+  isClean: boolean;
+  modifiedFilesCount?: number;
+  modifiedFiles?: string[];
+}
+
+export interface GitIncomingCommit {
+  hash: string;
+  shortHash: string;
+  message: string;
+  author: string;
+  date: string;
+}
+
+export interface GitChangedFile {
+  status: string; // M, A, D
+  file: string;
+}
+
+export interface GitUpdateCheckResult {
+  hasUpdates: boolean;
+  localCommit: string;
+  remoteCommit: string;
+  commitsBehind: number;
+  incomingCommits: GitIncomingCommit[];
+  changedFiles: GitChangedFile[];
+  checkedAt: string;
+}
+
+export interface GitPullResult {
+  success: boolean;
+  message: string;
+  pullOutput: string;
+  newCommit: GitCommit | null;
+  pulledAt: string;
+}

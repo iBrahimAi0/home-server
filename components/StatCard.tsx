@@ -28,27 +28,23 @@ export function StatCard({
 }: StatCardProps) {
   const colorMap = {
     purple: {
-      iconBg: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
-      progressFill: 'bg-gradient-to-r from-purple-500 to-indigo-500',
-      glow: 'group-hover:border-purple-500/30',
-      accent: 'text-purple-400',
+      iconBg: 'bg-[#182133] border-[#243048] text-indigo-400',
+      progressFill: 'bg-indigo-500',
+      accent: 'text-indigo-400',
     },
     blue: {
-      iconBg: 'bg-sky-500/10 border-sky-500/20 text-sky-400',
-      progressFill: 'bg-gradient-to-r from-blue-500 to-cyan-500',
-      glow: 'group-hover:border-sky-500/30',
+      iconBg: 'bg-[#142236] border-[#1C3250] text-sky-400',
+      progressFill: 'bg-sky-500',
       accent: 'text-sky-400',
     },
     emerald: {
-      iconBg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-      progressFill: 'bg-gradient-to-r from-emerald-500 to-teal-500',
-      glow: 'group-hover:border-emerald-500/30',
+      iconBg: 'bg-[#122620] border-[#183B30] text-emerald-400',
+      progressFill: 'bg-emerald-500',
       accent: 'text-emerald-400',
     },
     amber: {
-      iconBg: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-      progressFill: 'bg-gradient-to-r from-amber-500 to-orange-500',
-      glow: 'group-hover:border-amber-500/30',
+      iconBg: 'bg-[#272114] border-[#3E341C] text-amber-400',
+      progressFill: 'bg-amber-500',
       accent: 'text-amber-400',
     },
   };
@@ -58,49 +54,49 @@ export function StatCard({
   return (
     <div
       id={id}
-      className={`group relative overflow-hidden rounded-xl bg-[#111726]/90 border border-[#1E293B] p-5 shadow-lg shadow-black/20 transition-all duration-200 hover:bg-[#151D30] ${theme.glow}`}
+      className="relative overflow-hidden rounded-lg bg-[#121722] border border-[#1E273A] p-4.5 transition-all duration-150 hover:border-[#2A3750]"
     >
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
             {title}
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-white font-mono">
+            <span className="text-xl md:text-2xl font-bold tracking-tight text-white font-mono">
               {value}
             </span>
             {badgeText && (
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${theme.iconBg}`}>
+              <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[#182133] text-slate-300 border border-[#232E44]">
                 {badgeText}
               </span>
             )}
           </div>
         </div>
 
-        <div className={`p-2.5 rounded-xl border ${theme.iconBg}`}>
-          <Icon className="w-5 h-5" />
+        <div className={`p-2 rounded-lg border ${theme.iconBg}`}>
+          <Icon className="w-4 h-4" />
         </div>
       </div>
 
       {/* Subtitle / Ratio */}
       {subtitle && (
-        <div className="mt-2.5 flex items-center justify-between text-xs text-slate-400">
-          <span className="font-mono">{subtitle}</span>
-          {trend && <span className={theme.accent}>{trend}</span>}
+        <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+          <span className="font-mono truncate">{subtitle}</span>
+          {trend && <span className={`${theme.accent} font-mono shrink-0 ml-2`}>{trend}</span>}
         </div>
       )}
 
       {/* Visual Percentage Progress Bar */}
       {percentage !== undefined && (
-        <div className="mt-3">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800/80">
+        <div className="mt-2.5">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-[#1A2232]">
             <div
               className={`h-full rounded-full transition-all duration-500 ${theme.progressFill}`}
               style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
             />
           </div>
-          <div className="mt-1 flex justify-between text-[11px] text-slate-500 font-mono">
+          <div className="mt-1 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>Utilization</span>
             <span className="font-semibold text-slate-300">{percentage}%</span>
           </div>

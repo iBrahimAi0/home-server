@@ -1,251 +1,150 @@
-# Custom Home Server Dashboard
+# NexusPanel — Home Server Infrastructure & Bot Controller
 
-A custom, lightweight, modern dark server-hosting panel designed for Ubuntu Home Servers (Intel i5 3rd Gen, 8GB RAM, 120GB SSD). Directly manages Discord bots via `child_process.spawn()`, monitors system metrics, streams real-time console logs, and keeps bots running 24/7 independently of SSH sessions or client PCs.
+NexusPanel is a high-security, technical server management panel designed for Ubuntu Home Servers. It directly manages Discord bot processes via isolated process groups (`child_process.spawn`), provides a full-featured **Bot File Manager**, enables safe **GitHub Synchronization**, extracts archives with Zip-Slip/Zip Bomb defenses, monitors hardware telemetry in real-time, and keeps services running 24/7 with persistent systemd daemons.
 
 ---
 
 ## ⚡ Key Highlights
 
-* **100% Real Process Manager**: No fake simulation or sandbox fallback. Uses direct `child_process.spawn()` with `detached: true` process groups, exact PID metrics (`ps`), streaming stdout/stderr, and clean process-group `SIGTERM`/`SIGKILL` termination.
-* **Single Source of Truth**: Handled exclusively by `backend/managers/BotManager.js` inside the Express controller (`:3001`). Next.js serves purely as the UI.
-* **Crash Protection & Rate Limiting**: Automatically detects bot crashes and safely restarts them (up to 5 restarts per 60-second window before locking).
-* **Two Dedicated systemd Services**: Separate backend and dashboard units guarantee 24/7 background uptime across Ubuntu server reboots.
-* **Realtime Telemetry & Live Logs**: Instant metrics (CPU, RAM, Uptime, PID) and streaming console logs via Socket.IO.
-* **Extensible Bot Configuration**: Add new bots in `backend/config/bots.json` without modifying any code.
+* **100% Real Process Management**: Spawns bot processes with dedicated process groups (`detached: true`, `kill(-pid)`), monitors exact RSS RAM and CPU via `ps`, and streams stdout/stderr logs in real-time via Socket.IO.
+* **Powerful Bot File Manager**:
+  * Browse directories with breadcrumb navigation and up/back folder traversal.
+  * In-dashboard code editor with line numbers, tab indentation, and `Ctrl+S` saving.
+  * Create files & folders, rename, and delete with recursive safety confirmation.
+  * Drag-and-drop file upload with duplicate overwrite protection.
+  * ZIP archive upload, inspection preview (entry count & uncompressed size), and safe extraction.
+* **Restricted GitHub Synchronization**:
+  * 1-click update checks against remote branches (`git fetch` + commit diff count).
+  * Safe fast-forward pulls (`git pull --ff-only`) with local uncommitted modification detection.
+  * Zero arbitrary terminal/command execution exposed to the web.
+* **Deep Security Hardening**:
+  * Strict path resolution preventing directory traversal (`../../etc/passwd`, null bytes, symlink escapes).
+  * Centralized sensitive file protection blocking read/write access to `.env*`, `id_rsa*`, `*.pem`, `*.key`, `*.token`, `.git/`.
+  * Modular authentication middleware supporting optional Bearer tokens / API keys.
+  * Rate limiting, request size limits, and sanitized error responses.
+* **Modern Technical UI**:
+  * Dark charcoal aesthetic with deep neutral surfaces, crisp borders, and indigo accent.
+  * Original geometric vector SVG NexusPanel logo.
+  * 4-tab bot details view: **Overview | Files | Logs | GitHub**.
 
 ---
 
 ## 🏗️ Architecture Overview
 
 ```text
-Browser / LAN Client (e.g. http://YOUR_SERVER_IP:3000)
+LAN Client / Browser (e.g. http://192.168.1.120:3000)
        │
        ▼
-Next.js Frontend UI (:3000)
+Next.js 15 Frontend UI (:3000)
        │
-       ▼ (REST API / WebSocket Socket.IO)
-Express Backend API (:3001)
-       │
-       ▼
-backend/managers/BotManager.js
-       │
-       ▼ (child_process.spawn with process groups: -pid)
-Real Discord Bot Processes on Ubuntu Server
+       ▼ (REST API / Socket.IO Realtime)
+Express Backend Controller (:3001)
+ ├── Security: Helmet, CORS, Rate Limiter, Path Traversal Defenses, Sensitive File Filter
+ ├── Services:
+ │     ├── BotManager.js      --> child_process.spawn() [Process Groups: -pid]
+ │     ├── GitService.js      --> execFile('git', args) [Restricted Parameters]
+ │     └── archiveSecurity.js --> AdmZip [Zip-Slip & Zip Bomb Defenses]
+ └── Telemetry: systemMonitor.js (Linux CPU delta, RAM, df storage)
 ```
 
 ---
 
-## 📁 Project Structure
+## 📁 Directory Structure
 
 ```text
 home-server/
 ├── bots/
-│   ├── bot-1/          # Real Discord Bot 1 (Role Bot)
-│   ├── bot-2/          # Bot 2 (Offline until directory exists)
-│   └── bot-3/          # Bot 3 (Offline until directory exists)
+│   ├── bot-1/          # Discord Bot 1 (Role Bot)
+│   ├── bot-2/          # Bot 2
+│   └── bot-3/          # Bot 3
 │
-└── dashboard/
-    ├── backend/
-    │   ├── server.js               # Express + Socket.IO controller (Port 3001)
-    │   ├── managers/
-    │   │   └── BotManager.js       # ONLY real child_process BotManager (Process Group Manager)
-    │   ├── routes/
-    │   │   ├── bots.js             # REST API endpoints for bots
-    │   │   └── system.js           # REST API endpoints for hardware metrics
-    │   ├── utils/
-    │   │   └── systemMonitor.js    # Linux CPU, RAM, Storage (df) monitor
-    │   ├── config/
-    │   │   └── bots.json           # Declarative bots configuration
-    │   ├── .env.example
-    │   └── package.json
-    │
-    ├── app/                        # Next.js App Router UI
-    ├── components/                 # UI components & live terminal
-    ├── lib/
-    │   ├── api.ts                  # Communicates with Express (:3001)
-    │   └── socket.ts               # Socket.IO client for Express (:3001)
-    ├── systemd/
-    │   ├── home-server-backend.service     # Express Backend systemd unit
-    │   └── home-server-dashboard.service   # Next.js Frontend systemd unit
-    ├── .env.example
-    └── README.md
+├── backend/
+│   ├── server.js               # Express + Socket.IO server (Port 3001)
+│   ├── managers/
+│   │   └── BotManager.js       # Process Group & Crash Recovery Manager
+│   ├── services/
+│   │   └── GitService.js       # Restricted Git synchronization service
+│   ├── routes/
+│   │   ├── bots.js             # Bot lifecycle API
+│   │   ├── files.js            # File management & ZIP archive API
+│   │   ├── git.js              # GitHub synchronization API
+│   │   └── system.js           # Hardware telemetry API
+│   ├── middleware/
+│   │   ├── auth.js             # Optional Bearer token / API key authentication
+│   │   ├── rateLimiter.js      # Sliding-window in-memory rate limiter
+│   │   └── errorHandler.js     # Sanitized error response handler
+│   ├── utils/
+│   │   ├── pathSecurity.js     # Traversal & symlink defense
+│   │   ├── sensitiveFiles.js   # Credential & secret filter (.env, id_rsa, keys)
+│   │   ├── archiveSecurity.js  # Zip-Slip & bomb protection + inspection
+│   │   └── systemMonitor.js    # Linux CPU/RAM/Storage monitor
+│   ├── config/
+│   │   └── bots.json           # Bot definitions & working directories
+│   ├── .env.example
+│   └── package.json
+│
+├── app/                        # Next.js App Router (Dashboard UI)
+├── components/                 # UI components & modals
+│   ├── files/                  # FileManager, CodeEditorModal, Upload, Extract, Rename, Delete
+│   └── git/                    # GitHubSync, PullConfirmModal
+├── lib/
+│   ├── api.ts                  # Client API connector with auth header injection
+│   ├── branding.ts             # Centralized branding configuration
+│   ├── socket.ts               # Realtime Socket.IO client
+│   └── types.ts                # TypeScript interfaces
+├── systemd/                    # Ubuntu 24/7 background service definitions
+└── README.md
 ```
 
 ---
 
-## 🚀 Installation & Setup on Ubuntu Server
+## 🚀 Quick Start on Ubuntu Server
 
-### 1. Find Ubuntu Server IP
-
-On your Ubuntu server, run:
+### 1. Install & Start Backend
 
 ```bash
-hostname -I
-```
-
-Example output:
-```text
-192.168.X.X
-```
-
----
-
-### 2. Clone the Dashboard Repository
-
-SSH into your Ubuntu server and clone the dashboard into `~/home-server/dashboard`:
-
-```bash
-git clone <YOUR_REPOSITORY_URL> ~/home-server/dashboard
-```
-
----
-
-### 3. Configure Backend Service
-
-```bash
-cd ~/home-server/dashboard/backend
+cd ~/home-server/backend
 npm install
 cp .env.example .env
-nano .env
+npm start
 ```
 
-Set your actual server IP in `backend/.env`:
-
-```env
-PORT=3001
-CORS_ORIGIN=http://YOUR_ACTUAL_SERVER_IP:3000,http://localhost:3000
-BOTS_CONFIG_PATH=/home/ibra/home-server/dashboard/backend/config/bots.json
-MAX_RESTARTS=5
-RESTART_WINDOW_MS=60000
-```
-
----
-
-### 4. Configure Frontend Service & Build
+### 2. Build & Start Dashboard
 
 ```bash
-cd ~/home-server/dashboard
+cd ~/home-server
 npm install
 cp .env.example .env.local
-nano .env.local
+npm run build
+npm start
 ```
 
-Set your actual server IP in `.env.local`:
+---
+
+## 🛡️ Ubuntu systemd Setup (24/7 Background Services)
+
+```bash
+# 1. Install Backend Service (:3001)
+sudo cp ~/home-server/systemd/nexuspanel-backend.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable nexuspanel-backend
+sudo systemctl start nexuspanel-backend
+
+# 2. Install Dashboard Service (:3000)
+sudo cp ~/home-server/systemd/nexuspanel-dashboard.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable nexuspanel-dashboard
+sudo systemctl start nexuspanel-dashboard
+```
+
+---
+
+## 🔒 Security Configuration
+
+To enable API authentication, set `AUTH_TOKEN` in `backend/.env`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://YOUR_ACTUAL_SERVER_IP:3001
-NEXT_PUBLIC_SOCKET_URL=http://YOUR_ACTUAL_SERVER_IP:3001
+AUTH_TOKEN=your-random-secure-secret-token
 ```
 
-Now build the production frontend (Next.js embeds the `NEXT_PUBLIC_*` variables during build):
-
-```bash
-npm run build
-```
-
----
-
-### 5. Configure Your Discord Bots
-
-Edit `backend/config/bots.json`:
-
-```json
-[
-  {
-    "id": "bot-1",
-    "name": "Role Bot",
-    "description": "Discord automated role management",
-    "path": "/home/ibra/home-server/bots/bot-1",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": true
-  },
-  {
-    "id": "bot-2",
-    "name": "Games Bot",
-    "description": "Discord minigames & trivia",
-    "path": "/home/ibra/home-server/bots/bot-2",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": false
-  },
-  {
-    "id": "bot-3",
-    "name": "Music & Utility Bot",
-    "description": "Discord audio streamer and utilities",
-    "path": "/home/ibra/home-server/bots/bot-3",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": false
-  }
-]
-```
-
-* **Bot 1**: Will auto-start if `/home/ibra/home-server/bots/bot-1` exists on disk.
-* **Bot 2 & Bot 3**: Remain **offline** until their directories exist on disk. Attempting to start them returns a clear error: `Bot directory not found: <path>`.
-
----
-
-## 🛡️ Production systemd Setup (24/7 Persistence)
-
-Install both systemd services to ensure all bots and the dashboard start automatically on boot and restart if crashed.
-
-### 1. Install the Backend Service (Port 3001)
-
-```bash
-sudo cp ~/home-server/dashboard/systemd/home-server-backend.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable home-server-backend
-sudo systemctl start home-server-backend
-```
-
-Verify backend is running:
-```bash
-sudo systemctl status home-server-backend
-sudo journalctl -u home-server-backend -f
-```
-
----
-
-### 2. Install the Frontend Dashboard Service (Port 3000)
-
-```bash
-sudo cp ~/home-server/dashboard/systemd/home-server-dashboard.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable home-server-dashboard
-sudo systemctl start home-server-dashboard
-```
-
-Verify dashboard is running:
-```bash
-sudo systemctl status home-server-dashboard
-sudo journalctl -u home-server-dashboard -f
-```
-
----
-
-## ➕ Adding New Bots in the Future
-
-1. Clone or create your new bot folder:
-   ```bash
-   git clone <BOT_REPO> ~/home-server/bots/bot-2
-   cd ~/home-server/bots/bot-2 && npm install
-   ```
-
-2. Add or update the entry in `backend/config/bots.json`:
-   ```json
-   {
-     "id": "bot-2",
-     "name": "Games Bot",
-     "description": "Discord minigames & leaderboard",
-     "path": "/home/ibra/home-server/bots/bot-2",
-     "command": "npm",
-     "args": ["start"],
-     "autoStart": true
-   }
-   ```
-
-3. Restart the backend service to apply:
-   ```bash
-   sudo systemctl restart home-server-backend
-   ```
+When configured, all requests require an `Authorization: Bearer <token>` or `x-api-key: <token>` header.

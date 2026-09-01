@@ -2,6 +2,29 @@ const path = require('path');
 const fs = require('fs');
 
 /**
+ * Validates a bot identifier to prevent route injection or traversal.
+ * 
+ * @param {string} botId - Identifier string from URL parameter
+ * @returns {string} Sanitized bot ID
+ */
+function validateBotId(botId) {
+  if (!botId || typeof botId !== 'string') {
+    const err = new Error('Bot ID is required.');
+    err.status = 400;
+    throw err;
+  }
+
+  const trimmed = botId.trim();
+  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
+    const err = new Error('Invalid Bot ID format. Must contain only alphanumeric characters, dashes, or underscores.');
+    err.status = 400;
+    throw err;
+  }
+
+  return trimmed;
+}
+
+/**
  * Validates and safely resolves a relative path inside a bot's designated root directory.
  * Defends against path traversal attacks (e.g. ../, %2e%2e, null bytes) and symlink escapes.
  * 
@@ -12,21 +35,27 @@ const fs = require('fs');
  */
 function resolveSecurePath(botRoot, requestedRelativePath = '') {
   if (!botRoot || typeof botRoot !== 'string') {
-    throw new Error('Invalid bot root configuration.');
+    const err = new Error('Invalid bot root configuration.');
+    err.status = 500;
+    throw err;
   }
 
   const cleanBotRoot = path.resolve(botRoot);
 
   if (typeof requestedRelativePath !== 'string') {
-    throw new Error('Invalid path parameter.');
+    const err = new Error('Invalid path parameter.');
+    err.status = 400;
+    throw err;
   }
 
   // Prevent null byte poisoning
   if (requestedRelativePath.includes('\0')) {
-    throw new Error('Path traversal rejected: Null byte detected.');
+    const err = new Error('Access denied: Null byte sequence detected.');
+    err.status = 400;
+    throw err;
   }
 
-  // Clean relative path (remove leading slashes/backslashes so resolve doesn't treat as root)
+  // Clean relative path (remove leading slashes/backslashes so path.resolve doesn't treat as root)
   const sanitizedRelative = requestedRelativePath.replace(/^[/\\]+/, '');
 
   // Resolve absolute target path
@@ -35,7 +64,9 @@ function resolveSecurePath(botRoot, requestedRelativePath = '') {
   // Verification 1: Target path must start with cleanBotRoot
   const isWithinRoot = targetPath === cleanBotRoot || targetPath.startsWith(cleanBotRoot + path.sep);
   if (!isWithinRoot) {
-    throw new Error('Access denied: Path is outside the bot directory.');
+    const err = new Error('Access denied: Path is outside the designated bot root directory.');
+    err.status = 403;
+    throw err;
   }
 
   // Verification 2: If the file or directory exists on disk, verify realpath to prevent symlink traversal
@@ -45,7 +76,9 @@ function resolveSecurePath(botRoot, requestedRelativePath = '') {
       const realRoot = fs.existsSync(cleanBotRoot) ? fs.realpathSync(cleanBotRoot) : cleanBotRoot;
       const isRealWithinRoot = realTarget === realRoot || realTarget.startsWith(realRoot + path.sep);
       if (!isRealWithinRoot) {
-        throw new Error('Access denied: Symlink points outside the bot directory.');
+        const err = new Error('Access denied: Symlink resolves outside the designated bot directory.');
+        err.status = 403;
+        throw err;
       }
       return targetPath;
     } catch (err) {
@@ -65,27 +98,36 @@ function resolveSecurePath(botRoot, requestedRelativePath = '') {
  */
 function validateEntityName(name) {
   if (!name || typeof name !== 'string') {
-    throw new Error('Name is required.');
+    const err = new Error('File or folder name is required.');
+    err.status = 400;
+    throw err;
   }
 
   const trimmed = name.trim();
   if (trimmed.length === 0) {
-    throw new Error('Name cannot be empty.');
+    const err = new Error('File or folder name cannot be empty.');
+    err.status = 400;
+    throw err;
   }
 
   if (trimmed.length > 255) {
-    throw new Error('Name exceeds maximum length (255 characters).');
+    const err = new Error('File or folder name exceeds maximum length (255 characters).');
+    err.status = 400;
+    throw err;
   }
 
-  // Check for forbidden characters in filenames (slashes, null bytes, control chars)
-  if (/[/\\:\0\x00-\x1f]/.test(trimmed) || trimmed === '.' || trimmed === '..') {
-    throw new Error('Invalid name: contains forbidden characters or path separators.');
+  // Check for forbidden characters in filenames (slashes, colons, null bytes, control chars, traversal)
+  if (/[/\\:\0\x00-\x1f*?"<>|]/.test(trimmed) || trimmed === '.' || trimmed === '..') {
+    const err = new Error('Invalid name: contains forbidden characters or path traversal markers.');
+    err.status = 400;
+    throw err;
   }
 
   return trimmed;
 }
 
 module.exports = {
+  validateBotId,
   resolveSecurePath,
   validateEntityName
 };

@@ -8,45 +8,56 @@ interface NexusLogoProps {
 
 export function NexusLogo({ className = '', size = 32, showText = false }: NexusLogoProps) {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
+    <div className={`flex items-center gap-2.5 select-none ${className}`}>
+      {/* Precision Geometric Nexus Infrastructure Mark */}
       <div
-        className="relative flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 shadow-md shadow-purple-600/20 text-white shrink-0 overflow-hidden"
+        className="relative flex items-center justify-center rounded-lg bg-[#141A28] border border-[#2A344A] text-white shrink-0 overflow-hidden shadow-sm"
         style={{ width: size, height: size }}
       >
-        {/* Futuristic Hexagonal Nexus Node SVG */}
         <svg
-          viewBox="0 0 36 36"
+          viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-[70%] h-[70%]"
+          className="w-[72%] h-[72%]"
         >
-          {/* Hexagon Outer Frame */}
+          {/* Outer diamond/hex connection bounds */}
           <path
-            d="M18 2L32 10V26L18 34L4 26V10L18 2Z"
-            stroke="rgba(255,255,255,0.4)"
-            strokeWidth="1.5"
+            d="M16 3L28 9.5V22.5L16 29L4 22.5V9.5L16 3Z"
+            stroke="#6366F1"
+            strokeWidth="1.75"
             strokeLinejoin="round"
           />
-          {/* Stylized 'N' Node Path */}
+
+          {/* Cross interconnect topology paths */}
           <path
-            d="M11 25V11L25 25V11"
-            stroke="white"
-            strokeWidth="2.5"
+            d="M16 3V16M28 22.5L16 16M4 22.5L16 16"
+            stroke="#818CF8"
+            strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
+            strokeOpacity="0.85"
           />
-          {/* Nexus Center Pulse Point */}
-          <circle cx="18" cy="18" r="2" fill="#38BDF8" />
+
+          {/* Node Hub Core Points */}
+          <circle cx="16" cy="16" r="2.25" fill="#38BDF8" />
+          <circle cx="16" cy="3" r="1.5" fill="#A5B4FC" />
+          <circle cx="28" cy="9.5" r="1.5" fill="#A5B4FC" />
+          <circle cx="28" cy="22.5" r="1.5" fill="#A5B4FC" />
+          <circle cx="16" cy="29" r="1.5" fill="#A5B4FC" />
+          <circle cx="4" cy="22.5" r="1.5" fill="#A5B4FC" />
+          <circle cx="4" cy="9.5" r="1.5" fill="#A5B4FC" />
         </svg>
       </div>
 
       {showText && (
         <div className="flex flex-col overflow-hidden">
-          <span className="font-bold text-white text-base tracking-tight leading-tight">
-            Nexus<span className="text-purple-400">Panel</span>
-          </span>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400">
-            Control Center
+          <div className="flex items-center gap-1 leading-none">
+            <span className="font-bold text-white text-sm tracking-tight">
+              Nexus<span className="text-indigo-400">Panel</span>
+            </span>
+          </div>
+          <span className="text-[9px] uppercase font-mono font-semibold tracking-widest text-slate-400 mt-0.5">
+            Core Controller
           </span>
         </div>
       )}

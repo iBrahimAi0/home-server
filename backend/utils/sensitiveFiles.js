@@ -1,20 +1,31 @@
 const path = require('path');
 
-// Protected filename patterns and exact names (case-insensitive)
+// Protected filename exact base names (case-insensitive)
 const PROTECTED_EXACT_NAMES = new Set([
   '.env',
   '.env.local',
   '.env.production',
   '.env.development',
   '.env.test',
+  '.env.staging',
+  '.npmrc',
   'id_rsa',
   'id_ecdsa',
   'id_ed25519',
   'id_dsa',
+  'id_rsa.pub',
+  'id_ecdsa.pub',
+  'id_ed25519.pub',
   'authorized_keys',
-  'known_hosts'
+  'known_hosts',
+  '.gitconfig',
+  '.gitmodules',
+  '.gitcredentials',
+  'passwd',
+  'shadow'
 ]);
 
+// Protected file extensions (case-insensitive)
 const PROTECTED_EXTENSIONS = new Set([
   '.pem',
   '.key',
@@ -23,7 +34,9 @@ const PROTECTED_EXTENSIONS = new Set([
   '.pkcs12',
   '.crt',
   '.cer',
-  '.kdbx'
+  '.cert',
+  '.kdbx',
+  '.token'
 ]);
 
 /**
@@ -38,23 +51,29 @@ function isSensitiveFile(filePath) {
   const baseName = path.basename(filePath).toLowerCase();
   const ext = path.extname(filePath).toLowerCase();
 
-  // Check exact names (.env, .env.local, id_rsa, etc.)
+  // Check exact names (.env, .npmrc, id_rsa, etc.)
   if (PROTECTED_EXACT_NAMES.has(baseName)) {
     return true;
   }
 
-  // Check if filename starts with .env. (e.g., .env.staging, .env.custom)
-  if (baseName.startsWith('.env.') || baseName === '.env') {
+  // Check if filename starts with .env or id_
+  if (baseName.startsWith('.env.') || baseName === '.env' || baseName.startsWith('id_')) {
     return true;
   }
 
-  // Check forbidden extensions (.pem, .key, etc.)
+  // Check forbidden extensions (.pem, .key, .crt, etc.)
   if (PROTECTED_EXTENSIONS.has(ext)) {
     return true;
   }
 
-  // Check if it accesses hidden git configuration/credentials
-  if (filePath.includes('.git/') || filePath.includes('.git\\') || baseName === '.gitconfig') {
+  // Check if it accesses hidden git internal configuration / credential files
+  const normalized = filePath.replace(/\\/g, '/');
+  if (
+    normalized.includes('/.git/') ||
+    normalized.startsWith('.git/') ||
+    baseName === '.git' ||
+    baseName === '.gitconfig'
+  ) {
     return true;
   }
 
@@ -70,7 +89,9 @@ function isSensitiveFile(filePath) {
 function assertNotSensitive(filePath) {
   if (isSensitiveFile(filePath)) {
     const baseName = path.basename(filePath);
-    throw new Error(`Security Exception: Access to protected sensitive file "${baseName}" is blocked.`);
+    const err = new Error(`Security Exception: Access to protected sensitive credential or configuration file "${baseName}" is blocked.`);
+    err.status = 403;
+    throw err;
   }
 }
 

@@ -4,11 +4,15 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+require('dotenv').config();
 
 const BotManager = require('./managers/BotManager');
 const createBotsRouter = require('./routes/bots');
 const systemRouter = require('./routes/system');
 const { getSystemStatus } = require('./utils/systemMonitor');
+const authMiddleware = require('./middleware/auth');
+const { generalLimiter } = require('./middleware/rateLimiter');
+const errorHandler = require('./middleware/errorHandler');
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const rawCorsOrigin = process.env.CORS_ORIGIN || '';
@@ -68,7 +72,8 @@ const io = new Server(server, {
 // Security and parser middleware
 app.use(helmet({
   contentSecurityPolicy: false,
-  crossOriginResourcePolicy: { policy: 'cross-origin' }
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  hidePoweredBy: true
 }));
 
 app.use(cors({
@@ -79,11 +84,17 @@ app.use(cors({
       callback(new Error('Blocked by CORS policy'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
 
-app.use(express.json());
+// Request size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// General Rate Limiter & Auth middleware
+app.use(generalLimiter);
+app.use('/api', authMiddleware);
 
 // Initialize Bot Manager
 const botManager = new BotManager({
@@ -99,8 +110,11 @@ app.use('/api/bots', createBotsRouter(botManager));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
+
+// Centralized error handler middleware
+app.use(errorHandler);
 
 // Socket.IO Realtime handling
 io.on('connection', async (socket) => {
@@ -150,9 +164,10 @@ async function bootstrap() {
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`===================================================`);
-      console.log(`  🏠 HOME SERVER BACKEND CONTROLLER`);
+      console.log(`  🏠 NEXUSPANEL HOME SERVER BACKEND`);
       console.log(`  Server listening on http://0.0.0.0:${PORT}`);
       console.log(`  WebSocket / Socket.IO active`);
+      console.log(`  Security Headers & Rate Limiting: Active`);
       console.log(`===================================================`);
     });
   } catch (err) {

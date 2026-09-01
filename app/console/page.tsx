@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Terminal as TerminalIcon, Bot, Info, ShieldCheck, Radio } from 'lucide-react';
+import { ShieldCheck, Radio } from 'lucide-react';
 import { BotData, SystemStatus as SystemStatusType } from '@/lib/types';
 import { api } from '@/lib/api';
 import { realtime } from '@/lib/socket';
@@ -73,7 +73,7 @@ function ConsoleContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0A0E17]">
+    <div className="flex min-h-screen bg-[#0B0D13]">
       <Sidebar
         serverStatus={systemStatus?.status || 'online'}
         serverUptime={systemStatus?.uptime}
@@ -81,7 +81,7 @@ function ConsoleContent() {
 
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
         <Header
-          title="Server Console"
+          title="Live Server Console"
           subtitle="Real-time terminal stream, output logs, and debugging monitor"
           bots={bots}
           systemStatus={systemStatus}
@@ -89,32 +89,32 @@ function ConsoleContent() {
           isRefreshing={refreshing}
         />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
-          {/* Top Banner with Terminal info */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl bg-[#111726]/90 border border-[#1E293B] p-4 text-xs">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                <Radio className="w-4 h-4 animate-pulse" />
+        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-4">
+          {/* Top Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                <Radio className="w-3.5 h-3.5 animate-pulse" />
               </div>
               <div>
-                <span className="font-bold text-white text-sm">Live Stream Connected</span>
-                <p className="text-slate-400 text-xs">
-                  Streaming standard output and standard error from managed processes.
+                <span className="font-bold text-white text-xs font-mono">Real-time Event Stream Active</span>
+                <p className="text-slate-400 text-[11px] font-mono">
+                  Streaming standard output and standard error from active bot processes.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Sanitized Log Stream &bull; Secret masking active</span>
+            <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Sanitized stdout/stderr stream</span>
             </div>
           </div>
 
-          {/* Full Screen / Responsive Terminal Component */}
+          {/* Full Screen Terminal Component */}
           <Terminal
             initialBotId={requestedBot}
             bots={bots}
-            heightClass="h-[calc(100vh-320px)] min-h-[500px]"
+            heightClass="h-[calc(100vh-270px)] min-h-[500px]"
             showBotSelector={true}
           />
         </main>
@@ -126,7 +126,7 @@ function ConsoleContent() {
 export default function ConsolePage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen bg-[#0A0E17] items-center justify-center text-slate-400">
+      <div className="flex min-h-screen bg-[#0B0D13] items-center justify-center text-slate-400 font-mono text-xs">
         Loading console...
       </div>
     }>

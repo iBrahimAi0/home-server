@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Cpu, HardDrive, Clock, ExternalLink, Terminal, AlertTriangle, Hash } from 'lucide-react';
+import { Bot, Cpu, HardDrive, Clock, ExternalLink, Terminal, AlertTriangle, Hash, FileCode2, GitBranch } from 'lucide-react';
 import { BotData } from '@/lib/types';
 import { StatusBadge } from './StatusBadge';
 import { BotControls } from './BotControls';
@@ -33,44 +33,44 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
   return (
     <div
       id={`bot-card-${bot.id}`}
-      className="group relative flex flex-col justify-between rounded-xl bg-[#111726]/90 border border-[#1E293B] p-5 shadow-lg shadow-black/20 transition-all duration-200 hover:border-purple-500/30 hover:bg-[#141C2E]"
+      className="group relative flex flex-col justify-between rounded-lg bg-[#121722] border border-[#1E273A] p-4.5 transition-all duration-150 hover:border-[#2E3B54] hover:bg-[#151C2A]"
     >
       {/* Top Header */}
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#182133] border border-[#232E44] text-indigo-400">
               <Bot className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <Link
                   href={`/bots/${bot.id}`}
-                  className="font-bold text-white hover:text-purple-400 transition-colors text-base flex items-center gap-1.5"
+                  className="font-bold text-white hover:text-indigo-400 transition-colors text-sm flex items-center gap-1.5"
                 >
                   {bot.name}
-                  <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" />
+                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" />
                 </Link>
               </div>
-              <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">
-                {bot.description || `Configured in ${bot.path}`}
+              <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5 font-mono">
+                {bot.path}
               </p>
             </div>
           </div>
 
-          <StatusBadge status={bot.status} size="md" />
+          <StatusBadge status={bot.status} size="sm" />
         </div>
 
         {/* Crash alert banner */}
         {bot.status === 'crashed' && bot.lastCrashReason && (
-          <div className="mt-3.5 rounded-lg bg-rose-500/10 border border-rose-500/20 p-2.5 flex items-start gap-2 text-xs text-rose-300">
+          <div className="mt-3 rounded-md bg-rose-500/10 border border-rose-500/20 p-2.5 flex items-start gap-2 text-xs text-rose-300">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
             <div className="overflow-hidden">
-              <span className="font-semibold text-rose-200">Crash Detected: </span>
+              <span className="font-semibold text-rose-200">Crash Alert: </span>
               <span className="font-mono text-[11px] break-all">{bot.lastCrashReason}</span>
               {bot.restartCount > 0 && (
-                <div className="mt-1 text-[11px] text-rose-400">
-                  Restarts attempted: <span className="font-semibold">{bot.restartCount}</span>
+                <div className="mt-1 text-[10px] text-rose-400 font-mono">
+                  Restarts triggered: {bot.restartCount}
                 </div>
               )}
             </div>
@@ -78,55 +78,55 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
         )}
 
         {/* Real-time telemetry metrics grid */}
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60 p-3">
+        <div className="mt-3.5 grid grid-cols-4 gap-2 rounded-md bg-[#0C1018] border border-[#1A2232] p-2.5">
           {/* CPU */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
-              <Cpu className="w-3 h-3 text-purple-400" />
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
+              <Cpu className="w-3 h-3 text-indigo-400" />
               <span>CPU</span>
             </div>
-            <span className="mt-0.5 text-sm font-semibold font-mono text-white">
+            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
               {bot.status === 'online' ? `${bot.cpuUsage}%` : '—'}
             </span>
           </div>
 
           {/* RAM */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
               <HardDrive className="w-3 h-3 text-sky-400" />
               <span>RAM</span>
             </div>
-            <span className="mt-0.5 text-sm font-semibold font-mono text-white">
-              {bot.status === 'online' ? `${bot.ramUsageMB} MB` : '—'}
+            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
+              {bot.status === 'online' ? `${bot.ramUsageMB}MB` : '—'}
             </span>
           </div>
 
           {/* Uptime */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
               <Clock className="w-3 h-3 text-emerald-400" />
               <span>Uptime</span>
             </div>
-            <span className="mt-0.5 text-sm font-semibold font-mono text-white">
+            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
               {bot.status === 'online' ? formatUptime(bot.uptime) : '—'}
             </span>
           </div>
 
           {/* PID */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400">
               <Hash className="w-3 h-3 text-amber-400" />
               <span>PID</span>
             </div>
-            <span className="mt-0.5 text-sm font-semibold font-mono text-white">
+            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
               {bot.status === 'online' && bot.pid ? bot.pid : '—'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Card Footer: Action Controls & Console Link */}
-      <div className="mt-4 pt-3.5 border-t border-[#1E293B] flex items-center justify-between gap-3 flex-wrap">
+      {/* Card Footer: Lifecycle Controls & Action Tabs Links */}
+      <div className="mt-3.5 pt-3 border-t border-[#1B2332] flex items-center justify-between gap-2 flex-wrap">
         <BotControls
           botId={bot.id}
           botName={bot.name}
@@ -135,21 +135,35 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
           onActionSuccess={() => onRefresh && onRefresh()}
         />
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Link
-            id={`link-console-${bot.id}`}
-            href={`/console?bot=${bot.id}`}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-800/40 hover:bg-slate-800 border border-slate-700/50 transition-colors"
+            id={`link-files-${bot.id}`}
+            href={`/bots/${bot.id}?tab=files`}
+            title="Manage bot files"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
           >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>Logs</span>
+            <FileCode2 className="w-3 h-3 text-indigo-400" />
+            <span>Files</span>
           </Link>
+
           <Link
-            id={`link-details-${bot.id}`}
-            href={`/bots/${bot.id}`}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-colors"
+            id={`link-github-${bot.id}`}
+            href={`/bots/${bot.id}?tab=github`}
+            title="GitHub sync"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
           >
-            <span>Manage</span>
+            <GitBranch className="w-3 h-3 text-purple-400" />
+            <span>Sync</span>
+          </Link>
+
+          <Link
+            id={`link-logs-${bot.id}`}
+            href={`/bots/${bot.id}?tab=logs`}
+            title="Live console stream"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+          >
+            <Terminal className="w-3 h-3 text-emerald-400" />
+            <span>Logs</span>
           </Link>
         </div>
       </div>

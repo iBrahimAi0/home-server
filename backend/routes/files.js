@@ -2,11 +2,11 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const { resolveSecurePath, validateEntityName } = require('../utils/pathSecurity');
+const { resolveSecurePath, validateEntityName, validateBotId } = require('../utils/pathSecurity');
 const { isSensitiveFile, assertNotSensitive } = require('../utils/sensitiveFiles');
-const { extractZipSafely, extractRarSafely, isUnrarAvailable } = require('../utils/archiveSecurity');
+const { extractZipSafely, extractRarSafely, isUnrarAvailable, inspectZipArchive } = require('../utils/archiveSecurity');
 
-// Temporary upload folder setup
+// Temporary upload directory
 const tempUploadDir = path.join(__dirname, '../uploads_temp');
 if (!fs.existsSync(tempUploadDir)) {
   fs.mkdirSync(tempUploadDir, { recursive: true });
@@ -16,7 +16,7 @@ if (!fs.existsSync(tempUploadDir)) {
 const upload = multer({
   dest: tempUploadDir,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB max single upload
+    fileSize: 50 * 1024 * 1024 // 50MB max upload
   }
 });
 
@@ -27,16 +27,16 @@ module.exports = function createFilesRouter(botManager) {
    * Helper to look up bot and retrieve its root path.
    */
   function getBotRoot(botId) {
-    const bot = botManager.bots.get(botId);
+    const cleanId = validateBotId(botId);
+    const bot = botManager.bots.get(cleanId);
     if (!bot) {
-      const err = new Error(`Bot "${botId}" does not exist in configuration.`);
+      const err = new Error(`Bot "${cleanId}" does not exist in configuration.`);
       err.status = 404;
       throw err;
     }
 
     const botRoot = bot.config.path;
     if (!fs.existsSync(botRoot)) {
-      // Create bot directory if missing so file manager can browse it
       fs.mkdirSync(botRoot, { recursive: true });
     }
     return botRoot;
@@ -46,21 +46,24 @@ module.exports = function createFilesRouter(botManager) {
    * GET /api/bots/:id/files
    * Lists files and folders in a relative directory.
    */
-  router.get('/', (req, res) => {
+  router.get('/', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const relativePath = (req.query.path || '').toString();
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
 
       if (!fs.existsSync(targetPath)) {
-        return res.status(404).json({ success: false, error: 'Directory not found.' });
+        const err = new Error('Directory not found.');
+        err.status = 404;
+        throw err;
       }
 
       const stat = fs.statSync(targetPath);
       if (!stat.isDirectory()) {
-        return res.status(400).json({ success: false, error: 'Requested path is a file, not a directory.' });
+        const err = new Error('Requested path is a file, not a directory.');
+        err.status = 400;
+        throw err;
       }
 
       const dirEntries = fs.readdirSync(targetPath, { withFileTypes: true });
@@ -82,7 +85,7 @@ module.exports = function createFilesRouter(botManager) {
           modifiedAt = entryStat.mtime.toISOString();
           isDir = entryStat.isDirectory();
         } catch {
-          // ignore stat errors for inaccessible entries
+          // ignore stat errors
         }
 
         const ext = isDir ? '' : path.extname(entry.name).toLowerCase();
@@ -101,7 +104,6 @@ module.exports = function createFilesRouter(botManager) {
         };
 
         if (isDir) {
-          // Calculate contained items count if practical
           try {
             const children = fs.readdirSync(entryAbsolute);
             item.itemsCount = children.length;
@@ -126,8 +128,7 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] List error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
@@ -135,34 +136,38 @@ module.exports = function createFilesRouter(botManager) {
    * GET /api/bots/:id/files/content
    * Reads raw text content of a file.
    */
-  router.get('/content', (req, res) => {
+  router.get('/content', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const relativePath = (req.query.path || '').toString();
 
       if (!relativePath) {
-        return res.status(400).json({ success: false, error: 'Path parameter is required.' });
+        const err = new Error('Path parameter is required.');
+        err.status = 400;
+        throw err;
       }
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
       assertNotSensitive(relativePath);
 
       if (!fs.existsSync(targetPath)) {
-        return res.status(404).json({ success: false, error: `File "${relativePath}" does not exist.` });
+        const err = new Error(`File "${relativePath}" does not exist.`);
+        err.status = 404;
+        throw err;
       }
 
       const stat = fs.statSync(targetPath);
       if (stat.isDirectory()) {
-        return res.status(400).json({ success: false, error: 'Cannot read text content of a directory.' });
+        const err = new Error('Cannot read text content of a directory.');
+        err.status = 400;
+        throw err;
       }
 
       // Max 4MB for in-browser editing
       if (stat.size > 4 * 1024 * 1024) {
-        return res.status(400).json({
-          success: false,
-          error: `File is too large to edit in browser (${(stat.size / 1024 / 1024).toFixed(1)} MB > 4 MB limit).`
-        });
+        const err = new Error(`File is too large to edit in browser (${(stat.size / 1024 / 1024).toFixed(1)} MB > 4 MB limit).`);
+        err.status = 400;
+        throw err;
       }
 
       const content = fs.readFileSync(targetPath, 'utf8');
@@ -178,8 +183,7 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] Read content error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
@@ -187,18 +191,21 @@ module.exports = function createFilesRouter(botManager) {
    * PUT /api/bots/:id/files/content
    * Saves text content to an existing or new file.
    */
-  router.put('/content', (req, res) => {
+  router.put('/content', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const { path: relativePath, content } = req.body;
 
       if (!relativePath || typeof relativePath !== 'string') {
-        return res.status(400).json({ success: false, error: 'Valid file path is required.' });
+        const err = new Error('Valid file path is required.');
+        err.status = 400;
+        throw err;
       }
 
       if (typeof content !== 'string') {
-        return res.status(400).json({ success: false, error: 'File content must be a string.' });
+        const err = new Error('File content must be a string.');
+        err.status = 400;
+        throw err;
       }
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
@@ -222,19 +229,17 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] Save content error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
   /**
    * POST /api/bots/:id/files/file
-   * Creates a new empty or initial file.
+   * Creates a new file.
    */
-  router.post('/file', (req, res) => {
+  router.post('/file', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const { path: parentRelative = '', name, initialContent = '' } = req.body;
 
       const cleanName = validateEntityName(name);
@@ -244,7 +249,9 @@ module.exports = function createFilesRouter(botManager) {
       const targetPath = resolveSecurePath(botRoot, targetRelative);
 
       if (fs.existsSync(targetPath)) {
-        return res.status(400).json({ success: false, error: `A file or folder named "${cleanName}" already exists.` });
+        const err = new Error(`A file or folder named "${cleanName}" already exists.`);
+        err.status = 400;
+        throw err;
       }
 
       const parentDir = path.dirname(targetPath);
@@ -266,8 +273,7 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] Create file error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
@@ -275,10 +281,9 @@ module.exports = function createFilesRouter(botManager) {
    * POST /api/bots/:id/files/folder
    * Creates a new directory.
    */
-  router.post('/folder', (req, res) => {
+  router.post('/folder', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const { path: parentRelative = '', name } = req.body;
 
       const cleanName = validateEntityName(name);
@@ -287,7 +292,9 @@ module.exports = function createFilesRouter(botManager) {
       const targetPath = resolveSecurePath(botRoot, targetRelative);
 
       if (fs.existsSync(targetPath)) {
-        return res.status(400).json({ success: false, error: `A folder named "${cleanName}" already exists.` });
+        const err = new Error(`A folder named "${cleanName}" already exists.`);
+        err.status = 400;
+        throw err;
       }
 
       fs.mkdirSync(targetPath, { recursive: true });
@@ -305,8 +312,7 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] Create folder error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
@@ -314,14 +320,15 @@ module.exports = function createFilesRouter(botManager) {
    * PATCH /api/bots/:id/files/rename
    * Renames a file or directory.
    */
-  router.patch('/rename', (req, res) => {
+  router.patch('/rename', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const { path: relativePath, newName } = req.body;
 
       if (!relativePath) {
-        return res.status(400).json({ success: false, error: 'Path is required.' });
+        const err = new Error('Path is required.');
+        err.status = 400;
+        throw err;
       }
 
       const cleanNewName = validateEntityName(newName);
@@ -329,19 +336,22 @@ module.exports = function createFilesRouter(botManager) {
 
       const oldTargetPath = resolveSecurePath(botRoot, relativePath);
       if (!fs.existsSync(oldTargetPath)) {
-        return res.status(404).json({ success: false, error: 'Source file or folder not found.' });
+        const err = new Error('Source file or folder not found.');
+        err.status = 404;
+        throw err;
       }
 
       const parentDir = path.dirname(oldTargetPath);
       const newTargetPath = path.join(parentDir, cleanNewName);
 
-      // Verify new target is also secure
       const newRelative = path.relative(botRoot, newTargetPath);
       assertNotSensitive(newRelative);
       resolveSecurePath(botRoot, newRelative);
 
       if (fs.existsSync(newTargetPath)) {
-        return res.status(400).json({ success: false, error: `Destination "${cleanNewName}" already exists.` });
+        const err = new Error(`Destination "${cleanNewName}" already exists.`);
+        err.status = 400;
+        throw err;
       }
 
       fs.renameSync(oldTargetPath, newTargetPath);
@@ -356,8 +366,7 @@ module.exports = function createFilesRouter(botManager) {
         }
       });
     } catch (err) {
-      console.error('[FilesAPI] Rename error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
@@ -365,21 +374,24 @@ module.exports = function createFilesRouter(botManager) {
    * DELETE /api/bots/:id/files
    * Deletes a file or directory.
    */
-  router.delete('/', (req, res) => {
+  router.delete('/', (req, res, next) => {
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const relativePath = (req.query.path || '').toString();
 
       if (!relativePath || relativePath.trim() === '' || relativePath === '.' || relativePath === '/') {
-        return res.status(400).json({ success: false, error: 'Cannot delete the bot root directory itself.' });
+        const err = new Error('Cannot delete the bot root directory itself.');
+        err.status = 400;
+        throw err;
       }
 
       assertNotSensitive(relativePath);
       const targetPath = resolveSecurePath(botRoot, relativePath);
 
       if (!fs.existsSync(targetPath)) {
-        return res.status(404).json({ success: false, error: 'Target file or folder not found.' });
+        const err = new Error('Target file or folder not found.');
+        err.status = 404;
+        throw err;
       }
 
       const stat = fs.statSync(targetPath);
@@ -394,20 +406,18 @@ module.exports = function createFilesRouter(botManager) {
         message: `Deleted "${path.basename(targetPath)}" successfully.`
       });
     } catch (err) {
-      console.error('[FilesAPI] Delete error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
   /**
    * POST /api/bots/:id/files/upload
-   * Uploads files directly into the specified directory.
+   * Uploads files directly into the specified directory with duplicate overwrite handling.
    */
-  router.post('/upload', upload.array('files', 20), async (req, res) => {
+  router.post('/upload', upload.array('files', 30), async (req, res, next) => {
     const uploadedTempFiles = req.files || [];
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const targetFolderRelative = (req.body.destinationPath || '').toString();
       const overwrite = req.body.overwrite === 'true' || req.body.overwrite === true;
 
@@ -426,12 +436,17 @@ module.exports = function createFilesRouter(botManager) {
         const finalPath = resolveSecurePath(botRoot, destinationFileRel);
 
         if (fs.existsSync(finalPath) && !overwrite) {
-          throw new Error(`File "${originalName}" already exists. Set overwrite to replace.`);
+          const err = new Error(`File "${originalName}" already exists. Please confirm replacement.`);
+          err.status = 409;
+          throw err;
         }
 
-        // Move from temp upload folder to destination
         fs.copyFileSync(file.path, finalPath);
-        fs.unlinkSync(file.path); // remove temp file
+        try {
+          fs.unlinkSync(file.path);
+        } catch {
+          // ignore
+        }
 
         savedFiles.push({
           name: originalName,
@@ -446,7 +461,6 @@ module.exports = function createFilesRouter(botManager) {
         data: savedFiles
       });
     } catch (err) {
-      // Clean up any remaining temp files on error
       for (const file of uploadedTempFiles) {
         try {
           if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
@@ -454,21 +468,65 @@ module.exports = function createFilesRouter(botManager) {
           // ignore
         }
       }
-      console.error('[FilesAPI] Upload error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
+    }
+  });
+
+  /**
+   * POST /api/bots/:id/files/inspect-archive
+   * Inspects an uploaded or existing archive (.zip) and returns file list and metadata for preview.
+   */
+  router.post('/inspect-archive', upload.single('archive'), async (req, res, next) => {
+    let tempPath = req.file ? req.file.path : null;
+    try {
+      const botRoot = getBotRoot(req.params.id);
+      const existingArchiveRel = (req.body.archivePath || '').toString();
+
+      let archiveToInspect = tempPath;
+      if (!tempPath) {
+        if (!existingArchiveRel) {
+          const err = new Error('No archive provided for inspection.');
+          err.status = 400;
+          throw err;
+        }
+        archiveToInspect = resolveSecurePath(botRoot, existingArchiveRel);
+      }
+
+      const result = await inspectZipArchive(archiveToInspect);
+
+      if (tempPath && fs.existsSync(tempPath)) {
+        try {
+          fs.unlinkSync(tempPath);
+        } catch {
+          // ignore
+        }
+      }
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (err) {
+      if (tempPath && fs.existsSync(tempPath)) {
+        try {
+          fs.unlinkSync(tempPath);
+        } catch {
+          // ignore
+        }
+      }
+      next(err);
     }
   });
 
   /**
    * POST /api/bots/:id/files/extract
-   * Extracts an uploaded archive (.zip or .rar) safely into destination folder.
+   * Extracts an uploaded or existing archive (.zip or .rar) safely into destination folder.
    */
-  router.post('/extract', upload.single('archive'), async (req, res) => {
+  router.post('/extract', upload.single('archive'), async (req, res, next) => {
     let tempPath = req.file ? req.file.path : null;
 
     try {
-      const botId = req.params.id;
-      const botRoot = getBotRoot(botId);
+      const botRoot = getBotRoot(req.params.id);
       const destinationFolderRel = (req.body.destinationPath || '').toString();
       const existingArchiveRel = (req.body.archivePath || '').toString();
 
@@ -479,7 +537,9 @@ module.exports = function createFilesRouter(botManager) {
 
       if (!tempPath) {
         if (!existingArchiveRel) {
-          return res.status(400).json({ success: false, error: 'No archive file provided.' });
+          const err = new Error('No archive file provided.');
+          err.status = 400;
+          throw err;
         }
         archiveToExtract = resolveSecurePath(botRoot, existingArchiveRel);
       }
@@ -492,15 +552,17 @@ module.exports = function createFilesRouter(botManager) {
       } else if (ext === '.rar') {
         result = await extractRarSafely(archiveToExtract, targetExtractDir);
       } else {
-        return res.status(400).json({
-          success: false,
-          error: `Unsupported archive format: "${ext}". Supported formats: .zip, .rar.`
-        });
+        const err = new Error(`Unsupported archive format: "${ext}". Supported formats: .zip, .rar.`);
+        err.status = 400;
+        throw err;
       }
 
-      // Cleanup temp uploaded archive if it was a direct upload
       if (tempPath && fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
+        try {
+          fs.unlinkSync(tempPath);
+        } catch {
+          // ignore
+        }
       }
 
       res.json({
@@ -516,16 +578,15 @@ module.exports = function createFilesRouter(botManager) {
           // ignore
         }
       }
-      console.error('[FilesAPI] Extract error:', err.message);
-      res.status(err.status || 400).json({ success: false, error: err.message });
+      next(err);
     }
   });
 
   /**
    * GET /api/bots/:id/files/unrar-status
-   * Checks if unrar binary is available on Ubuntu.
+   * Checks if unrar binary is available on host.
    */
-  router.get('/unrar-status', async (req, res) => {
+  router.get('/unrar-status', async (req, res, next) => {
     try {
       const available = await isUnrarAvailable();
       res.json({
@@ -534,7 +595,7 @@ module.exports = function createFilesRouter(botManager) {
         message: available ? 'unrar is installed' : 'unrar not found on host'
       });
     } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
+      next(err);
     }
   });
 

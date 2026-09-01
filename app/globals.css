@@ -1,1 +1,53 @@
 @import "tailwindcss";
+
+:root {
+  --background: #0b0d13;
+  --surface: #121722;
+  --surface-raised: #181f2e;
+  --surface-hover: #1e273a;
+  --border: #20293a;
+  --border-strong: #2c384e;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-subtle: rgba(99, 102, 241, 0.12);
+  --foreground: #f1f5f9;
+  --foreground-muted: #94a3b8;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom technical scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0e121a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #253046;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #384869;
+}
+
+/* Monospace font standard class */
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Focus styling */
+*:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 1px;
+}
