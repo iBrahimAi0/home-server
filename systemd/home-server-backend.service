@@ -1,0 +1,27 @@
+[Unit]
+Description=Home Server Backend Controller - BotManager & Express API
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ibra
+Group=ibra
+WorkingDirectory=/home/ibra/home-server/dashboard/backend
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+
+# Process handling and graceful shutdown
+KillMode=mixed
+TimeoutStopSec=20s
+LimitNOFILE=65536
+
+# Logging via journalctl
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=home-server-backend
+
+[Install]
+WantedBy=multi-user.target
