@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { 
   Bot, 
@@ -12,14 +12,12 @@ import {
   Folder, 
   Terminal as TerminalIcon, 
   AlertTriangle, 
-  CheckCircle2, 
-  RotateCw,
-  FolderOpen,
-  Code,
-  ShieldAlert,
-  Radio
+  Code, 
+  ShieldAlert, 
+  FileCode2, 
+  Layers
 } from 'lucide-react';
-import { BotData, LogEntry, SystemStatus as SystemStatusType } from '@/lib/types';
+import { BotData, SystemStatus as SystemStatusType } from '@/lib/types';
 import { api } from '@/lib/api';
 import { realtime } from '@/lib/socket';
 import { Sidebar } from '@/components/Sidebar';
@@ -27,6 +25,7 @@ import { Header } from '@/components/Header';
 import { StatusBadge } from '@/components/StatusBadge';
 import { BotControls } from '@/components/BotControls';
 import { Terminal } from '@/components/Terminal';
+import { FileManager } from '@/components/files/FileManager';
 
 function formatUptime(seconds: number): string {
   if (!seconds || seconds <= 0) return '0s';
@@ -43,10 +42,13 @@ function formatUptime(seconds: number): string {
   return parts.join(' ');
 }
 
+type TabType = 'overview' | 'files' | 'logs';
+
 export default function BotDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const botId = resolvedParams.id;
 
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [bot, setBot] = useState<BotData | null>(null);
   const [allBots, setAllBots] = useState<BotData[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(null);
@@ -146,7 +148,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
         <Header
           title={bot ? bot.name : 'Bot Details'}
-          subtitle={`Process inspector and logs for ${botId}`}
+          subtitle={`Process inspector, File Manager, and logs for ${botId}`}
           bots={allBots}
           systemStatus={systemStatus}
           onRefresh={handleRefresh}
@@ -169,29 +171,29 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
 
           {loading ? (
             <div className="space-y-4">
-              <div className="h-32 rounded-xl bg-[#111726]/60 border border-[#1E293B] animate-pulse" />
-              <div className="h-64 rounded-xl bg-[#111726]/60 border border-[#1E293B] animate-pulse" />
+              <div className="h-32 rounded-2xl bg-[#111726]/60 border border-[#1E293B] animate-pulse" />
+              <div className="h-64 rounded-2xl bg-[#111726]/60 border border-[#1E293B] animate-pulse" />
             </div>
           ) : error || !bot ? (
-            <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-8 text-center">
+            <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-8 text-center">
               <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
               <h3 className="text-base font-bold text-white">Bot Not Found</h3>
               <p className="text-xs text-rose-300 mt-1">{error || 'This bot is not declared in bots.json.'}</p>
               <Link
                 href="/bots"
-                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white"
+                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-purple-600 hover:bg-purple-500 text-white"
               >
                 Return to Bots List
               </Link>
             </div>
           ) : (
             <>
-              {/* Bot Header Card */}
+              {/* Bot Header Card with Controls */}
               <div
                 id="bot-detail-header-card"
-                className="rounded-xl bg-[#111726]/90 border border-[#1E293B] p-6 shadow-lg shadow-black/20"
+                className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-6 shadow-lg shadow-black/20"
               >
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#1E293B]">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                   <div className="flex items-start gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600/30 to-indigo-600/30 border border-purple-500/30 text-purple-400 shadow-md">
                       <Bot className="w-7 h-7" />
@@ -203,7 +205,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                         </h2>
                         <StatusBadge status={bot.status} size="lg" />
                         {bot.autoStart && (
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
                             Auto-Start on Boot
                           </span>
                         )}
@@ -214,11 +216,11 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                       </p>
 
                       <div className="mt-2 flex items-center gap-4 text-xs font-mono text-slate-400 flex-wrap">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5">
                           <Folder className="w-3.5 h-3.5 text-slate-500" />
                           <span className="text-slate-300">{bot.path}</span>
                         </span>
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1.5">
                           <Code className="w-3.5 h-3.5 text-slate-500" />
                           <span className="text-slate-300">{bot.command} {bot.args.join(' ')}</span>
                         </span>
@@ -252,88 +254,169 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                     </div>
                   </div>
                 )}
-
-                {/* 4 Detail Metric Cards */}
-                <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {/* Status & PID */}
-                  <div className="rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60 p-3.5">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
-                      <Hash className="w-4 h-4 text-purple-400" />
-                      <span>Process PID</span>
-                    </div>
-                    <p className="mt-1 text-base font-bold font-mono text-white">
-                      {bot.status === 'online' && bot.pid ? bot.pid : '—'}
-                    </p>
-                    <span className="text-[11px] text-slate-500 font-mono">
-                      {bot.status === 'online' ? 'Active child process' : 'Process stopped'}
-                    </span>
-                  </div>
-
-                  {/* CPU Usage */}
-                  <div className="rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60 p-3.5">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
-                      <Cpu className="w-4 h-4 text-sky-400" />
-                      <span>CPU Utilization</span>
-                    </div>
-                    <p className="mt-1 text-base font-bold font-mono text-white">
-                      {bot.status === 'online' ? `${bot.cpuUsage}%` : '0%'}
-                    </p>
-                    <span className="text-[11px] text-slate-500 font-mono">
-                      Measured from host
-                    </span>
-                  </div>
-
-                  {/* RAM Usage */}
-                  <div className="rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60 p-3.5">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
-                      <HardDrive className="w-4 h-4 text-emerald-400" />
-                      <span>Memory (RAM)</span>
-                    </div>
-                    <p className="mt-1 text-base font-bold font-mono text-white">
-                      {bot.status === 'online' ? `${bot.ramUsageMB} MB` : '0 MB'}
-                    </p>
-                    <span className="text-[11px] text-slate-500 font-mono">
-                      Resident Set Size (RSS)
-                    </span>
-                  </div>
-
-                  {/* Uptime */}
-                  <div className="rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60 p-3.5">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
-                      <Clock className="w-4 h-4 text-amber-400" />
-                      <span>Uptime</span>
-                    </div>
-                    <p className="mt-1 text-base font-bold font-mono text-white">
-                      {bot.status === 'online' ? formatUptime(bot.uptime) : '—'}
-                    </p>
-                    <span className="text-[11px] text-slate-500 font-mono">
-                      Started: {bot.startedAt ? new Date(bot.startedAt).toLocaleTimeString() : 'N/A'}
-                    </span>
-                  </div>
-                </div>
               </div>
 
-              {/* Bot Specific Terminal Console */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TerminalIcon className="w-5 h-5 text-purple-400" />
-                    <h3 className="font-bold text-white text-base">
-                      {bot.name} Live Logs
-                    </h3>
-                  </div>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Buffered in RAM: {bot.logsCount} lines
+              {/* Navigation Tabs (Overview, Files, Logs) */}
+              <div className="flex items-center gap-2 border-b border-[#1E293B] pb-2">
+                <button
+                  id="tab-btn-overview"
+                  onClick={() => setActiveTab('overview')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'overview'
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-[#111726]'
+                  }`}
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>Overview & Metrics</span>
+                </button>
+
+                <button
+                  id="tab-btn-files"
+                  onClick={() => setActiveTab('files')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'files'
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-[#111726]'
+                  }`}
+                >
+                  <FileCode2 className="w-4 h-4" />
+                  <span>File Manager</span>
+                </button>
+
+                <button
+                  id="tab-btn-logs"
+                  onClick={() => setActiveTab('logs')}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'logs'
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-inner'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-[#111726]'
+                  }`}
+                >
+                  <TerminalIcon className="w-4 h-4" />
+                  <span>Live Console</span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-300">
+                    {bot.logsCount}
                   </span>
-                </div>
-
-                <Terminal
-                  initialBotId={bot.id}
-                  bots={allBots}
-                  heightClass="h-[480px]"
-                  showBotSelector={false}
-                />
+                </button>
               </div>
+
+              {/* Tab 1: Overview */}
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  {/* 4 Detail Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    {/* Status & PID */}
+                    <div className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
+                        <Hash className="w-4 h-4 text-purple-400" />
+                        <span>Process PID</span>
+                      </div>
+                      <p className="mt-2 text-xl font-bold font-mono text-white">
+                        {bot.status === 'online' && bot.pid ? bot.pid : '—'}
+                      </p>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        {bot.status === 'online' ? `Process Group: -${bot.pid}` : 'Process stopped'}
+                      </span>
+                    </div>
+
+                    {/* CPU Usage */}
+                    <div className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
+                        <Cpu className="w-4 h-4 text-sky-400" />
+                        <span>CPU Utilization</span>
+                      </div>
+                      <p className="mt-2 text-xl font-bold font-mono text-white">
+                        {bot.status === 'online' ? `${bot.cpuUsage}%` : '0%'}
+                      </p>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Real host metric
+                      </span>
+                    </div>
+
+                    {/* RAM Usage */}
+                    <div className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
+                        <HardDrive className="w-4 h-4 text-emerald-400" />
+                        <span>Memory (RAM)</span>
+                      </div>
+                      <p className="mt-2 text-xl font-bold font-mono text-white">
+                        {bot.status === 'online' ? `${bot.ramUsageMB} MB` : '0 MB'}
+                      </p>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Resident Set Size (RSS)
+                      </span>
+                    </div>
+
+                    {/* Uptime */}
+                    <div className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-4">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 uppercase">
+                        <Clock className="w-4 h-4 text-amber-400" />
+                        <span>Uptime</span>
+                      </div>
+                      <p className="mt-2 text-xl font-bold font-mono text-white">
+                        {bot.status === 'online' ? formatUptime(bot.uptime) : '—'}
+                      </p>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        {bot.startedAt ? `Started: ${new Date(bot.startedAt).toLocaleTimeString()}` : 'Offline'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Environment & Security Details Card */}
+                  <div className="rounded-2xl bg-[#111726]/90 border border-[#1E293B] p-5 space-y-3">
+                    <h3 className="font-semibold text-white text-sm flex items-center gap-2">
+                      <Folder className="w-4 h-4 text-purple-400" />
+                      <span>Host Configuration & Paths</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+                      <div className="p-3 rounded-xl bg-[#0A0E17] border border-[#1E293B]">
+                        <span className="text-slate-400 block mb-1 text-[11px]">Working Directory:</span>
+                        <span className="text-slate-200 font-semibold truncate block">{bot.path}</span>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-[#0A0E17] border border-[#1E293B]">
+                        <span className="text-slate-400 block mb-1 text-[11px]">Spawn Command:</span>
+                        <span className="text-purple-300 font-semibold">{bot.command} {bot.args.join(' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2: File Manager */}
+              {activeTab === 'files' && (
+                <FileManager
+                  botId={bot.id}
+                  botName={bot.name}
+                  botPath={bot.path}
+                />
+              )}
+
+              {/* Tab 3: Live Logs Console */}
+              {activeTab === 'logs' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TerminalIcon className="w-5 h-5 text-purple-400" />
+                      <h3 className="font-bold text-white text-base">
+                        {bot.name} Console Stream
+                      </h3>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono">
+                      Buffered in RAM: {bot.logsCount} lines
+                    </span>
+                  </div>
+
+                  <Terminal
+                    initialBotId={bot.id}
+                    bots={allBots}
+                    heightClass="h-[520px]"
+                    showBotSelector={false}
+                  />
+                </div>
+              )}
             </>
           )}
         </main>

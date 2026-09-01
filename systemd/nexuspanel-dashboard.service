@@ -1,0 +1,30 @@
+[Unit]
+Description=NexusPanel Dashboard UI - Next.js Web Interface
+After=network.target network-online.target nexuspanel-backend.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ibra
+Group=ibra
+WorkingDirectory=/home/ibra/home-server/dashboard
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=NEXT_PUBLIC_API_URL=http://192.168.1.120:3001
+Environment=NEXT_PUBLIC_SOCKET_URL=http://192.168.1.120:3001
+
+# Process management
+KillMode=control-group
+TimeoutStopSec=15s
+LimitNOFILE=65536
+
+# Logging via journalctl
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexuspanel-dashboard
+
+[Install]
+WantedBy=multi-user.target

@@ -90,3 +90,29 @@ export interface ApiResponse<T> {
   message?: string;
   error?: string;
 }
+
+export interface BotFileItem {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  size: number;
+  modifiedAt: string;
+  extension: string;
+  isSensitive: boolean;
+  isArchive: boolean;
+  itemsCount?: number;
+}
+
+export interface BotFileContent {
+  path: string;
+  name: string;
+  size: number;
+  modifiedAt: string;
+  content: string;
+}
+
+export interface FileListResult {
+  currentPath: string;
+  items: BotFileItem[];
+}
+

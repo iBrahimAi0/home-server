@@ -95,7 +95,32 @@ class BotManager extends EventEmitter {
   }
 
   /**
-   * Initializes BotManager, starts auto-start bots, and begins telemetry polling.
+   * Cleans up any orphan processes left over from prior manual starts or crashes.
+   */
+  async cleanupOrphansForBot(bot) {
+    if (!bot || !bot.config || !bot.config.path) return;
+    const botDir = bot.config.path;
+
+    return new Promise((resolve) => {
+      // Find node/npm processes with working directory or command containing bot path
+      exec(`pgrep -f "${botDir}"`, { timeout: 2000 }, (err, stdout) => {
+        if (err || !stdout || !stdout.trim()) return resolve();
+        const pids = stdout.trim().split(/\s+/).map(p => parseInt(p, 10)).filter(p => !isNaN(p) && p !== process.pid);
+        
+        for (const p of pids) {
+          try {
+            process.kill(p, 'SIGTERM');
+          } catch {
+            // ignore
+          }
+        }
+        resolve();
+      });
+    });
+  }
+
+  /**
+   * Initializes BotManager, cleans stale processes, starts auto-start bots, and begins telemetry polling.
    */
   async init() {
     await this.loadConfig();
@@ -141,6 +166,35 @@ class BotManager extends EventEmitter {
     }
 
     this.emit('bot_log', logEntry);
+  }
+
+  /**
+   * Recursively finds all descendant child PIDs for a given parent PID.
+   */
+  getChildPids(parentPid) {
+    return new Promise((resolve) => {
+      if (!parentPid || parentPid <= 0) return resolve([]);
+
+      exec(`pgrep -P ${parentPid}`, { timeout: 1500 }, (err, stdout) => {
+        if (err || !stdout || !stdout.trim()) {
+          return resolve([]);
+        }
+
+        const directChildren = stdout.trim().split(/\s+/).map(p => parseInt(p, 10)).filter(p => !isNaN(p));
+        if (directChildren.length === 0) return resolve([]);
+
+        // Find grandchildren recursively
+        Promise.all(directChildren.map(childPid => this.getChildPids(childPid)))
+          .then(grandChildrenArrays => {
+            const allDescendants = [...directChildren];
+            for (const list of grandChildrenArrays) {
+              allDescendants.push(...list);
+            }
+            resolve(Array.from(new Set(allDescendants)));
+          })
+          .catch(() => resolve(directChildren));
+      });
+    });
   }
 
   /**
@@ -253,26 +307,56 @@ class BotManager extends EventEmitter {
   }
 
   /**
-   * Safely sends a signal to a process group on Linux, handling ESRCH gracefully.
+   * Safely sends a signal to a process group and specific PIDs, handling ESRCH gracefully.
    */
-  killProcessGroup(pid, signal = 'SIGTERM') {
-    if (!pid || pid <= 0) return;
-    try {
-      process.kill(-pid, signal);
-    } catch (err) {
-      if (err.code !== 'ESRCH') {
-        // Fallback: try killing single process
+  killTargetProcesses(mainPid, childPids = [], signal = 'SIGTERM') {
+    // 1. Kill process group
+    if (mainPid && mainPid > 0) {
+      try {
+        process.kill(-mainPid, signal);
+      } catch (err) {
+        if (err.code !== 'ESRCH') {
+          try {
+            process.kill(mainPid, signal);
+          } catch {
+            // already dead
+          }
+        }
+      }
+    }
+
+    // 2. Kill all child/descendant PIDs explicitly (e.g. node index.js spawned by npm)
+    for (const pid of childPids) {
+      if (pid && pid > 0 && pid !== process.pid) {
         try {
           process.kill(pid, signal);
         } catch {
-          // Process already terminated
+          // already dead
         }
       }
     }
   }
 
   /**
-   * Stops a running Discord bot process and its entire process group gracefully.
+   * Checks if any PID in a list is still running.
+   */
+  isAnyPidAlive(pids = []) {
+    for (const pid of pids) {
+      if (!pid || pid <= 0 || pid === process.pid) continue;
+      try {
+        process.kill(pid, 0);
+        return true; // Still alive
+      } catch (err) {
+        if (err.code === 'EPERM') return true; // Exists but no permission
+        // ESRCH means process does not exist
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Stops a running Discord bot process, its entire process group, and all child processes completely.
+   * Confirms termination before setting status to offline.
    */
   async stopBot(id) {
     const bot = this.bots.get(id);
@@ -290,7 +374,7 @@ class BotManager extends EventEmitter {
 
     const targetPid = bot.pid;
     const targetProcess = bot.process;
-    this.appendLog(id, 'SYSTEM', `Stopping bot "${bot.config.name}" and process group (PGID -${targetPid || 'N/A'})...`);
+    this.appendLog(id, 'SYSTEM', `Stopping bot "${bot.config.name}" (PID ${targetPid || 'N/A'})...`);
 
     if (!targetPid && !targetProcess) {
       bot.status = 'offline';
@@ -304,13 +388,18 @@ class BotManager extends EventEmitter {
       return { success: true, message: `Bot ${bot.config.name} stopped.` };
     }
 
+    // Discover all child/descendant PIDs (e.g. node index.js) before sending signals
+    const childPids = await this.getChildPids(targetPid);
+    const allPidsToKill = [targetPid, ...childPids].filter(Boolean);
+
     return new Promise((resolve) => {
       let resolved = false;
 
       const finishCleanup = (code, signal) => {
         if (resolved) return;
         resolved = true;
-        clearTimeout(killTimer);
+        clearInterval(pollInterval);
+        clearTimeout(forceKillTimer);
 
         bot.status = 'offline';
         bot.process = null;
@@ -322,39 +411,33 @@ class BotManager extends EventEmitter {
         bot.isStoppingManually = false;
 
         this.emitStatus(id);
-        this.appendLog(id, 'SYSTEM', `Process group terminated cleanly (Exit: ${code !== null && code !== undefined ? code : signal || 0}).`);
+        this.appendLog(id, 'SYSTEM', `Process and all descendants terminated cleanly (Exit: ${code !== null && code !== undefined ? code : signal || 0}).`);
         resolve({ success: true, message: `Bot ${bot.config.name} stopped successfully.` });
       };
 
-      const killTimer = setTimeout(() => {
-        if (!resolved && targetPid) {
-          this.appendLog(id, 'WARN', `Process group did not exit within 4s, sending SIGKILL to -${targetPid}.`);
-          this.killProcessGroup(targetPid, 'SIGKILL');
-          setTimeout(() => finishCleanup(null, 'SIGKILL'), 500);
+      // 1. Send SIGTERM to process group and all descendants
+      this.killTargetProcesses(targetPid, childPids, 'SIGTERM');
+
+      // 2. Poll every 250ms to confirm if processes have exited
+      const pollInterval = setInterval(() => {
+        if (!this.isAnyPidAlive(allPidsToKill)) {
+          finishCleanup(0, 'SIGTERM');
         }
-      }, 4000);
+      }, 250);
+
+      // 3. Fallback: If still alive after 3.5 seconds, send SIGKILL to all PIDs
+      const forceKillTimer = setTimeout(() => {
+        if (!resolved) {
+          this.appendLog(id, 'WARN', `Process group did not exit within 3.5s, sending SIGKILL to all child processes.`);
+          this.killTargetProcesses(targetPid, childPids, 'SIGKILL');
+          setTimeout(() => finishCleanup(null, 'SIGKILL'), 600);
+        }
+      }, 3500);
 
       if (targetProcess) {
         targetProcess.once('exit', (code, signal) => finishCleanup(code, signal));
         targetProcess.once('close', (code, signal) => finishCleanup(code, signal));
       }
-
-      // Send SIGTERM to entire process group
-      this.killProcessGroup(targetPid, 'SIGTERM');
-
-      // Fallback check if process is already gone
-      setTimeout(() => {
-        if (!resolved) {
-          try {
-            // Check if process still exists
-            process.kill(targetPid, 0);
-          } catch (err) {
-            if (err.code === 'ESRCH') {
-              finishCleanup(0, 'SIGTERM');
-            }
-          }
-        }
-      }, 1000);
     });
   }
 

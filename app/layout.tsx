@@ -2,16 +2,16 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Home Server Dashboard',
+  title: 'NexusPanel - Home Server Controller',
   description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
   openGraph: {
-    title: 'Home Server Dashboard',
+    title: 'NexusPanel - Home Server Controller',
     description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Home Server Dashboard',
+    title: 'NexusPanel - Home Server Controller',
     description: 'A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.',
   },
 };

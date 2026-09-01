@@ -10,12 +10,12 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronRight, 
-  Server, 
-  Activity,
-  Menu,
-  X,
+  Menu, 
+  X, 
   Radio
 } from 'lucide-react';
+import { BRANDING } from '@/lib/branding';
+import { NexusLogo } from '@/components/NexusLogo';
 
 interface SidebarProps {
   serverStatus?: 'online' | 'offline' | 'degraded';
@@ -96,17 +96,15 @@ export function Sidebar({ serverStatus = 'online', serverUptime }: SidebarProps)
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-3 overflow-hidden"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-md shadow-purple-500/20">
-                <Server className="w-5 h-5" />
-              </div>
+              <NexusLogo size={36} />
 
               {!collapsed && (
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-bold text-white text-sm tracking-tight truncate">
-                    Home Server
+                  <span className="font-bold text-white text-base tracking-tight truncate">
+                    Nexus<span className="text-purple-400">Panel</span>
                   </span>
-                  <span className="text-[11px] font-medium text-purple-400 truncate">
-                    Bot Controller
+                  <span className="text-[10px] font-medium text-slate-400 tracking-wide uppercase truncate">
+                    {BRANDING.subtitle}
                   </span>
                 </div>
               )}
@@ -186,7 +184,7 @@ export function Sidebar({ serverStatus = 'online', serverUptime }: SidebarProps)
               {!collapsed && (
                 <div className="flex flex-col">
                   <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Server Status
+                    Node Status
                   </span>
                   <span className="text-xs font-bold text-slate-200 mt-0.5">
                     Ubuntu Server
@@ -200,7 +198,7 @@ export function Sidebar({ serverStatus = 'online', serverUptime }: SidebarProps)
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                 </span>
                 {!collapsed && (
-                  <span className="text-xs font-bold text-emerald-400">Online</span>
+                  <span className="text-xs font-bold text-emerald-400">Active</span>
                 )}
               </div>
             </div>
@@ -209,7 +207,7 @@ export function Sidebar({ serverStatus = 'online', serverUptime }: SidebarProps)
               <div className="mt-2 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
                 <span className="flex items-center gap-1">
                   <Radio className="w-3 h-3 text-purple-400" />
-                  <span>Port 3000</span>
+                  <span>{BRANDING.version}</span>
                 </span>
                 <span className="font-mono text-slate-400">i5-3rd Gen</span>
               </div>
@@ -220,3 +218,4 @@ export function Sidebar({ serverStatus = 'online', serverUptime }: SidebarProps)
     </>
   );
 }
+

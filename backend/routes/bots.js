@@ -1,7 +1,11 @@
 const express = require('express');
+const createFilesRouter = require('./files');
 const router = express.Router();
 
 module.exports = function createBotsRouter(botManager) {
+  // Mount secure bot file management sub-router
+  router.use('/:id/files', createFilesRouter(botManager));
+
   /**
    * GET /api/bots
    * Returns all configured bots with current runtime metrics.

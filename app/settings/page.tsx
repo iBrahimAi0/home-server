@@ -105,28 +105,33 @@ export default function SettingsPage() {
 ]`;
 
   const systemdCommands = `# ============================================================
-# 1. Install & Enable Express Backend Service (:3001)
+# Method 1: Automatic 1-Step Setup Script
 # ============================================================
-sudo cp ~/home-server/dashboard/systemd/home-server-backend.service /etc/systemd/system/
+chmod +x ~/home-server/dashboard/systemd/install-services.sh
+~/home-server/dashboard/systemd/install-services.sh
+
+# ============================================================
+# Method 2: Manual systemd Service Registration
+# ============================================================
+# 1. Install & Enable NexusPanel Express Backend (:3001)
+sudo cp ~/home-server/dashboard/systemd/nexuspanel-backend.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable home-server-backend
-sudo systemctl start home-server-backend
+sudo systemctl enable nexuspanel-backend
+sudo systemctl start nexuspanel-backend
 
-# Check backend status & logs
-sudo systemctl status home-server-backend
-sudo journalctl -u home-server-backend -f
+# Check backend status & live logs
+sudo systemctl status nexuspanel-backend
+sudo journalctl -u nexuspanel-backend -f
 
-# ============================================================
-# 2. Install & Enable Next.js Frontend Dashboard Service (:3000)
-# ============================================================
-sudo cp ~/home-server/dashboard/systemd/home-server-dashboard.service /etc/systemd/system/
+# 2. Install & Enable NexusPanel Next.js Frontend (:3000)
+sudo cp ~/home-server/dashboard/systemd/nexuspanel-dashboard.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable home-server-dashboard
-sudo systemctl start home-server-dashboard
+sudo systemctl enable nexuspanel-dashboard
+sudo systemctl start nexuspanel-dashboard
 
-# Check dashboard status & logs
-sudo systemctl status home-server-dashboard
-sudo journalctl -u home-server-dashboard -f`;
+# Check dashboard status & live logs
+sudo systemctl status nexuspanel-dashboard
+sudo journalctl -u nexuspanel-dashboard -f`;
 
   return (
     <div className="flex min-h-screen bg-[#0A0E17]">
@@ -185,7 +190,7 @@ sudo journalctl -u home-server-dashboard -f`;
               <div className="p-3.5 rounded-lg bg-[#0A0E17]/60 border border-[#1E293B]/60">
                 <span className="text-xs font-semibold text-slate-400 uppercase">Server Local IP</span>
                 <p className="text-sm font-mono font-bold text-purple-400 mt-1">
-                  {systemStatus?.serverIp || '—'}
+                  {systemStatus?.serverIp || '192.168.1.120'}
                 </p>
               </div>
 

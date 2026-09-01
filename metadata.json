@@ -1,6 +1,8 @@
 {
-  "name": "Home Server Dashboard",
+  "name": "NexusPanel",
   "description": "A dark, professional server hosting management panel to monitor system metrics, control Discord bots, stream live console logs, and manage automated background services on Ubuntu home servers.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
