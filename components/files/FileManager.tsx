@@ -59,8 +59,8 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
     setError(null);
     try {
       const data = await api.listFiles(botId, path);
-      setItems(data.items || []);
-      setCurrentPath(data.currentPath || '');
+      setItems(data?.items || []);
+      setCurrentPath(data?.currentPath || '');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to load directory contents.';
       setError(msg);
@@ -77,8 +77,8 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
       try {
         const data = await api.listFiles(botId, currentPath);
         if (isMounted) {
-          setItems(data.items || []);
-          setCurrentPath(data.currentPath || '');
+          setItems(data?.items || []);
+          setCurrentPath(data?.currentPath || '');
         }
       } catch (err: unknown) {
         if (isMounted) {
@@ -102,7 +102,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
   };
 
   const handleGoUp = () => {
-    const parts = currentPath.split('/').filter(Boolean);
+    const parts = (currentPath || '').split('/').filter(Boolean);
     if (parts.length <= 1) {
       setCurrentPath('');
     } else {
@@ -123,15 +123,16 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 B';
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes || bytes <= 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const formatDate = (isoString: string) => {
+  const formatDate = (isoString?: string) => {
+    if (!isoString) return '—';
     try {
       const d = new Date(isoString);
       return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -151,7 +152,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
       return <Archive className="w-4 h-4 text-indigo-400 shrink-0" />;
     }
 
-    const ext = item.extension.toLowerCase();
+    const ext = (item.extension || '').toLowerCase();
     if (['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'].includes(ext)) {
       return <FileCode className="w-4 h-4 text-indigo-400 shrink-0" />;
     }
@@ -164,10 +165,10 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
     return <File className="w-4 h-4 text-slate-400 shrink-0" />;
   };
 
-  const pathSegments = currentPath.split('/').filter(Boolean);
+  const pathSegments = (currentPath || '').split('/').filter(Boolean);
 
-  const filteredItems = items.filter(i =>
-    i.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredItems = (items || []).filter(i =>
+    (i?.name || '').toLowerCase().includes((searchQuery || '').toLowerCase())
   );
 
   return (

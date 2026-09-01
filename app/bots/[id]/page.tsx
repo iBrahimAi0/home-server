@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, Suspense, use } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { 
@@ -16,8 +16,7 @@ import {
   Code, 
   FileCode2, 
   Layers,
-  GitBranch,
-  RotateCw
+  GitBranch
 } from 'lucide-react';
 import { BotData, SystemStatus as SystemStatusType } from '@/lib/types';
 import { api } from '@/lib/api';
@@ -30,7 +29,7 @@ import { Terminal } from '@/components/Terminal';
 import { FileManager } from '@/components/files/FileManager';
 import { GitHubSync } from '@/components/git/GitHubSync';
 
-function formatUptime(seconds: number): string {
+function formatUptime(seconds?: number): string {
   if (!seconds || seconds <= 0) return '0s';
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
@@ -47,9 +46,7 @@ function formatUptime(seconds: number): string {
 
 type TabType = 'overview' | 'files' | 'logs' | 'github';
 
-export default function BotDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const botId = resolvedParams.id;
+function BotDetailsContent({ botId }: { botId: string }) {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get('tab') as TabType) || 'overview';
 
@@ -80,7 +77,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
           setBot(botData);
           setError(null);
         }
-        setAllBots(botsList);
+        setAllBots(botsList || []);
         if (sys) setSystemStatus(sys);
       } catch (err: unknown) {
         if (!isMounted) return;
@@ -99,7 +96,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
     realtime.connect();
 
     const unsubStatus = realtime.on<BotData>('bot_status_changed', (updatedBot) => {
-      if (!isMounted) return;
+      if (!isMounted || !updatedBot) return;
       if (updatedBot.id === botId) {
         setBot(updatedBot);
       }
@@ -107,7 +104,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
     });
 
     const unsubMetrics = realtime.on<BotData[]>('bots_metrics_update', (updatedBots) => {
-      if (!isMounted) return;
+      if (!isMounted || !updatedBots) return;
       setAllBots(updatedBots);
       const target = updatedBots.find((b) => b.id === botId);
       if (target) {
@@ -116,7 +113,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
     });
 
     const unsubSys = realtime.on<SystemStatusType>('system_metrics_update', (status) => {
-      if (isMounted) setSystemStatus(status);
+      if (isMounted && status) setSystemStatus(status);
     });
 
     return () => {
@@ -136,7 +133,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
         api.getSystemStatus().catch(() => null),
       ]);
       if (botData) setBot(botData);
-      setAllBots(botsList);
+      setAllBots(botsList || []);
       if (sys) setSystemStatus(sys);
     } finally {
       setRefreshing(false);
@@ -223,11 +220,11 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                       <div className="mt-2 flex items-center gap-4 text-xs font-mono text-slate-400 flex-wrap">
                         <span className="flex items-center gap-1.5">
                           <Folder className="w-3.5 h-3.5 text-slate-500" />
-                          <span className="text-slate-300">{bot.path}</span>
+                          <span className="text-slate-300">{bot.path || `/home/ibra/home-server/bots/${bot.id}`}</span>
                         </span>
                         <span className="flex items-center gap-1.5">
                           <Code className="w-3.5 h-3.5 text-slate-500" />
-                          <span className="text-indigo-300">{bot.command} {bot.args.join(' ')}</span>
+                          <span className="text-indigo-300">{bot.command || 'npm'} {(bot.args || []).join(' ')}</span>
                         </span>
                       </div>
                     </div>
@@ -253,7 +250,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                       <h4 className="font-bold text-rose-200 text-xs">Process Crash Detected</h4>
                       <p className="mt-1 text-rose-300 text-[11px] break-all">{bot.lastCrashReason}</p>
                       <div className="mt-1.5 flex items-center gap-3 text-[10px] text-rose-400">
-                        <span>Restarts Triggered: <strong>{bot.restartCount}</strong></span>
+                        <span>Restarts Triggered: <strong>{bot.restartCount || 0}</strong></span>
                         <span>Auto-Restart Protection: <strong>5 per 60s</strong></span>
                       </div>
                     </div>
@@ -301,7 +298,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                   <TerminalIcon className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Logs</span>
                   <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-300">
-                    {bot.logsCount}
+                    {bot.logsCount || 0}
                   </span>
                 </button>
 
@@ -345,7 +342,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                         <span>CPU</span>
                       </div>
                       <p className="mt-1 text-lg font-bold font-mono text-white">
-                        {bot.status === 'online' ? `${bot.cpuUsage}%` : '0%'}
+                        {bot.status === 'online' ? `${bot.cpuUsage || 0}%` : '0%'}
                       </p>
                       <span className="text-[10px] text-slate-500 font-mono">
                         ps telemetry
@@ -359,7 +356,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                         <span>Memory (RAM)</span>
                       </div>
                       <p className="mt-1 text-lg font-bold font-mono text-white">
-                        {bot.status === 'online' ? `${bot.ramUsageMB} MB` : '0 MB'}
+                        {bot.status === 'online' ? `${bot.ramUsageMB || 0} MB` : '0 MB'}
                       </p>
                       <span className="text-[10px] text-slate-500 font-mono">
                         Resident Set Size
@@ -391,12 +388,12 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs font-mono">
                       <div className="p-2.5 rounded-md bg-[#0C1018] border border-[#1A2232]">
                         <span className="text-slate-400 block mb-0.5 text-[10px] uppercase">Working Directory:</span>
-                        <span className="text-slate-200 font-semibold truncate block">{bot.path}</span>
+                        <span className="text-slate-200 font-semibold truncate block">{bot.path || '—'}</span>
                       </div>
 
                       <div className="p-2.5 rounded-md bg-[#0C1018] border border-[#1A2232]">
                         <span className="text-slate-400 block mb-0.5 text-[10px] uppercase">Spawn Command:</span>
-                        <span className="text-indigo-300 font-semibold">{bot.command} {bot.args.join(' ')}</span>
+                        <span className="text-indigo-300 font-semibold">{bot.command || 'npm'} {(bot.args || []).join(' ')}</span>
                       </div>
                     </div>
                   </div>
@@ -408,7 +405,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                 <FileManager
                   botId={bot.id}
                   botName={bot.name}
-                  botPath={bot.path}
+                  botPath={bot.path || `/home/ibra/home-server/bots/${bot.id}`}
                 />
               )}
 
@@ -423,7 +420,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                       </h3>
                     </div>
                     <span className="text-[11px] text-slate-400 font-mono">
-                      In-Memory Log Buffer: {bot.logsCount} lines
+                      In-Memory Log Buffer: {bot.logsCount || 0} lines
                     </span>
                   </div>
 
@@ -441,7 +438,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                 <GitHubSync
                   botId={bot.id}
                   botName={bot.name}
-                  botPath={bot.path}
+                  botPath={bot.path || `/home/ibra/home-server/bots/${bot.id}`}
                 />
               )}
             </>
@@ -449,5 +446,18 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
         </main>
       </div>
     </div>
+  );
+}
+
+export default function BotDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen bg-[#0B0D13] items-center justify-center text-slate-400 font-mono text-xs">
+        Loading bot details...
+      </div>
+    }>
+      <BotDetailsContent botId={resolvedParams.id} />
+    </Suspense>
   );
 }
