@@ -54,9 +54,7 @@ Express Backend Controller (:3001)
 ```text
 home-server/
 ├── bots/
-│   ├── bot-1/          # Discord Bot 1 (Role Bot)
-│   ├── bot-2/          # Bot 2
-│   └── bot-3/          # Bot 3
+│   └── bot-1/          # Role Bot
 │
 ├── backend/
 │   ├── server.js               # Express + Socket.IO server (Port 3001)
@@ -148,3 +146,25 @@ AUTH_TOKEN=your-random-secure-secret-token
 ```
 
 When configured, all requests require an `Authorization: Bearer <token>` or `x-api-key: <token>` header.
+
+---
+
+## 🌍 Accessing the Dashboard From Outside Your Home Network
+
+**Recommended: Tailscale.** This panel can spawn processes, read/write bot
+files, and pull from GitHub — don't expose it directly to the public
+internet via port forwarding. Tailscale creates a private encrypted mesh
+network between your devices; the dashboard is never reachable by anyone
+outside it, and you don't open any ports on your router.
+
+1. Install Tailscale on the Ubuntu server: `curl -fsSL https://tailscale.com/install.sh | sh` then `sudo tailscale up`.
+2. Install the Tailscale app on your phone/laptop and sign in with the same account.
+3. Note the server's Tailscale IP or MagicDNS name (`tailscale ip -4`, or `home-server.your-tailnet.ts.net`).
+4. On the server, edit `backend/.env` and add that address to `CORS_ORIGIN`, e.g.:
+   `CORS_ORIGIN=http://192.168.1.120:3000,http://home-server.your-tailnet.ts.net:3000`
+5. From anywhere, open `http://<tailscale-ip-or-name>:3000` — same as being on your home LAN.
+6. Also set `AUTH_TOKEN` in `backend/.env` (see above) as a second layer of protection.
+
+**Alternative: Cloudflare Tunnel**, if you want a normal public URL you can open from any browser without installing an app on your device. Run `cloudflared tunnel` on the server to expose `:3000` under a subdomain of your own domain, and turn on **Cloudflare Access** in front of it so only your email/account can log in before the dashboard even loads. More setup than Tailscale, but no client install needed on the accessing device.
+
+**Avoid:** plain router port-forwarding to `:3000`/`:3001` with just `AUTH_TOKEN`. It works, but it puts a panel with file-system and process-spawn access directly on the public internet behind a single password with no login-attempt lockout.

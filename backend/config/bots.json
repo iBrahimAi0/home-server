@@ -8,25 +8,5 @@
     "args": ["start"],
     "autoStart": true,
     "env": {}
-  },
-  {
-    "id": "bot-2",
-    "name": "Games Bot",
-    "description": "Discord minigames, trivia, and leaderboard tracking bot",
-    "path": "/home/ibra/home-server/bots/bot-2",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": false,
-    "env": {}
-  },
-  {
-    "id": "bot-3",
-    "name": "Music & Utility Bot",
-    "description": "Discord audio streamer and moderation utility tools",
-    "path": "/home/ibra/home-server/bots/bot-3",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": false,
-    "env": {}
   }
 ]
