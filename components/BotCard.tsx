@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Bot, Cpu, HardDrive, Clock, ExternalLink, Terminal, AlertTriangle, Hash, FileCode2, GitBranch } from 'lucide-react';
+import { Bot, Cpu, HardDrive, Clock, ExternalLink, Terminal, AlertTriangle, Hash, FileCode2, GitBranch, Trash2 } from 'lucide-react';
 import { BotData } from '@/lib/types';
 import { StatusBadge } from './StatusBadge';
 import { BotControls } from './BotControls';
+import { DeleteBotConfirmModal } from './bots/DeleteBotConfirmModal';
 
 interface BotCardProps {
   bot: BotData;
@@ -30,6 +31,8 @@ function formatUptime(seconds: number): string {
 }
 
 export function BotCard({ bot, onRefresh }: BotCardProps) {
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
   return (
     <div
       id={`bot-card-${bot.id}`}
@@ -165,8 +168,26 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             <Terminal className="w-3 h-3 text-emerald-400" />
             <span>Logs</span>
           </Link>
+
+          <button
+            id={`btn-delete-bot-${bot.id}`}
+            onClick={() => setIsDeleteOpen(true)}
+            title="Remove bot from dashboard"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-rose-400 bg-[#182030] hover:bg-rose-500/10 border border-[#232E44] hover:border-rose-500/30 transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
         </div>
       </div>
+
+      {/* Delete Bot Confirmation Modal */}
+      <DeleteBotConfirmModal
+        botId={bot.id}
+        botName={bot.name}
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onDeleted={() => onRefresh && onRefresh()}
+      />
     </div>
   );
 }

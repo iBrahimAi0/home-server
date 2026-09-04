@@ -29,6 +29,7 @@ import { CodeEditorModal } from './CodeEditorModal';
 import { CreateModal } from './CreateModal';
 import { RenameModal } from './RenameModal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { BulkDeleteConfirmModal } from './BulkDeleteConfirmModal';
 import { UploadModal } from './UploadModal';
 import { ExtractModal } from './ExtractModal';
 
@@ -46,13 +47,17 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal states
-  const [editorFile, setEditorFile] = useState<{ path: string; name: string } | null>(null);
+  const [editorFile, setEditorFile] = useState<{ path: string; name: string; isSensitive?: boolean } | null>(null);
   const [createType, setCreateType] = useState<'file' | 'folder' | null>(null);
   const [renameTarget, setRenameTarget] = useState<BotFileItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<BotFileItem | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [extractTarget, setExtractTarget] = useState<{ path: string; name: string } | null>(null);
   const [isDirectExtractOpen, setIsDirectExtractOpen] = useState(false);
+
+  // Multi-select state for bulk delete
+  const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   const fetchFiles = useCallback(async (path: string) => {
     setIsLoading(true);
@@ -99,6 +104,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
 
   const handleNavigate = (path: string) => {
     setCurrentPath(path);
+    setSelectedPaths(new Set());
   };
 
   const handleGoUp = () => {
@@ -114,13 +120,32 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
   const handleItemClick = (item: BotFileItem) => {
     if (item.isDirectory) {
       handleNavigate(item.path);
-    } else if (item.isSensitive) {
-      setError(`Access denied: "${item.name}" is a protected security credential or configuration file.`);
     } else if (item.isArchive) {
       setExtractTarget({ path: item.path, name: item.name });
     } else {
-      setEditorFile({ path: item.path, name: item.name });
+      setEditorFile({ path: item.path, name: item.name, isSensitive: item.isSensitive });
     }
+  };
+
+  const toggleSelected = (path: string) => {
+    setSelectedPaths((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelectedPaths((prev) => {
+      if (prev.size === filteredItems.length && filteredItems.length > 0) {
+        return new Set();
+      }
+      return new Set(filteredItems.map((i) => i.path));
+    });
   };
 
   const formatFileSize = (bytes?: number) => {
@@ -221,6 +246,17 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
 
         {/* Action Buttons Toolbar */}
         <div className="flex items-center gap-2 flex-wrap">
+          {selectedPaths.size > 0 && (
+            <button
+              id="btn-file-delete-selected"
+              onClick={() => setIsBulkDeleteOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-rose-600 hover:bg-rose-500 text-white text-xs font-medium transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Selected ({selectedPaths.size})</span>
+            </button>
+          )}
+
           <button
             id="btn-file-new-file"
             onClick={() => setCreateType('file')}
@@ -346,6 +382,15 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-[#1E273A] bg-[#0E131E] text-slate-400 font-semibold font-mono select-none">
+                  <th className="py-2.5 pl-3.5 pr-1.5 w-8">
+                    <input
+                      id="checkbox-select-all"
+                      type="checkbox"
+                      checked={filteredItems.length > 0 && selectedPaths.size === filteredItems.length}
+                      onChange={toggleSelectAll}
+                      className="w-3.5 h-3.5 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                    />
+                  </th>
                   <th className="py-2.5 px-3.5">Name</th>
                   <th className="py-2.5 px-3.5 w-28">Size</th>
                   <th className="py-2.5 px-3.5 w-44 hidden md:table-cell">Last Modified</th>
@@ -359,8 +404,17 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                     onClick={() => handleItemClick(item)}
                     className={`group hover:bg-[#161D2B] transition-colors cursor-pointer ${
                       item.isSensitive ? 'bg-rose-950/10' : ''
-                    }`}
+                    } ${selectedPaths.has(item.path) ? 'bg-indigo-500/5' : ''}`}
                   >
+                    {/* Select Checkbox Column */}
+                    <td className="py-2.5 pl-3.5 pr-1.5" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedPaths.has(item.path)}
+                        onChange={() => toggleSelected(item.path)}
+                        className="w-3.5 h-3.5 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                      />
+                    </td>
                     {/* Name Column */}
                     <td className="py-2.5 px-3.5">
                       <div className="flex items-center gap-2">
@@ -409,9 +463,9 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                           </button>
                         )}
 
-                        {!item.isDirectory && !item.isSensitive && (
+                        {!item.isDirectory && (
                           <button
-                            onClick={() => setEditorFile({ path: item.path, name: item.name })}
+                            onClick={() => setEditorFile({ path: item.path, name: item.name, isSensitive: item.isSensitive })}
                             title="Edit file"
                             className="p-1 rounded hover:bg-[#1E273A] text-slate-400 hover:text-white transition-colors cursor-pointer"
                           >
@@ -490,6 +544,20 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           isOpen={!!deleteTarget}
           onClose={() => setDeleteTarget(null)}
           onDeleted={() => fetchFiles(currentPath)}
+        />
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {isBulkDeleteOpen && (
+        <BulkDeleteConfirmModal
+          botId={botId}
+          items={filteredItems.filter((i) => selectedPaths.has(i.path))}
+          isOpen={isBulkDeleteOpen}
+          onClose={() => setIsBulkDeleteOpen(false)}
+          onDeleted={() => {
+            setSelectedPaths(new Set());
+            fetchFiles(currentPath);
+          }}
         />
       )}
 

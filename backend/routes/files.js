@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const { resolveSecurePath, validateEntityName, validateBotId } = require('../utils/pathSecurity');
-const { isSensitiveFile, assertNotSensitive } = require('../utils/sensitiveFiles');
+const { isSensitiveFile } = require('../utils/sensitiveFiles');
 const { extractZipSafely, extractRarSafely, isUnrarAvailable, inspectZipArchive } = require('../utils/archiveSecurity');
 
 // Temporary upload directory
@@ -148,7 +148,6 @@ module.exports = function createFilesRouter(botManager) {
       }
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
-      assertNotSensitive(relativePath);
 
       if (!fs.existsSync(targetPath)) {
         const err = new Error(`File "${relativePath}" does not exist.`);
@@ -209,7 +208,6 @@ module.exports = function createFilesRouter(botManager) {
       }
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
-      assertNotSensitive(relativePath);
 
       const parentDir = path.dirname(targetPath);
       if (!fs.existsSync(parentDir)) {
@@ -245,7 +243,6 @@ module.exports = function createFilesRouter(botManager) {
       const cleanName = validateEntityName(name);
       const targetRelative = path.posix.join(parentRelative.replace(/\\/g, '/'), cleanName);
 
-      assertNotSensitive(targetRelative);
       const targetPath = resolveSecurePath(botRoot, targetRelative);
 
       if (fs.existsSync(targetPath)) {
@@ -332,7 +329,6 @@ module.exports = function createFilesRouter(botManager) {
       }
 
       const cleanNewName = validateEntityName(newName);
-      assertNotSensitive(relativePath);
 
       const oldTargetPath = resolveSecurePath(botRoot, relativePath);
       if (!fs.existsSync(oldTargetPath)) {
@@ -345,7 +341,6 @@ module.exports = function createFilesRouter(botManager) {
       const newTargetPath = path.join(parentDir, cleanNewName);
 
       const newRelative = path.relative(botRoot, newTargetPath);
-      assertNotSensitive(newRelative);
       resolveSecurePath(botRoot, newRelative);
 
       if (fs.existsSync(newTargetPath)) {
@@ -385,7 +380,6 @@ module.exports = function createFilesRouter(botManager) {
         throw err;
       }
 
-      assertNotSensitive(relativePath);
       const targetPath = resolveSecurePath(botRoot, relativePath);
 
       if (!fs.existsSync(targetPath)) {
@@ -404,6 +398,65 @@ module.exports = function createFilesRouter(botManager) {
       res.json({
         success: true,
         message: `Deleted "${path.basename(targetPath)}" successfully.`
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  /**
+   * POST /api/bots/:id/files/batch-delete
+   * Deletes multiple files and/or directories in a single request.
+   * Body: { paths: string[] }
+   */
+  router.post('/batch-delete', (req, res, next) => {
+    try {
+      const botRoot = getBotRoot(req.params.id);
+      const { paths } = req.body || {};
+
+      if (!Array.isArray(paths) || paths.length === 0) {
+        const err = new Error('At least one file path is required.');
+        err.status = 400;
+        throw err;
+      }
+
+      const results = [];
+
+      for (const rawPath of paths) {
+        const relativePath = (rawPath || '').toString();
+        try {
+          if (!relativePath || relativePath.trim() === '' || relativePath === '.' || relativePath === '/') {
+            throw new Error('Cannot delete the bot root directory itself.');
+          }
+
+          const targetPath = resolveSecurePath(botRoot, relativePath);
+
+          if (!fs.existsSync(targetPath)) {
+            throw new Error('Target file or folder not found.');
+          }
+
+          const stat = fs.statSync(targetPath);
+          if (stat.isDirectory()) {
+            fs.rmSync(targetPath, { recursive: true, force: true });
+          } else {
+            fs.unlinkSync(targetPath);
+          }
+
+          results.push({ path: relativePath, success: true });
+        } catch (itemErr) {
+          results.push({ path: relativePath, success: false, error: itemErr.message });
+        }
+      }
+
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.length - successCount;
+
+      res.json({
+        success: failCount === 0,
+        message: failCount === 0
+          ? `Deleted ${successCount} item(s) successfully.`
+          : `Deleted ${successCount} item(s), ${failCount} failed.`,
+        data: { results }
       });
     } catch (err) {
       next(err);
@@ -432,7 +485,6 @@ module.exports = function createFilesRouter(botManager) {
         const originalName = validateEntityName(file.originalname);
         const destinationFileRel = path.posix.join(targetFolderRelative.replace(/\\/g, '/'), originalName);
 
-        assertNotSensitive(destinationFileRel);
         const finalPath = resolveSecurePath(botRoot, destinationFileRel);
 
         if (fs.existsSync(finalPath) && !overwrite) {

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { 
   Bot, 
   Search, 
@@ -18,6 +17,7 @@ import { realtime } from '@/lib/socket';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { BotCard } from '@/components/BotCard';
+import { CreateBotModal } from '@/components/bots/CreateBotModal';
 
 export default function BotsPage() {
   const [bots, setBots] = useState<BotData[]>([]);
@@ -27,6 +27,7 @@ export default function BotsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isCreateBotOpen, setIsCreateBotOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -286,13 +287,14 @@ export default function BotsPage() {
                 <span>Stop All</span>
               </button>
 
-              <Link
-                href="/settings"
+              <button
+                id="btn-add-bot"
+                onClick={() => setIsCreateBotOpen(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Bot</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -310,7 +312,7 @@ export default function BotsPage() {
               <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
                 {searchQuery || statusFilter !== 'all'
                   ? 'No bots match your current filter parameters.'
-                  : 'Configure bots in backend/config/bots.json.'}
+                  : 'Click "Add Bot" above to create your first bot directly from the dashboard.'}
               </p>
             </div>
           ) : (
@@ -336,6 +338,16 @@ export default function BotsPage() {
           </div>
         </main>
       </div>
+
+      {/* Create Bot Modal */}
+      <CreateBotModal
+        isOpen={isCreateBotOpen}
+        onClose={() => setIsCreateBotOpen(false)}
+        onCreated={() => {
+          showNotification('success', 'Bot created successfully.');
+          handleRefresh();
+        }}
+      />
     </div>
   );
 }

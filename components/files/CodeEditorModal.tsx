@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Save, FileCode, Check, AlertCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Save, FileCode, Check, AlertCircle, Loader2, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { api } from '@/lib/api';
 import { BotFileContent } from '@/lib/types';
 
 interface CodeEditorModalProps {
   botId: string;
-  file: { path: string; name: string } | null;
+  file: { path: string; name: string; isSensitive?: boolean } | null;
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
@@ -191,6 +191,14 @@ export function CodeEditorModal({ botId, file, isOpen, onClose, onSaved }: CodeE
           <div className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 border-b border-rose-500/20 text-rose-400 text-xs font-medium">
             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {/* Sensitive file warning banner (informational only — editing is allowed) */}
+        {file.isSensitive && !error && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-xs font-medium">
+            <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+            <span>This is a protected credential/config file. Double-check changes before saving — secrets in here are used by your bot at runtime.</span>
           </div>
         )}
 

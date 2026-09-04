@@ -42,20 +42,29 @@ export function Terminal({
 
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Keep the latest bot list available to the log loader without making it a
+  // dependency of the fetch effect below — `bots` is replaced with a new array
+  // reference every ~2.5s via the `bots_metrics_update` socket event, and using
+  // it as a dependency was causing the terminal to re-fetch and reset its log
+  // view (losing scroll position and any just-arrived live entries) every tick.
+  const botsRef = useRef(bots);
+  useEffect(() => {
+    botsRef.current = bots;
+  }, [bots]);
 
   if (initialBotId !== prevInitialBotId) {
     setPrevInitialBotId(initialBotId);
     setSelectedBotId(initialBotId);
   }
 
-  // Load logs on mount / selection change
+  // Load logs on mount / selection change only (NOT on every bots metrics tick)
   useEffect(() => {
     let isMounted = true;
 
     async function loadLogs() {
       try {
         if (selectedBotId === 'all') {
-          let botList = bots;
+          let botList = botsRef.current;
           if (!botList || botList.length === 0) {
             botList = await api.getBots().catch(() => []);
           }
@@ -89,7 +98,7 @@ export function Terminal({
     return () => {
       isMounted = false;
     };
-  }, [selectedBotId, bots]);
+  }, [selectedBotId]);
 
   // Subscribe to live log events via Socket.IO
   useEffect(() => {

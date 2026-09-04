@@ -95,6 +95,153 @@ class BotManager extends EventEmitter {
   }
 
   /**
+   * Persists the current in-memory bot configurations back to the config JSON file on disk.
+   */
+  persistConfig() {
+    try {
+      const configs = Array.from(this.bots.values()).map(bot => bot.config);
+      fs.mkdirSync(path.dirname(this.configPath), { recursive: true });
+      fs.writeFileSync(this.configPath, JSON.stringify(configs, null, 2), 'utf8');
+    } catch (err) {
+      console.error('[BotManager] Failed to persist bots config:', err.message);
+      throw new Error(`Failed to save bot configuration to disk: ${err.message}`);
+    }
+  }
+
+  /**
+   * Creates a brand new bot entry (from the website UI), persists it to bots.json,
+   * and registers it in memory so it is immediately manageable.
+   */
+  addBot(conf) {
+    if (!conf || !conf.id) {
+      const err = new Error('Bot ID is required.');
+      err.status = 400;
+      throw err;
+    }
+
+    if (this.bots.has(conf.id)) {
+      const err = new Error(`A bot with ID "${conf.id}" already exists.`);
+      err.status = 400;
+      throw err;
+    }
+
+    const cleanConfig = {
+      id: conf.id,
+      name: conf.name || conf.id,
+      description: conf.description || '',
+      path: conf.path,
+      command: conf.command || 'npm',
+      args: Array.isArray(conf.args) ? conf.args : ['start'],
+      autoStart: !!conf.autoStart,
+      env: (conf.env && typeof conf.env === 'object') ? conf.env : {}
+    };
+
+    if (!cleanConfig.path) {
+      const err = new Error('Bot directory path is required.');
+      err.status = 400;
+      throw err;
+    }
+
+    this.bots.set(conf.id, {
+      id: conf.id,
+      config: cleanConfig,
+      status: 'offline',
+      process: null,
+      pid: null,
+      startedAt: null,
+      uptime: 0,
+      cpuUsage: 0,
+      ramUsageMB: 0,
+      restartHistory: [],
+      restartCount: 0,
+      lastCrashReason: null,
+      logs: [],
+      isStoppingManually: false
+    });
+
+    // Ensure the bot's working directory exists so it's immediately usable in the File Manager
+    try {
+      if (!fs.existsSync(cleanConfig.path)) {
+        fs.mkdirSync(cleanConfig.path, { recursive: true });
+      }
+    } catch (err) {
+      console.warn(`[BotManager] Could not create bot directory ${cleanConfig.path}:`, err.message);
+    }
+
+    this.persistConfig();
+    this.appendLog(conf.id, 'SYSTEM', `Bot "${cleanConfig.name}" created via web dashboard.`);
+
+    if (cleanConfig.autoStart) {
+      this.startBot(conf.id).catch(err => {
+        console.error(`[BotManager] Error auto-starting newly created bot ${conf.id}:`, err.message);
+      });
+    }
+
+    return this.getBotData(conf.id);
+  }
+
+  /**
+   * Updates an existing bot's configuration (name, path, command, args, autoStart, env, description).
+   * Does not affect a currently running process until the next start/restart.
+   */
+  updateBot(id, updates = {}) {
+    const bot = this.bots.get(id);
+    if (!bot) {
+      const err = new Error(`Bot with ID "${id}" does not exist.`);
+      err.status = 404;
+      throw err;
+    }
+
+    const nextConfig = { ...bot.config };
+
+    if (updates.name !== undefined) nextConfig.name = updates.name || nextConfig.name;
+    if (updates.description !== undefined) nextConfig.description = updates.description;
+    if (updates.path !== undefined && updates.path) nextConfig.path = updates.path;
+    if (updates.command !== undefined && updates.command) nextConfig.command = updates.command;
+    if (updates.args !== undefined) nextConfig.args = Array.isArray(updates.args) ? updates.args : nextConfig.args;
+    if (updates.autoStart !== undefined) nextConfig.autoStart = !!updates.autoStart;
+    if (updates.env !== undefined && typeof updates.env === 'object') nextConfig.env = updates.env;
+
+    bot.config = nextConfig;
+
+    try {
+      if (!fs.existsSync(nextConfig.path)) {
+        fs.mkdirSync(nextConfig.path, { recursive: true });
+      }
+    } catch (err) {
+      console.warn(`[BotManager] Could not create bot directory ${nextConfig.path}:`, err.message);
+    }
+
+    this.persistConfig();
+    this.appendLog(id, 'SYSTEM', `Bot configuration updated via web dashboard.`);
+    this.emitStatus(id);
+
+    return this.getBotData(id);
+  }
+
+  /**
+   * Permanently removes a bot from configuration. Stops the process first if running.
+   */
+  async removeBot(id) {
+    const bot = this.bots.get(id);
+    if (!bot) {
+      const err = new Error(`Bot with ID "${id}" does not exist.`);
+      err.status = 404;
+      throw err;
+    }
+
+    if (bot.status === 'online' || bot.status === 'starting' || bot.pid) {
+      await this.stopBot(id);
+    }
+
+    this.bots.delete(id);
+    this.persistConfig();
+    this.emit('bot_removed', { id });
+
+    return { success: true, message: `Bot "${bot.config.name}" removed successfully.` };
+  }
+
+  /**
    * Cleans up any orphan processes left over from prior manual starts or crashes.
    */
   async cleanupOrphansForBot(bot) {

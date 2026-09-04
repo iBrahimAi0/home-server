@@ -27,6 +27,27 @@ export interface BotConfig {
   };
 }
 
+export interface BotCreatePayload {
+  id: string;
+  name: string;
+  description?: string;
+  path: string;
+  command?: string;
+  args?: string[];
+  autoStart?: boolean;
+  env?: Record<string, string>;
+}
+
+export interface BotUpdatePayload {
+  name?: string;
+  description?: string;
+  path?: string;
+  command?: string;
+  args?: string[];
+  autoStart?: boolean;
+  env?: Record<string, string>;
+}
+
 export interface BotData {
   id: string;
   name: string;

@@ -28,6 +28,36 @@ module.exports = function createBotsRouter(botManager) {
   });
 
   /**
+   * POST /api/bots
+   * Creates a new bot entry from the web dashboard and persists it to bots.json.
+   */
+  router.post('/', (req, res, next) => {
+    try {
+      const { id, name, description, path: botPath, command, args, autoStart, env } = req.body || {};
+      const cleanId = validateBotId(id);
+
+      const created = botManager.addBot({
+        id: cleanId,
+        name,
+        description,
+        path: botPath,
+        command,
+        args,
+        autoStart,
+        env
+      });
+
+      res.status(201).json({
+        success: true,
+        message: `Bot "${created.name}" created successfully.`,
+        data: created
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  /**
    * GET /api/bots/:id
    * Returns detailed information for a single bot.
    */
@@ -43,6 +73,52 @@ module.exports = function createBotsRouter(botManager) {
       res.json({
         success: true,
         data: bot
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  /**
+   * PUT /api/bots/:id
+   * Updates an existing bot's configuration.
+   */
+  router.put('/:id', (req, res, next) => {
+    try {
+      const cleanId = validateBotId(req.params.id);
+      const { name, description, path: botPath, command, args, autoStart, env } = req.body || {};
+
+      const updated = botManager.updateBot(cleanId, {
+        name,
+        description,
+        path: botPath,
+        command,
+        args,
+        autoStart,
+        env
+      });
+
+      res.json({
+        success: true,
+        message: `Bot "${updated.name}" updated successfully.`,
+        data: updated
+      });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  /**
+   * DELETE /api/bots/:id
+   * Permanently removes a bot from configuration (stops it first if running).
+   */
+  router.delete('/:id', async (req, res, next) => {
+    try {
+      const cleanId = validateBotId(req.params.id);
+      const result = await botManager.removeBot(cleanId);
+      res.json({
+        success: true,
+        message: result.message
       });
     } catch (err) {
       next(err);

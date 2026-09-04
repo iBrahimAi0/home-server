@@ -253,11 +253,11 @@ sudo systemctl status nexuspanel-dashboard`;
 
             {/* Security Isolation Guarantee Note */}
             <div className="mt-4 rounded-md bg-[#0C1018] border border-[#1A2232] p-3 flex items-start gap-2.5 text-xs text-slate-400 font-mono">
-              <Shield className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <Shield className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-semibold text-slate-200">Security Isolation Policy: </span>
+                <span className="font-semibold text-slate-200">File Access Policy: </span>
                 <span>
-                  Discord bot tokens, <code className="text-slate-300">.env*</code> files, SSH keys, MongoDB connection strings, and arbitrary shell terminal execution are never exposed through NexusPanel APIs.
+                  Full file management — including editing <code className="text-slate-300">.env*</code> files, SSH keys, and other credential files — is available from each bot&apos;s File Manager. All operations are still confined to that bot&apos;s own directory; arbitrary shell terminal execution is never exposed through NexusPanel APIs.
                 </span>
               </div>
             </div>
@@ -300,7 +300,7 @@ sudo systemctl status nexuspanel-dashboard`;
                 <div>
                   <h3 className="font-bold text-white text-sm">How to Add New Discord Bots</h3>
                   <p className="text-xs text-slate-400 font-mono">
-                    Add an entry to <code className="text-indigo-300">backend/config/bots.json</code>
+                    Use the <span className="text-indigo-300">Add Bot</span> button on the Bots page — no manual file editing required. The JSON below is only needed for advanced/manual setups.
                   </p>
                 </div>
               </div>

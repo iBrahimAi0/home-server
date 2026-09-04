@@ -1,5 +1,7 @@
 import {
   BotData,
+  BotCreatePayload,
+  BotUpdatePayload,
   LogEntry,
   SystemStatus,
   ApiResponse,
@@ -134,6 +136,50 @@ export const api = {
   },
 
   /**
+   * Creates a brand new bot directly from the web dashboard (no manual JSON editing required)
+   */
+  async createBot(payload: BotCreatePayload): Promise<BotData> {
+    const url = `${getApiBaseUrl()}/api/bots`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<BotData>(res);
+  },
+
+  /**
+   * Updates an existing bot's configuration
+   */
+  async updateBot(id: string, payload: BotUpdatePayload): Promise<BotData> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(id)}`;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<BotData>(res);
+  },
+
+  /**
+   * Permanently removes a bot from configuration
+   */
+  async deleteBot(id: string): Promise<{ message: string }> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(id)}`;
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers: { ...getAuthHeaders() }
+    });
+    return handleResponse<{ message: string }>(res);
+  },
+
+  /**
    * Fetches in-memory stdout/stderr logs from Express BotManager
    */
   async getBotLogs(id: string, limit = 300): Promise<LogEntry[]> {
@@ -251,6 +297,22 @@ export const api = {
       headers: { ...getAuthHeaders() }
     });
     return handleResponse<{ message: string }>(res);
+  },
+
+  /**
+   * Deletes multiple files and/or directories in a single request
+   */
+  async deleteEntities(botId: string, relativePaths: string[]): Promise<{ results: { path: string; success: boolean; error?: string }[] }> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/files/batch-delete`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify({ paths: relativePaths })
+    });
+    return handleResponse<{ results: { path: string; success: boolean; error?: string }[] }>(res);
   },
 
   /**

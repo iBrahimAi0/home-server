@@ -2,7 +2,7 @@ const AdmZip = require('adm-zip');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-const { assertNotSensitive, isSensitiveFile } = require('./sensitiveFiles');
+const { isSensitiveFile } = require('./sensitiveFiles');
 
 const MAX_FILES_COUNT = 2000;
 const MAX_TOTAL_UNCOMPRESSED_BYTES = 200 * 1024 * 1024; // 200MB
@@ -114,9 +114,6 @@ async function extractZipSafely(zipFilePath, destinationDir) {
       throw err;
     }
 
-    // Block extraction of sensitive file names (e.g. .env inside a zip)
-    assertNotSensitive(entryName);
-
     if (!entry.isDirectory) {
       const size = entry.header.size || 0;
       if (size > MAX_SINGLE_FILE_BYTES) {
@@ -201,7 +198,6 @@ async function extractRarSafely(rarFilePath, destinationDir) {
           err.status = 400;
           return reject(err);
         }
-        assertNotSensitive(file);
       }
 
       // Extract to directory
