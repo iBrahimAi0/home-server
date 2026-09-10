@@ -1,0 +1,12 @@
+[
+  {
+    "id": "bot-1",
+    "name": "Role Bot",
+    "description": "Discord automated role management and reaction roles handler",
+    "path": "/home/ibra/home-server/bots/bot-1",
+    "command": "npm",
+    "args": ["start"],
+    "autoStart": true,
+    "env": {}
+  }
+]

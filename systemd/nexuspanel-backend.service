@@ -1,0 +1,30 @@
+[Unit]
+Description=NexusPanel Backend Controller - Process Manager & Express API
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ibra
+Group=ibra
+WorkingDirectory=/home/ibra/home-server/dashboard/backend
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=CORS_ORIGIN=http://192.168.1.120:3000,http://localhost:3000,http://192.168.11.178:3000
+Environment=BOTS_CONFIG_PATH=/home/ibra/home-server/dashboard/backend/config/bots.json
+
+# Process handling and graceful shutdown
+KillMode=mixed
+TimeoutStopSec=20s
+LimitNOFILE=65536
+
+# Logging via journalctl
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nexuspanel-backend
+
+[Install]
+WantedBy=multi-user.target

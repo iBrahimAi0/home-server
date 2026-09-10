@@ -1,0 +1,28 @@
+[Unit]
+Description=Home Server Dashboard UI - Next.js Frontend
+After=network.target network-online.target home-server-backend.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ibra
+Group=ibra
+WorkingDirectory=/home/ibra/home-server/dashboard
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5s
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+# Process management
+KillMode=control-group
+TimeoutStopSec=15s
+LimitNOFILE=65536
+
+# Logging via journalctl
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=home-server-dashboard
+
+[Install]
+WantedBy=multi-user.target
