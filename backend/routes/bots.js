@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -32,17 +33,39 @@ module.exports = function createBotsRouter(botManager) {
 
   // Mount restricted bot Git management sub-router
   router.use("/:id/git", createGitRouter(botManager));
+=======
+const express = require('express');
+const createFilesRouter = require('./files');
+const createGitRouter = require('./git');
+const { validateBotId } = require('../utils/pathSecurity');
+const router = express.Router();
+
+module.exports = function createBotsRouter(botManager) {
+  // Mount secure bot file management sub-router
+  router.use('/:id/files', createFilesRouter(botManager));
+
+  // Mount restricted bot Git management sub-router
+  router.use('/:id/git', createGitRouter(botManager));
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
   /**
    * GET /api/bots
    * Returns all configured bots with current runtime metrics.
    */
+<<<<<<< HEAD
   router.get("/", (req, res, next) => {
+=======
+  router.get('/', (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const bots = botManager.getAllBots();
       res.json({
         success: true,
+<<<<<<< HEAD
         data: bots,
+=======
+        data: bots
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -51,6 +74,7 @@ module.exports = function createBotsRouter(botManager) {
 
   /**
    * POST /api/bots
+<<<<<<< HEAD
    * Creates a new bot entry. Supports direct JSON payload or multipart form data
    * containing an uploaded project ZIP archive or a starter template selection.
    */
@@ -59,12 +83,24 @@ module.exports = function createBotsRouter(botManager) {
     try {
       let {
         id,
+=======
+   * Creates a new bot entry from the web dashboard and persists it to bots.json.
+   */
+  router.post('/', (req, res, next) => {
+    try {
+      const { id, name, description, path: botPath, command, args, autoStart, env } = req.body || {};
+      const cleanId = validateBotId(id);
+
+      const created = botManager.addBot({
+        id: cleanId,
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         name,
         description,
         path: botPath,
         command,
         args,
         autoStart,
+<<<<<<< HEAD
         env,
         template,
         installDependencies,
@@ -209,6 +245,17 @@ module.exports = function createBotsRouter(botManager) {
           // ignore
         }
       }
+=======
+        env
+      });
+
+      res.status(201).json({
+        success: true,
+        message: `Bot "${created.name}" created successfully.`,
+        data: created
+      });
+    } catch (err) {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       next(err);
     }
   });
@@ -217,7 +264,11 @@ module.exports = function createBotsRouter(botManager) {
    * GET /api/bots/:id
    * Returns detailed information for a single bot.
    */
+<<<<<<< HEAD
   router.get("/:id", (req, res, next) => {
+=======
+  router.get('/:id', (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const cleanId = validateBotId(req.params.id);
       const bot = botManager.getBotData(cleanId);
@@ -228,7 +279,11 @@ module.exports = function createBotsRouter(botManager) {
       }
       res.json({
         success: true,
+<<<<<<< HEAD
         data: bot,
+=======
+        data: bot
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -239,6 +294,7 @@ module.exports = function createBotsRouter(botManager) {
    * PUT /api/bots/:id
    * Updates an existing bot's configuration.
    */
+<<<<<<< HEAD
   router.put("/:id", (req, res, next) => {
     try {
       const cleanId = validateBotId(req.params.id);
@@ -251,6 +307,12 @@ module.exports = function createBotsRouter(botManager) {
         autoStart,
         env,
       } = req.body || {};
+=======
+  router.put('/:id', (req, res, next) => {
+    try {
+      const cleanId = validateBotId(req.params.id);
+      const { name, description, path: botPath, command, args, autoStart, env } = req.body || {};
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
       const updated = botManager.updateBot(cleanId, {
         name,
@@ -259,13 +321,21 @@ module.exports = function createBotsRouter(botManager) {
         command,
         args,
         autoStart,
+<<<<<<< HEAD
         env,
+=======
+        env
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
 
       res.json({
         success: true,
         message: `Bot "${updated.name}" updated successfully.`,
+<<<<<<< HEAD
         data: updated,
+=======
+        data: updated
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -276,13 +346,21 @@ module.exports = function createBotsRouter(botManager) {
    * DELETE /api/bots/:id
    * Permanently removes a bot from configuration (stops it first if running).
    */
+<<<<<<< HEAD
   router.delete("/:id", async (req, res, next) => {
+=======
+  router.delete('/:id', async (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const cleanId = validateBotId(req.params.id);
       const result = await botManager.removeBot(cleanId);
       res.json({
         success: true,
+<<<<<<< HEAD
         message: result.message,
+=======
+        message: result.message
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -293,6 +371,7 @@ module.exports = function createBotsRouter(botManager) {
    * GET /api/bots/:id/logs
    * Returns recent logs stored in memory for this bot.
    */
+<<<<<<< HEAD
   router.get("/:id/logs", (req, res, next) => {
     try {
       const cleanId = validateBotId(req.params.id);
@@ -300,6 +379,12 @@ module.exports = function createBotsRouter(botManager) {
         1000,
         Math.max(1, parseInt(req.query.limit, 10) || 300),
       );
+=======
+  router.get('/:id/logs', (req, res, next) => {
+    try {
+      const cleanId = validateBotId(req.params.id);
+      const limit = Math.min(1000, Math.max(1, parseInt(req.query.limit, 10) || 300));
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       const bot = botManager.getBotData(cleanId);
       if (!bot) {
         const err = new Error(`Bot "${cleanId}" not found in configuration.`);
@@ -310,6 +395,7 @@ module.exports = function createBotsRouter(botManager) {
       const logs = botManager.getBotLogs(cleanId, limit);
       res.json({
         success: true,
+<<<<<<< HEAD
         data: logs,
       });
     } catch (err) {
@@ -486,6 +572,9 @@ module.exports = function createBotsRouter(botManager) {
         success: true,
         message: result.message,
         data: result.env,
+=======
+        data: logs
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -495,14 +584,22 @@ module.exports = function createBotsRouter(botManager) {
   /**
    * POST /api/bots/:id/start
    */
+<<<<<<< HEAD
   router.post("/:id/start", async (req, res, next) => {
+=======
+  router.post('/:id/start', async (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const cleanId = validateBotId(req.params.id);
       const result = await botManager.startBot(cleanId);
       res.json({
         success: true,
         message: result.message,
+<<<<<<< HEAD
         data: botManager.getBotData(cleanId),
+=======
+        data: botManager.getBotData(cleanId)
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -512,14 +609,22 @@ module.exports = function createBotsRouter(botManager) {
   /**
    * POST /api/bots/:id/stop
    */
+<<<<<<< HEAD
   router.post("/:id/stop", async (req, res, next) => {
+=======
+  router.post('/:id/stop', async (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const cleanId = validateBotId(req.params.id);
       const result = await botManager.stopBot(cleanId);
       res.json({
         success: true,
         message: result.message,
+<<<<<<< HEAD
         data: botManager.getBotData(cleanId),
+=======
+        data: botManager.getBotData(cleanId)
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);
@@ -529,13 +634,18 @@ module.exports = function createBotsRouter(botManager) {
   /**
    * POST /api/bots/:id/restart
    */
+<<<<<<< HEAD
   router.post("/:id/restart", async (req, res, next) => {
+=======
+  router.post('/:id/restart', async (req, res, next) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     try {
       const cleanId = validateBotId(req.params.id);
       const result = await botManager.restartBot(cleanId);
       res.json({
         success: true,
         message: result.message,
+<<<<<<< HEAD
         data: botManager.getBotData(cleanId),
       });
     } catch (err) {
@@ -587,6 +697,9 @@ module.exports = function createBotsRouter(botManager) {
       res.json({
         success: true,
         data: result,
+=======
+        data: botManager.getBotData(cleanId)
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
     } catch (err) {
       next(err);

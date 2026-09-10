@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -30,6 +31,35 @@ import { CreateBotModal } from "@/components/bots/CreateBotModal";
 
 function formatDaysUptime(seconds: number): string {
   if (!seconds || seconds <= 0) return "0h";
+=======
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  Cpu, 
+  HardDrive, 
+  Database, 
+  Clock, 
+  Bot, 
+  Terminal, 
+  ArrowRight, 
+  CheckCircle2, 
+  Server,
+  Plus
+} from 'lucide-react';
+import { BotData, SystemStatus as SystemStatusType, LogEntry } from '@/lib/types';
+import { api } from '@/lib/api';
+import { realtime } from '@/lib/socket';
+import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/Header';
+import { StatCard } from '@/components/StatCard';
+import { BotCard } from '@/components/BotCard';
+import { SystemStatus } from '@/components/SystemStatus';
+
+function formatDaysUptime(seconds: number): string {
+  if (!seconds || seconds <= 0) return '0h';
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   if (days > 0) return `${days}d ${hours}h`;
@@ -38,6 +68,7 @@ function formatDaysUptime(seconds: number): string {
 
 export default function OverviewPage() {
   const [bots, setBots] = useState<BotData[]>([]);
+<<<<<<< HEAD
   const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(
     null,
   );
@@ -45,6 +76,12 @@ export default function OverviewPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [isCreateBotOpen, setIsCreateBotOpen] = useState(false);
+=======
+  const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(null);
+  const [recentLogs, setRecentLogs] = useState<LogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
   useEffect(() => {
     let isMounted = true;
@@ -61,6 +98,7 @@ export default function OverviewPage() {
         if (botList) setBots(botList);
 
         if (botList && botList.length > 0) {
+<<<<<<< HEAD
           const logPromises = botList
             .slice(0, 3)
             .map((b) => api.getBotLogs(b.id, 5));
@@ -78,6 +116,18 @@ export default function OverviewPage() {
         }
       } catch (err) {
         console.error("Error loading dashboard data:", err);
+=======
+          const logPromises = botList.slice(0, 3).map((b) => api.getBotLogs(b.id, 5));
+          const allLogs = await Promise.all(logPromises);
+          if (!isMounted) return;
+          const merged = allLogs.flat().sort((a, b) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          ).slice(0, 6);
+          setRecentLogs(merged);
+        }
+      } catch (err) {
+        console.error('Error loading dashboard data:', err);
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -90,6 +140,7 @@ export default function OverviewPage() {
 
     realtime.connect();
 
+<<<<<<< HEAD
     const unsubSys = realtime.on<SystemStatusType>(
       "system_metrics_update",
       (status) => {
@@ -116,6 +167,25 @@ export default function OverviewPage() {
     );
 
     const unsubNewLog = realtime.on<LogEntry>("new_log", (log) => {
+=======
+    const unsubSys = realtime.on<SystemStatusType>('system_metrics_update', (status) => {
+      if (isMounted) setSystemStatus(status);
+    });
+
+    const unsubBots = realtime.on<BotData[]>('bots_metrics_update', (updatedBots) => {
+      if (isMounted) setBots(updatedBots);
+    });
+
+    const unsubStatusChange = realtime.on<BotData>('bot_status_changed', (updatedBot) => {
+      if (isMounted) {
+        setBots((prev) =>
+          prev.map((b) => (b.id === updatedBot.id ? updatedBot : b))
+        );
+      }
+    });
+
+    const unsubNewLog = realtime.on<LogEntry>('new_log', (log) => {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       if (isMounted) {
         setRecentLogs((prev) => [log, ...prev.slice(0, 7)]);
       }
@@ -144,12 +214,20 @@ export default function OverviewPage() {
     }
   };
 
+<<<<<<< HEAD
   const onlineBots = bots.filter((b) => b.status === "online");
+=======
+  const onlineBots = bots.filter((b) => b.status === 'online');
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
   return (
     <div className="flex min-h-screen bg-[#0B0D13]">
       <Sidebar
+<<<<<<< HEAD
         serverStatus={systemStatus?.status || "online"}
+=======
+        serverStatus={systemStatus?.status || 'online'}
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         serverUptime={systemStatus?.uptime}
       />
 
@@ -181,6 +259,7 @@ export default function OverviewPage() {
                   </h2>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5 font-mono">
+<<<<<<< HEAD
                   Host:{" "}
                   <span className="text-slate-200">
                     {systemStatus?.hostname || "ubuntu-home-server"}
@@ -189,6 +268,10 @@ export default function OverviewPage() {
                   <span className="text-indigo-400 font-medium">
                     Ubuntu Server Node
                   </span>
+=======
+                  Host: <span className="text-slate-200">{systemStatus?.hostname || 'ubuntu-home-server'}</span> &bull; 
+                  Target: <span className="text-indigo-400 font-medium">Ubuntu Server Node</span>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                 </p>
               </div>
             </div>
@@ -267,6 +350,7 @@ export default function OverviewPage() {
                 </span>
               </div>
 
+<<<<<<< HEAD
               <div className="flex items-center gap-2">
                 <button
                   id="btn-overview-add-bot"
@@ -284,20 +368,34 @@ export default function OverviewPage() {
                   <span>View All</span>
                 </Link>
               </div>
+=======
+              <Link
+                href="/settings"
+                className="text-xs font-mono font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Configure Bots</span>
+              </Link>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
             </div>
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {[1, 2, 3].map((i) => (
+<<<<<<< HEAD
                   <div
                     key={i}
                     className="h-44 rounded-lg bg-[#121722] border border-[#1E273A] animate-pulse"
                   />
+=======
+                  <div key={i} className="h-44 rounded-lg bg-[#121722] border border-[#1E273A] animate-pulse" />
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                 ))}
               </div>
             ) : bots.length === 0 ? (
               <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-8 text-center">
                 <Bot className="w-8 h-8 text-slate-500 mx-auto mb-2 opacity-50" />
+<<<<<<< HEAD
                 <h3 className="text-sm font-bold text-white">
                   No Bots Configured
                 </h3>
@@ -307,16 +405,25 @@ export default function OverviewPage() {
                     backend/config/bots.json
                   </code>
                   .
+=======
+                <h3 className="text-sm font-bold text-white">No Bots Configured</h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto font-mono">
+                  Add bot entries to <code className="text-indigo-300">backend/config/bots.json</code>.
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                 </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {bots.map((bot) => (
+<<<<<<< HEAD
                   <BotCard
                     key={bot.id}
                     bot={bot}
                     onRefresh={handleManualRefresh}
                   />
+=======
+                  <BotCard key={bot.id} bot={bot} onRefresh={handleManualRefresh} />
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                 ))}
               </div>
             )}
@@ -335,9 +442,13 @@ export default function OverviewPage() {
                 <div className="flex items-center justify-between pb-3 border-b border-[#1E273A]">
                   <div className="flex items-center gap-2">
                     <Terminal className="w-4 h-4 text-indigo-400" />
+<<<<<<< HEAD
                     <h3 className="font-bold text-white text-xs">
                       Recent Console Activity
                     </h3>
+=======
+                    <h3 className="font-bold text-white text-xs">Recent Console Activity</h3>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                   </div>
                   <Link
                     href="/console"
@@ -364,6 +475,7 @@ export default function OverviewPage() {
                         </span>
                         <span
                           className={`text-[9px] font-bold px-1 rounded ${
+<<<<<<< HEAD
                             l.type === "ERROR"
                               ? "text-rose-400 bg-rose-500/10"
                               : l.type === "WARN"
@@ -371,14 +483,27 @@ export default function OverviewPage() {
                                 : l.type === "SYSTEM"
                                   ? "text-indigo-400 bg-indigo-500/10"
                                   : "text-sky-400 bg-sky-500/10"
+=======
+                            l.type === 'ERROR'
+                              ? 'text-rose-400 bg-rose-500/10'
+                              : l.type === 'WARN'
+                              ? 'text-amber-400 bg-amber-500/10'
+                              : l.type === 'SYSTEM'
+                              ? 'text-indigo-400 bg-indigo-500/10'
+                              : 'text-sky-400 bg-sky-500/10'
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                           }`}
                         >
                           {l.type}
                         </span>
+<<<<<<< HEAD
                         <span
                           className="text-slate-300 text-xs truncate flex-1"
                           title={l.message}
                         >
+=======
+                        <span className="text-slate-300 text-xs truncate flex-1" title={l.message}>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                           {l.message}
                         </span>
                       </div>
@@ -395,6 +520,7 @@ export default function OverviewPage() {
           </div>
         </main>
       </div>
+<<<<<<< HEAD
 
       {/* Create Bot Modal */}
       <CreateBotModal
@@ -402,6 +528,8 @@ export default function OverviewPage() {
         onClose={() => setIsCreateBotOpen(false)}
         onCreated={handleManualRefresh}
       />
+=======
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     </div>
   );
 }

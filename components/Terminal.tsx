@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -20,6 +21,27 @@ import {
 import { LogEntry, BotData } from "@/lib/types";
 import { realtime } from "@/lib/socket";
 import { api } from "@/lib/api";
+=======
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Terminal as TerminalIcon, 
+  Trash2, 
+  Pause, 
+  Play, 
+  Search, 
+  Copy, 
+  Check, 
+  Download, 
+  Wifi, 
+  WifiOff, 
+  ArrowDownCircle
+} from 'lucide-react';
+import { LogEntry, BotData } from '@/lib/types';
+import { realtime } from '@/lib/socket';
+import { api } from '@/lib/api';
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
 interface TerminalProps {
   initialBotId?: string;
@@ -29,22 +51,34 @@ interface TerminalProps {
 }
 
 export function Terminal({
+<<<<<<< HEAD
   initialBotId = "all",
   bots = [],
   heightClass = "h-[500px]",
+=======
+  initialBotId = 'all',
+  bots = [],
+  heightClass = 'h-[500px]',
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   showBotSelector = true,
 }: TerminalProps) {
   const [prevInitialBotId, setPrevInitialBotId] = useState(initialBotId);
   const [selectedBotId, setSelectedBotId] = useState<string>(initialBotId);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+<<<<<<< HEAD
   const [filterLevel, setFilterLevel] = useState<
     "ALL" | "INFO" | "WARN" | "ERROR" | "SYSTEM"
   >("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+=======
+  const [filterLevel, setFilterLevel] = useState<'ALL' | 'INFO' | 'WARN' | 'ERROR' | 'SYSTEM'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   const [autoScroll, setAutoScroll] = useState(true);
   const [copied, setCopied] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
 
+<<<<<<< HEAD
   // Interactive Console Command State
   const [commandInput, setCommandInput] = useState("");
   const [commandMode, setCommandMode] = useState<"exec" | "stdin">("exec");
@@ -57,6 +91,8 @@ export function Terminal({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const temporaryInputRef = useRef<string>("");
+=======
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   // Keep the latest bot list available to the log loader without making it a
@@ -80,7 +116,11 @@ export function Terminal({
 
     async function loadLogs() {
       try {
+<<<<<<< HEAD
         if (selectedBotId === "all") {
+=======
+        if (selectedBotId === 'all') {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           let botList = botsRef.current;
           if (!botList || botList.length === 0) {
             botList = await api.getBots().catch(() => []);
@@ -89,6 +129,7 @@ export function Terminal({
             if (isMounted) setLogs([]);
             return;
           }
+<<<<<<< HEAD
           const allPromises = botList.map((b) =>
             api.getBotLogs(b.id, 100).catch(() => []),
           );
@@ -100,13 +141,24 @@ export function Terminal({
                 new Date(a.timestamp).getTime() -
                 new Date(b.timestamp).getTime(),
             );
+=======
+          const allPromises = botList.map(b => api.getBotLogs(b.id, 100).catch(() => []));
+          const allResults = await Promise.all(allPromises);
+          const merged = allResults.flat().sort((a, b) => 
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           if (isMounted) {
             setLogs(merged);
           }
         } else {
+<<<<<<< HEAD
           const fetchedLogs = await api
             .getBotLogs(selectedBotId, 300)
             .catch(() => []);
+=======
+          const fetchedLogs = await api.getBotLogs(selectedBotId, 300).catch(() => []);
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           if (isMounted) {
             setLogs(fetchedLogs || []);
           }
@@ -129,20 +181,32 @@ export function Terminal({
   useEffect(() => {
     realtime.connect();
 
+<<<<<<< HEAD
     const unsubLog = realtime.on<LogEntry>("new_log", (newLog) => {
       setLogs((prev) => {
         if (prev.some((l) => l.id === newLog.id)) return prev;
+=======
+    const unsubLog = realtime.on<LogEntry>('new_log', (newLog) => {
+      setLogs((prev) => {
+        if (prev.some(l => l.id === newLog.id)) return prev;
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         const updated = [...prev, newLog];
         return updated.length > 1000 ? updated.slice(-1000) : updated;
       });
     });
 
+<<<<<<< HEAD
     const unsubConn = realtime.on<{ connected: boolean }>(
       "connection_change",
       ({ connected }) => {
         setIsConnected(connected);
       },
     );
+=======
+    const unsubConn = realtime.on<{ connected: boolean }>('connection_change', ({ connected }) => {
+      setIsConnected(connected);
+    });
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
     return () => {
       unsubLog();
@@ -152,7 +216,11 @@ export function Terminal({
 
   useEffect(() => {
     if (autoScroll && terminalEndRef.current) {
+<<<<<<< HEAD
       terminalEndRef.current.scrollIntoView({ behavior: "smooth" });
+=======
+      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     }
   }, [logs, autoScroll]);
 
@@ -170,30 +238,42 @@ export function Terminal({
   };
 
   const handleCopy = () => {
+<<<<<<< HEAD
     const formatted = filteredLogs
       .map(
         (l) =>
           `[${l.time}] ${l.type.padEnd(6, " ")} [${l.botName}] ${l.message}`,
       )
       .join("\n");
+=======
+    const formatted = filteredLogs.map(l => `[${l.time}] ${l.type.padEnd(6, ' ')} [${l.botName}] ${l.message}`).join('\n');
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     navigator.clipboard.writeText(formatted);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
+<<<<<<< HEAD
     const formatted = filteredLogs
       .map((l) => `[${l.timestamp}] [${l.type}] [${l.botName}] ${l.message}`)
       .join("\n");
     const blob = new Blob([formatted], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+=======
+    const formatted = filteredLogs.map(l => `[${l.timestamp}] [${l.type}] [${l.botName}] ${l.message}`).join('\n');
+    const blob = new Blob([formatted], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     a.href = url;
     a.download = `nexuspanel-logs-${selectedBotId}-${new Date().toISOString().slice(0, 10)}.log`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     if (selectedBotId !== "all") {
       setActiveTargetId(selectedBotId);
@@ -462,6 +542,12 @@ export function Terminal({
     if (selectedBotId !== "all" && log.botId !== selectedBotId) return false;
     if (filterLevel !== "ALL" && log.type !== filterLevel) return false;
     if (searchQuery.trim() !== "") {
+=======
+  const filteredLogs = logs.filter((log) => {
+    if (selectedBotId !== 'all' && log.botId !== selectedBotId) return false;
+    if (filterLevel !== 'ALL' && log.type !== filterLevel) return false;
+    if (searchQuery.trim() !== '') {
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       const q = searchQuery.toLowerCase();
       return (
         log.message.toLowerCase().includes(q) ||
@@ -472,6 +558,7 @@ export function Terminal({
     return true;
   });
 
+<<<<<<< HEAD
   const getLogTypeBadge = (type: LogEntry["type"]) => {
     switch (type) {
       case "ERROR":
@@ -483,6 +570,19 @@ export function Terminal({
       case "INFO":
       default:
         return "text-sky-400 font-medium bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20";
+=======
+  const getLogTypeBadge = (type: LogEntry['type']) => {
+    switch (type) {
+      case 'ERROR':
+        return 'text-rose-400 font-bold bg-rose-500/10 px-1 py-0.2 rounded border border-rose-500/20';
+      case 'WARN':
+        return 'text-amber-400 font-semibold bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20';
+      case 'SYSTEM':
+        return 'text-indigo-400 font-semibold bg-indigo-500/10 px-1 py-0.2 rounded border border-indigo-500/20';
+      case 'INFO':
+      default:
+        return 'text-sky-400 font-medium bg-sky-500/10 px-1 py-0.2 rounded border border-sky-500/20';
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     }
   };
 
@@ -542,6 +642,7 @@ export function Terminal({
 
           {/* Level Filter */}
           <div className="flex items-center gap-0.5 bg-[#151C2A] p-0.5 rounded-md border border-[#232E44] text-xs font-mono">
+<<<<<<< HEAD
             {(["ALL", "INFO", "WARN", "ERROR", "SYSTEM"] as const).map(
               (lvl) => (
                 <button
@@ -557,12 +658,28 @@ export function Terminal({
                 </button>
               ),
             )}
+=======
+            {(['ALL', 'INFO', 'WARN', 'ERROR', 'SYSTEM'] as const).map((lvl) => (
+              <button
+                key={lvl}
+                onClick={() => setFilterLevel(lvl)}
+                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors cursor-pointer ${
+                  filterLevel === lvl
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {lvl}
+              </button>
+            ))}
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           </div>
 
           {/* Auto-scroll Toggle */}
           <button
             id="btn-terminal-autoscroll"
             onClick={() => setAutoScroll(!autoScroll)}
+<<<<<<< HEAD
             title={autoScroll ? "Pause autoscroll" : "Resume autoscroll"}
             className={`p-1.5 rounded-md border text-xs transition-colors flex items-center cursor-pointer ${
               autoScroll
@@ -575,6 +692,16 @@ export function Terminal({
             ) : (
               <Play className="w-3 h-3" />
             )}
+=======
+            title={autoScroll ? 'Pause autoscroll' : 'Resume autoscroll'}
+            className={`p-1.5 rounded-md border text-xs transition-colors flex items-center cursor-pointer ${
+              autoScroll
+                ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20'
+                : 'bg-[#151C2A] border-[#232E44] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {autoScroll ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           </button>
 
           {/* Clear Button */}
@@ -594,11 +721,15 @@ export function Terminal({
             title="Copy logs"
             className="p-1.5 rounded-md bg-[#151C2A] hover:bg-[#1E273A] border border-[#232E44] text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
+<<<<<<< HEAD
             {copied ? (
               <Check className="w-3 h-3 text-emerald-400" />
             ) : (
               <Copy className="w-3 h-3" />
             )}
+=======
+            {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           </button>
 
           {/* Download Button */}
@@ -615,6 +746,7 @@ export function Terminal({
           <div
             className={`flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono border ${
               isConnected
+<<<<<<< HEAD
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                 : "bg-rose-500/10 border-rose-500/20 text-rose-400"
             }`}
@@ -627,6 +759,14 @@ export function Terminal({
             <span className="hidden sm:inline">
               {isConnected ? "Live" : "Offline"}
             </span>
+=======
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                : 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+            }`}
+          >
+            {isConnected ? <Wifi className="w-2.5 h-2.5" /> : <WifiOff className="w-2.5 h-2.5" />}
+            <span className="hidden sm:inline">{isConnected ? 'Live' : 'Offline'}</span>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           </div>
         </div>
       </div>
@@ -640,9 +780,13 @@ export function Terminal({
         {filteredLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-2 select-none py-12">
             <TerminalIcon className="w-6 h-6 text-slate-400" />
+<<<<<<< HEAD
             <p className="text-xs">
               No console logs available for this filter.
             </p>
+=======
+            <p className="text-xs">No console logs available for this filter.</p>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           </div>
         ) : (
           <div className="space-y-1">
@@ -657,14 +801,22 @@ export function Terminal({
                 </span>
 
                 {/* Level Tag */}
+<<<<<<< HEAD
                 <span
                   className={`shrink-0 text-[10px] font-mono ${getLogTypeBadge(log.type)}`}
                 >
+=======
+                <span className={`shrink-0 text-[10px] font-mono ${getLogTypeBadge(log.type)}`}>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                   {log.type}
                 </span>
 
                 {/* Bot Name Tag (if viewing all bots) */}
+<<<<<<< HEAD
                 {selectedBotId === "all" && (
+=======
+                {selectedBotId === 'all' && (
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                   <span className="text-slate-400 shrink-0 text-[10px] px-1 rounded bg-[#151C2A] border border-[#232E44]">
                     {log.botName}
                   </span>
@@ -673,6 +825,7 @@ export function Terminal({
                 {/* Log Message Content */}
                 <span
                   className={`break-all whitespace-pre-wrap ${
+<<<<<<< HEAD
                     log.type === "ERROR"
                       ? "text-rose-300"
                       : log.type === "WARN"
@@ -680,6 +833,15 @@ export function Terminal({
                         : log.type === "SYSTEM"
                           ? "text-indigo-300"
                           : "text-slate-300"
+=======
+                    log.type === 'ERROR'
+                      ? 'text-rose-300'
+                      : log.type === 'WARN'
+                      ? 'text-amber-200'
+                      : log.type === 'SYSTEM'
+                      ? 'text-indigo-300'
+                      : 'text-slate-300'
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
                   }`}
                 >
                   {log.message}
@@ -691,6 +853,7 @@ export function Terminal({
         )}
       </div>
 
+<<<<<<< HEAD
       {/* Interactive Console Command Input Bar */}
       <div className="bg-[#0B0F19] border-t border-[#1C2434] p-3 space-y-2 select-none">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -916,6 +1079,12 @@ export function Terminal({
             Entries:{" "}
             <strong className="text-slate-300">{filteredLogs.length}</strong>
           </span>
+=======
+      {/* Terminal Footer */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#090C12] border-t border-[#1C2434] text-[10px] text-slate-400 select-none">
+        <div className="flex items-center gap-2">
+          <span>Entries: <strong className="text-slate-300">{filteredLogs.length}</strong></span>
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           {searchQuery && (
             <span className="text-indigo-400">
               Filter: &quot;{searchQuery}&quot;
@@ -927,7 +1096,11 @@ export function Terminal({
             <button
               onClick={() => {
                 setAutoScroll(true);
+<<<<<<< HEAD
                 terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+=======
+                terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+>>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
               }}
               className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 cursor-pointer"
             >
