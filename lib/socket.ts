@@ -1,17 +1,10 @@
-<<<<<<< HEAD
 "use client";
 
 import { io, Socket } from "socket.io-client";
-=======
-'use client';
-
-import { io, Socket } from 'socket.io-client';
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
 type EventCallback<T = unknown> = (data: T) => void;
 
 function getSocketServerUrl(): string {
-<<<<<<< HEAD
   if (
     process.env.NEXT_PUBLIC_SOCKET_URL &&
     process.env.NEXT_PUBLIC_SOCKET_URL.trim() !== ""
@@ -28,18 +21,6 @@ function getSocketServerUrl(): string {
     return `http://${window.location.hostname}:3001`;
   }
   return "http://localhost:3001";
-=======
-  if (process.env.NEXT_PUBLIC_SOCKET_URL && process.env.NEXT_PUBLIC_SOCKET_URL.trim() !== '') {
-    return process.env.NEXT_PUBLIC_SOCKET_URL.replace(/\/+$/, '');
-  }
-  if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== '') {
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
-  }
-  if (typeof window !== 'undefined' && window.location.hostname) {
-    return `http://${window.location.hostname}:3001`;
-  }
-  return 'http://localhost:3001';
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 }
 
 class RealtimeClient {
@@ -52,22 +33,14 @@ class RealtimeClient {
   }
 
   public connect() {
-<<<<<<< HEAD
     if (typeof window === "undefined") return;
-=======
-    if (typeof window === 'undefined') return;
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     if (this.socket && this.socket.connected) return;
 
     const socketUrl = getSocketServerUrl();
 
     try {
       this.socket = io(socketUrl, {
-<<<<<<< HEAD
         transports: ["websocket", "polling"],
-=======
-        transports: ['websocket', 'polling'],
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         reconnection: true,
         reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
@@ -75,7 +48,6 @@ class RealtimeClient {
         timeout: 10000,
       });
 
-<<<<<<< HEAD
       this.socket.on("connect", () => {
         this.isConnected = true;
         this.emitInternal("connection_change", {
@@ -98,40 +70,16 @@ class RealtimeClient {
           connected: false,
           transport: "socket.io",
         });
-=======
-      this.socket.on('connect', () => {
-        this.isConnected = true;
-        this.emitInternal('connection_change', { connected: true, transport: 'socket.io' });
-      });
-
-      this.socket.on('disconnect', () => {
-        this.isConnected = false;
-        this.emitInternal('connection_change', { connected: false, transport: 'socket.io' });
-      });
-
-      this.socket.on('connect_error', () => {
-        this.isConnected = false;
-        this.emitInternal('connection_change', { connected: false, transport: 'socket.io' });
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       });
 
       // Bridge real socket events from Express BotManager
       const events = [
-<<<<<<< HEAD
         "system_status",
         "system_metrics_update",
         "bots_list",
         "bot_status_changed",
         "new_log",
         "bots_metrics_update",
-=======
-        'system_status',
-        'system_metrics_update',
-        'bots_list',
-        'bot_status_changed',
-        'new_log',
-        'bots_metrics_update',
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       ];
 
       for (const evt of events) {
@@ -140,7 +88,6 @@ class RealtimeClient {
         });
       }
     } catch (err) {
-<<<<<<< HEAD
       console.warn("[Realtime] Socket.IO initialization error:", err);
     }
   }
@@ -149,13 +96,6 @@ class RealtimeClient {
     event: string,
     callback: EventCallback<T>,
   ): () => void {
-=======
-      console.warn('[Realtime] Socket.IO initialization error:', err);
-    }
-  }
-
-  public on<T = unknown>(event: string, callback: EventCallback<T>): () => void {
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
@@ -193,7 +133,6 @@ class RealtimeClient {
     }
     this.isConnected = false;
   }
-<<<<<<< HEAD
 
   public emit(event: string, ...args: unknown[]): boolean {
     if (this.socket && this.socket.connected) {
@@ -229,8 +168,6 @@ class RealtimeClient {
       });
     });
   }
-=======
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 }
 
 export const realtime = new RealtimeClient();

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export type BotStatus =
   | "online"
   | "offline"
@@ -7,11 +6,6 @@ export type BotStatus =
   | "crashed";
 
 export type LogLevel = "INFO" | "WARN" | "ERROR" | "SYSTEM";
-=======
-export type BotStatus = 'online' | 'offline' | 'starting' | 'stopping' | 'crashed';
-
-export type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'SYSTEM';
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
 export interface LogEntry {
   id: string;
@@ -42,16 +36,11 @@ export interface BotCreatePayload {
   id: string;
   name: string;
   description?: string;
-<<<<<<< HEAD
   path?: string;
-=======
-  path: string;
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   command?: string;
   args?: string[];
   autoStart?: boolean;
   env?: Record<string, string>;
-<<<<<<< HEAD
   template?: string;
   installDependencies?: boolean;
   projectArchive?: File;
@@ -65,8 +54,6 @@ export interface BotTemplateOption {
   args: string[];
   description: string;
   badge?: string;
-=======
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 }
 
 export interface BotUpdatePayload {
@@ -125,11 +112,7 @@ export interface SystemStorage {
 }
 
 export interface SystemStatus {
-<<<<<<< HEAD
   status: "online" | "degraded" | "offline";
-=======
-  status: 'online' | 'degraded' | 'offline';
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   cpu: SystemCpu;
   ram: SystemRam;
   storage: SystemStorage;

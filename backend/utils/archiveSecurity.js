@@ -1,16 +1,8 @@
-<<<<<<< HEAD
 const AdmZip = require("adm-zip");
 const path = require("path");
 const fs = require("fs");
 const { exec } = require("child_process");
 const { isSensitiveFile } = require("./sensitiveFiles");
-=======
-const AdmZip = require('adm-zip');
-const path = require('path');
-const fs = require('fs');
-const { exec } = require('child_process');
-const { isSensitiveFile } = require('./sensitiveFiles');
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 
 const MAX_FILES_COUNT = 2000;
 const MAX_TOTAL_UNCOMPRESSED_BYTES = 200 * 1024 * 1024; // 200MB
@@ -18,21 +10,13 @@ const MAX_SINGLE_FILE_BYTES = 50 * 1024 * 1024; // 50MB
 
 /**
  * Inspects a zip archive safely and returns entry metadata without extracting to disk.
-<<<<<<< HEAD
  *
-=======
- * 
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
  * @param {string} zipFilePath - Path to archive file on server
  * @returns {Promise<{ fileCount: number, totalUncompressedBytes: number, entries: Array<{ name: string, size: number, isDirectory: boolean, isSensitive: boolean }> }>}
  */
 async function inspectZipArchive(zipFilePath) {
   if (!fs.existsSync(zipFilePath)) {
-<<<<<<< HEAD
     const err = new Error("Archive file does not exist on server.");
-=======
-    const err = new Error('Archive file does not exist on server.');
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     err.status = 404;
     throw err;
   }
@@ -41,13 +25,9 @@ async function inspectZipArchive(zipFilePath) {
   const zipEntries = zip.getEntries();
 
   if (zipEntries.length > MAX_FILES_COUNT) {
-<<<<<<< HEAD
     const err = new Error(
       `Archive exceeds maximum allowed file count (${zipEntries.length} > ${MAX_FILES_COUNT}).`,
     );
-=======
-    const err = new Error(`Archive exceeds maximum allowed file count (${zipEntries.length} > ${MAX_FILES_COUNT}).`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     err.status = 400;
     throw err;
   }
@@ -59,69 +39,44 @@ async function inspectZipArchive(zipFilePath) {
     const entryName = entry.entryName;
 
     // Check for null bytes or relative traversal sequences
-<<<<<<< HEAD
     if (entryName.includes("\0") || entryName.includes("..")) {
       const err = new Error(
         `Malicious path sequence detected in archive entry: "${entryName}". Inspection rejected.`,
       );
-=======
-    if (entryName.includes('\0') || entryName.includes('..')) {
-      const err = new Error(`Malicious path sequence detected in archive entry: "${entryName}". Inspection rejected.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       err.status = 400;
       throw err;
     }
 
     const isDir = entry.isDirectory;
-<<<<<<< HEAD
     const size = isDir ? 0 : entry.header.size || 0;
-=======
-    const size = isDir ? 0 : (entry.header.size || 0);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     totalBytes += size;
 
     entryList.push({
       name: entryName,
       size: size,
       isDirectory: isDir,
-<<<<<<< HEAD
       isSensitive: isSensitiveFile(entryName),
-=======
-      isSensitive: isSensitiveFile(entryName)
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     });
   }
 
   return {
     fileCount: zipEntries.length,
     totalUncompressedBytes: totalBytes,
-<<<<<<< HEAD
     entries: entryList.slice(0, 500), // Return up to 500 items for UI preview
-=======
-    entries: entryList.slice(0, 500) // Return up to 500 items for UI preview
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   };
 }
 
 /**
  * Validates and safely extracts a .zip archive into the designated target directory.
  * Defends against Zip-Slip, Zip Bombs, and symlink exploits.
-<<<<<<< HEAD
  *
-=======
- * 
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
  * @param {string} zipFilePath - Path to temporary zip archive
  * @param {string} destinationDir - Absolute path to bot destination directory
  * @returns {Promise<{ extractedCount: number, totalBytes: number }>}
  */
 async function extractZipSafely(zipFilePath, destinationDir) {
   if (!fs.existsSync(zipFilePath)) {
-<<<<<<< HEAD
     const err = new Error("Archive file does not exist.");
-=======
-    const err = new Error('Archive file does not exist.');
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     err.status = 404;
     throw err;
   }
@@ -135,13 +90,9 @@ async function extractZipSafely(zipFilePath, destinationDir) {
   const zipEntries = zip.getEntries();
 
   if (zipEntries.length > MAX_FILES_COUNT) {
-<<<<<<< HEAD
     const err = new Error(
       `Archive contains too many files (${zipEntries.length} > ${MAX_FILES_COUNT}). Extraction halted.`,
     );
-=======
-    const err = new Error(`Archive contains too many files (${zipEntries.length} > ${MAX_FILES_COUNT}). Extraction halted.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     err.status = 400;
     throw err;
   }
@@ -153,15 +104,10 @@ async function extractZipSafely(zipFilePath, destinationDir) {
     const entryName = entry.entryName;
 
     // Check for null bytes or relative path traversal sequences
-<<<<<<< HEAD
     if (entryName.includes("\0") || entryName.includes("..")) {
       const err = new Error(
         `Malicious path detected in archive entry: "${entryName}". Extraction rejected.`,
       );
-=======
-    if (entryName.includes('\0') || entryName.includes('..')) {
-      const err = new Error(`Malicious path detected in archive entry: "${entryName}". Extraction rejected.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       err.status = 400;
       throw err;
     }
@@ -170,7 +116,6 @@ async function extractZipSafely(zipFilePath, destinationDir) {
     const targetPath = path.resolve(cleanDest, entryName);
 
     // Verify target is strictly within cleanDest
-<<<<<<< HEAD
     if (
       targetPath !== cleanDest &&
       !targetPath.startsWith(cleanDest + path.sep)
@@ -178,10 +123,6 @@ async function extractZipSafely(zipFilePath, destinationDir) {
       const err = new Error(
         `Zip-Slip attempt detected for entry: "${entryName}". Extraction rejected.`,
       );
-=======
-    if (targetPath !== cleanDest && !targetPath.startsWith(cleanDest + path.sep)) {
-      const err = new Error(`Zip-Slip attempt detected for entry: "${entryName}". Extraction rejected.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       err.status = 403;
       throw err;
     }
@@ -189,25 +130,17 @@ async function extractZipSafely(zipFilePath, destinationDir) {
     if (!entry.isDirectory) {
       const size = entry.header.size || 0;
       if (size > MAX_SINGLE_FILE_BYTES) {
-<<<<<<< HEAD
         const err = new Error(
           `File "${entryName}" in archive exceeds size limit (${Math.round(size / 1024 / 1024)}MB > ${MAX_SINGLE_FILE_BYTES / 1024 / 1024}MB).`,
         );
-=======
-        const err = new Error(`File "${entryName}" in archive exceeds size limit (${Math.round(size / 1024 / 1024)}MB > ${MAX_SINGLE_FILE_BYTES / 1024 / 1024}MB).`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         err.status = 400;
         throw err;
       }
       totalUncompressed += size;
       if (totalUncompressed > MAX_TOTAL_UNCOMPRESSED_BYTES) {
-<<<<<<< HEAD
         const err = new Error(
           `Archive uncompressed size exceeds maximum allowed (${Math.round(totalUncompressed / 1024 / 1024)}MB > ${MAX_TOTAL_UNCOMPRESSED_BYTES / 1024 / 1024}MB). Potential zip bomb.`,
         );
-=======
-        const err = new Error(`Archive uncompressed size exceeds maximum allowed (${Math.round(totalUncompressed / 1024 / 1024)}MB > ${MAX_TOTAL_UNCOMPRESSED_BYTES / 1024 / 1024}MB). Potential zip bomb.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         err.status = 400;
         throw err;
       }
@@ -233,30 +166,18 @@ async function extractZipSafely(zipFilePath, destinationDir) {
 
   return {
     extractedCount,
-<<<<<<< HEAD
     totalBytes: totalUncompressed,
-=======
-    totalBytes: totalUncompressed
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
   };
 }
 
 /**
  * Checks whether the host system has unrar installed for optional .rar extraction.
-<<<<<<< HEAD
  *
-=======
- * 
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
  * @returns {Promise<boolean>}
  */
 function isUnrarAvailable() {
   return new Promise((resolve) => {
-<<<<<<< HEAD
     exec("which unrar", (err, stdout) => {
-=======
-    exec('which unrar', (err, stdout) => {
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
       resolve(!err && !!stdout && stdout.trim().length > 0);
     });
   });
@@ -264,24 +185,16 @@ function isUnrarAvailable() {
 
 /**
  * Safely extracts a .rar archive if unrar is available, with path verification.
-<<<<<<< HEAD
  *
-=======
- * 
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
  * @param {string} rarFilePath - Path to rar file
  * @param {string} destinationDir - Target directory
  */
 async function extractRarSafely(rarFilePath, destinationDir) {
   const hasUnrar = await isUnrarAvailable();
   if (!hasUnrar) {
-<<<<<<< HEAD
     const err = new Error(
       'RAR extraction requires "unrar" package on Ubuntu Server. Please install via "sudo apt install unrar" or upload as .zip.',
     );
-=======
-    const err = new Error('RAR extraction requires "unrar" package on Ubuntu Server. Please install via "sudo apt install unrar" or upload as .zip.');
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     err.status = 400;
     throw err;
   }
@@ -292,18 +205,13 @@ async function extractRarSafely(rarFilePath, destinationDir) {
     // List archive contents first to check for directory traversal
     exec(`unrar lb "${rarFilePath}"`, { timeout: 10000 }, (listErr, stdout) => {
       if (listErr) {
-<<<<<<< HEAD
         const err = new Error(
           "Failed to inspect RAR archive. File may be corrupted or password protected.",
         );
-=======
-        const err = new Error('Failed to inspect RAR archive. File may be corrupted or password protected.');
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
         err.status = 400;
         return reject(err);
       }
 
-<<<<<<< HEAD
       const files = stdout
         .trim()
         .split("\n")
@@ -318,19 +226,12 @@ async function extractRarSafely(rarFilePath, destinationDir) {
           const err = new Error(
             `Malicious path detected in RAR: "${file}". Extraction rejected.`,
           );
-=======
-      const files = stdout.trim().split('\n').map(f => f.trim()).filter(Boolean);
-      for (const file of files) {
-        if (file.includes('..') || file.includes('\0') || path.isAbsolute(file)) {
-          const err = new Error(`Malicious path detected in RAR: "${file}". Extraction rejected.`);
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
           err.status = 400;
           return reject(err);
         }
       }
 
       // Extract to directory
-<<<<<<< HEAD
       exec(
         `unrar x -o+ -inul "${rarFilePath}" "${cleanDest}/"`,
         { timeout: 30000 },
@@ -343,21 +244,10 @@ async function extractRarSafely(rarFilePath, destinationDir) {
           resolve({ extractedCount: files.length });
         },
       );
-=======
-      exec(`unrar x -o+ -inul "${rarFilePath}" "${cleanDest}/"`, { timeout: 30000 }, (extErr) => {
-        if (extErr) {
-          const err = new Error('RAR extraction failed: ' + extErr.message);
-          err.status = 400;
-          return reject(err);
-        }
-        resolve({ extractedCount: files.length });
-      });
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
     });
   });
 }
 
-<<<<<<< HEAD
 /**
  * Creates a .zip archive of a bot directory in memory, excluding heavy or sensitive folders.
  *
@@ -495,17 +385,11 @@ function inspectProjectContents(botDir) {
   return result;
 }
 
-=======
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 module.exports = {
   inspectZipArchive,
   extractZipSafely,
   extractRarSafely,
-<<<<<<< HEAD
   isUnrarAvailable,
   createZipArchive,
   inspectProjectContents,
-=======
-  isUnrarAvailable
->>>>>>> 5408b5e3bac214450a17bade44f05c25a074c067
 };
