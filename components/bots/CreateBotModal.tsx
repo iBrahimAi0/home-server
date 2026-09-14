@@ -277,10 +277,17 @@ export function CreateBotModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanId = slugify(id);
+    // Always send a valid bot ID. If the ID field was cleared or lost
+    // while moving through the wizard, derive it safely from the bot name.
+    const cleanId = slugify(id || name);
     if (!cleanId || !name.trim()) {
       setError("Bot name and ID are required.");
       return;
+    }
+
+    // Keep the UI state in sync with the value that will actually be sent.
+    if (id !== cleanId) {
+      setId(cleanId);
     }
 
     setIsLoading(true);
