@@ -70,6 +70,16 @@ module.exports = function createBotsRouter(botManager) {
         installDependencies,
       } = req.body || {};
 
+      // Derive the ID from the display name if it wasn't supplied — the
+      // Bot ID is just a URL-safe slug and shouldn't block bot creation.
+      if ((!id || !String(id).trim()) && name && String(name).trim()) {
+        id = String(name)
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9_-]+/g, "-")
+          .replace(/^-+|-+$/g, "");
+      }
+
       const cleanId = validateBotId(id);
 
       // Parse JSON fields if coming from FormData

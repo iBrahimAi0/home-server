@@ -254,17 +254,21 @@ export function CreateBotModal({
   const handleNextStep = () => {
     setError(null);
     if (step === 1) {
-      const cleanId = slugify(id);
-      if (!cleanId) {
-        setError(
-          "A valid Bot ID is required (letters, numbers, dashes, underscores).",
-        );
-        return;
-      }
       if (!name.trim()) {
         setError("Display name is required.");
         return;
       }
+      // The Bot ID is just a URL-safe slug derived from the name. Auto-fill
+      // it silently if it's blank or was never touched, instead of blocking
+      // the user on a field they didn't realize they needed to set.
+      const cleanId = slugify(id) || slugify(name);
+      if (!cleanId) {
+        setError(
+          "Display name must contain at least one letter or number.",
+        );
+        return;
+      }
+      if (cleanId !== id) setId(cleanId);
       setStep(2);
     } else if (step === 2) {
       if (sourceType === "upload" && !uploadedZip) {
@@ -389,9 +393,12 @@ export function CreateBotModal({
           <button
             type="button"
             onClick={() => {
-              if (name.trim() && id.trim()) setStep(2);
+              if (name.trim()) {
+                if (!id.trim()) setId(slugify(name));
+                setStep(2);
+              }
             }}
-            disabled={!name.trim() || !id.trim()}
+            disabled={!name.trim()}
             className={`py-2 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
               step === 2
                 ? "text-indigo-400 font-bold bg-[#141A28] border-b-2 border-indigo-500"
@@ -407,9 +414,12 @@ export function CreateBotModal({
           <button
             type="button"
             onClick={() => {
-              if (name.trim() && id.trim()) setStep(3);
+              if (name.trim()) {
+                if (!id.trim()) setId(slugify(name));
+                setStep(3);
+              }
             }}
-            disabled={!name.trim() || !id.trim()}
+            disabled={!name.trim()}
             className={`py-2 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
               step === 3
                 ? "text-indigo-400 font-bold bg-[#141A28] border-b-2 border-indigo-500"
@@ -456,12 +466,14 @@ export function CreateBotModal({
 
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Bot ID (Slug) <span className="text-indigo-400">*</span>
+                    Bot ID (Slug){" "}
+                    <span className="text-slate-500 normal-case font-normal">
+                      — auto-generated
+                    </span>
                   </label>
                   <input
                     type="text"
-                    required
-                    value={id}
+                    value={id || slugify(name)}
                     onChange={(e) => {
                       setIdTouched(true);
                       setId(slugify(e.target.value));
@@ -469,6 +481,10 @@ export function CreateBotModal({
                     placeholder="e.g. mod-bot"
                     className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
                   />
+                  <p className="text-[11px] text-slate-500 mt-1 font-mono">
+                    Filled in automatically from the display name. Only
+                    change it if you want a different folder/slug.
+                  </p>
                 </div>
               </div>
 
