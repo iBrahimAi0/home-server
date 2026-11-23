@@ -7,14 +7,12 @@ Wants=network-online.target
 Type=simple
 User=ibra
 Group=ibra
-WorkingDirectory=/home/ibra/home-server/dashboard
+WorkingDirectory=/home/ibra/home-server
 ExecStart=/usr/bin/npm start
 Restart=always
 RestartSec=5s
 Environment=NODE_ENV=production
 Environment=PORT=3000
-Environment=NEXT_PUBLIC_API_URL=http://192.168.1.120:3001
-Environment=NEXT_PUBLIC_SOCKET_URL=http://192.168.1.120:3001
 
 # Process management
 KillMode=control-group
