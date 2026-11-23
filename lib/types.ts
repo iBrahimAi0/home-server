@@ -75,23 +75,23 @@ export interface BotUpdatePayload {
 export interface BotData {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   path: string;
   command: string;
   args: string[];
   autoStart: boolean;
-  ramLimitMB: number;
-  storageLimitMB: number;
-  storageUsedMB: number;
+  ramLimitMB?: number;
+  storageLimitMB?: number;
+  storageUsedMB?: number;
   status: BotStatus;
-  pid: number | null;
+  pid?: number | null;
   uptime: number; // in seconds
-  startedAt: string | null;
+  startedAt?: string | null;
   cpuUsage: number; // percentage
   ramUsageMB: number; // MB
   restartCount: number;
-  lastCrashReason: string | null;
-  logsCount: number;
+  lastCrashReason?: string | null;
+  logsCount?: number;
 }
 
 export interface SystemCpu {

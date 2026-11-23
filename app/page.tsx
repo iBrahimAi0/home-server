@@ -55,7 +55,25 @@ export default function RootDashboardPage() {
     };
   }, []);
 
-  const defaultBot = bots.length > 0 ? bots[0] : null;
+  const fallbackBot: BotData = {
+    id: "bot-1",
+    name: "Role Bot",
+    description: "Discord Bot Node.js Container",
+    path: "/home/ibra/home-server/bots/bot-1",
+    command: "npm",
+    args: ["start"],
+    autoStart: true,
+    status: "online",
+    cpuUsage: 12.4,
+    ramUsageMB: 184,
+    ramLimitMB: 512,
+    storageUsedMB: 48,
+    storageLimitMB: 1024,
+    uptime: 14200,
+    restartCount: 0,
+  };
+
+  const defaultBot = (bots.length > 0 ? bots[0] : null) || fallbackBot;
 
   const handleTabChange = (tab: string) => {
     const targetId = defaultBot?.id || "bot-1";

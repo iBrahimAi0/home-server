@@ -148,13 +148,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             </div>
             <span className="mt-1 text-xs font-bold font-mono text-white truncate">
               {bot.status === "online" ? `${bot.ramUsageMB}M` : "—"}
-              {bot.ramLimitMB > 0 && (
+              {Boolean(bot.ramLimitMB && bot.ramLimitMB > 0) && (
                 <span className="text-[10px] text-slate-400 font-normal">
                   /{bot.ramLimitMB}M
                 </span>
               )}
             </span>
-            {bot.status === "online" && bot.ramLimitMB > 0 && (
+            {bot.status === "online" && Boolean(bot.ramLimitMB && bot.ramLimitMB > 0) && (
               <div className="mt-1 h-1 w-full bg-[#1C1E24] rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
@@ -174,13 +174,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             </div>
             <span className="mt-1 text-xs font-bold font-mono text-white truncate">
               {bot.storageUsedMB !== undefined ? `${bot.storageUsedMB}M` : "—"}
-              {bot.storageLimitMB > 0 && (
+              {Boolean(bot.storageLimitMB && bot.storageLimitMB > 0) && (
                 <span className="text-[10px] text-slate-400 font-normal">
                   /{bot.storageLimitMB}M
                 </span>
               )}
             </span>
-            {bot.storageLimitMB > 0 && (
+            {Boolean(bot.storageLimitMB && bot.storageLimitMB > 0) && (
               <div className="mt-1 h-1 w-full bg-[#1C1E24] rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
