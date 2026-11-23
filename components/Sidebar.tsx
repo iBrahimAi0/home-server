@@ -10,7 +10,9 @@ import {
   Menu, 
   X, 
   ChevronDown,
-  Loader2
+  Loader2,
+  LogOut,
+  Layers
 } from 'lucide-react';
 import { NexusLogo } from '@/components/NexusLogo';
 import { api } from '@/lib/api';
@@ -57,6 +59,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
       category: 'GENERAL',
       items: [
         { id: 'overview', name: 'Dashboard' },
+        { id: 'servers', name: 'Servers' },
         { id: 'console', name: 'Console' },
         { id: 'settings', name: 'Settings' },
         { id: 'activity', name: 'Activity' },
@@ -85,6 +88,10 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
 
   const handleNavClick = (tabId: string) => {
     setMobileOpen(false);
+    if (tabId === 'servers') {
+      router.push('/bots');
+      return;
+    }
     if (onTabChange) {
       onTabChange(tabId);
     } else {
@@ -266,13 +273,31 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
           </div>
         </div>
 
-        {/* Bottom User Account Pill */}
+        {/* Bottom User Account Pill with Sign In / Out */}
         <div className="p-3 border-t border-[#1C1E24]">
-          <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#14161B] transition-colors cursor-pointer text-slate-300">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FACC15] text-black font-bold text-xs">
-              A
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#14161B]/80 hover:bg-[#14161B] transition-colors border border-white/[0.05]">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FACC15] text-black font-bold text-xs shrink-0 shadow-sm">
+                O
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-slate-200 truncate">Owner</p>
+                <p className="text-[10px] text-emerald-400 font-mono truncate">&bull; Authenticated</p>
+              </div>
             </div>
-            <span className="text-xs font-medium text-slate-200">Account</span>
+            <button
+              id="btn-sidebar-logout"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('forge_session');
+                }
+                router.push('/login');
+              }}
+              title="Sign Out"
+              className="p-1.5 rounded text-slate-400 hover:text-[#FACC15] hover:bg-white/[0.05] transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </aside>

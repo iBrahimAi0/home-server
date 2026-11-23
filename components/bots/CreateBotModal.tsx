@@ -19,6 +19,7 @@ import {
   Eye,
   EyeOff,
   FolderCode,
+  GitBranch,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
@@ -43,7 +44,7 @@ function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-type SourceType = "template" | "upload" | "empty";
+type SourceType = "github" | "upload" | "template" | "empty";
 
 const STARTER_TEMPLATES = [
   {
@@ -79,7 +80,7 @@ const STARTER_TEMPLATES = [
     id: "typescript",
     name: "TypeScript Bot",
     tag: "TypeScript",
-    tagColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    tagColor: "bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/20",
     description:
       "Discord.js v14 configured with TypeScript compilation and ts-node dev server.",
     command: "npm",
@@ -123,7 +124,9 @@ export function CreateBotModal({
   const [autoStart, setAutoStart] = useState(false);
 
   // Step 2: Source
-  const [sourceType, setSourceType] = useState<SourceType>("template");
+  const [sourceType, setSourceType] = useState<SourceType>("github");
+  const [gitRepoUrl, setGitRepoUrl] = useState("");
+  const [gitBranch, setGitBranch] = useState("main");
   const [selectedTemplate, setSelectedTemplate] = useState("discordjs");
   const [uploadedZip, setUploadedZip] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -231,7 +234,9 @@ export function CreateBotModal({
     setDescription("");
     setBotPath("");
     setAutoStart(false);
-    setSourceType("template");
+    setSourceType("github");
+    setGitRepoUrl("");
+    setGitBranch("main");
     setSelectedTemplate("discordjs");
     setUploadedZip(null);
     setCommand("node");
@@ -275,6 +280,10 @@ export function CreateBotModal({
       if (cleanId !== id) setId(cleanId);
       setStep(2);
     } else if (step === 2) {
+      if (sourceType === "github" && !gitRepoUrl.trim()) {
+        setError("Please enter a valid GitHub repository clone URL.");
+        return;
+      }
       if (sourceType === "upload" && !uploadedZip) {
         setError("Please select a project .zip archive to upload.");
         return;
@@ -331,6 +340,15 @@ export function CreateBotModal({
           sourceType === "upload" && uploadedZip ? uploadedZip : undefined,
       });
 
+      if (sourceType === "github" && gitRepoUrl.trim()) {
+        try {
+          await api.configureGitRepo(cleanId, gitRepoUrl.trim(), gitBranch.trim() || "main");
+          await api.pullGit(cleanId, gitBranch.trim() || "main");
+        } catch (gitErr) {
+          console.warn("Initial git pull deferred:", gitErr);
+        }
+      }
+
       toast.success(
         `Bot "${name.trim()}" created successfully!`,
         "Bot Created",
@@ -348,24 +366,24 @@ export function CreateBotModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-2xl max-h-[92vh] bg-[#0E121A] border border-[#1E273A] rounded-xl shadow-2xl overflow-hidden font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div className="flex flex-col w-full max-w-2xl max-h-[92vh] forge-glass-card overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#131926] border-b border-[#1E273A] shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-[#14161B] border-b border-[#22242B] shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-sm">
+            <div className="p-2 rounded-lg bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20 shadow-sm">
               <Bot className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-white text-sm">
-                Create New Discord Bot
+                Deploy Server Container
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
                 Step {step} of 3:{" "}
                 {step === 1
-                  ? "Bot Identity"
+                  ? "Server Identity"
                   : step === 2
-                    ? "Project Source"
+                    ? "GitHub Repo / Project Archive"
                     : "Runtime & Secrets"}
               </p>
             </div>
@@ -373,24 +391,24 @@ export function CreateBotModal({
 
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Step Progress Bar */}
-        <div className="grid grid-cols-3 bg-[#0B0E14] border-b border-[#1E273A] text-xs font-mono select-none">
+        <div className="grid grid-cols-3 bg-[#0B0E14] border-b border-[#22242B] text-xs font-mono select-none">
           <button
             type="button"
             onClick={() => setStep(1)}
-            className={`py-2 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
               step === 1
-                ? "text-indigo-400 font-bold bg-[#141A28] border-b-2 border-indigo-500"
+                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C2538] text-[10px]">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
               1
             </span>
             <span>Identity</span>
@@ -405,16 +423,16 @@ export function CreateBotModal({
               }
             }}
             disabled={!name.trim()}
-            className={`py-2 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
               step === 2
-                ? "text-indigo-400 font-bold bg-[#141A28] border-b-2 border-indigo-500"
+                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C2538] text-[10px]">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
               2
             </span>
-            <span>Source Code</span>
+            <span>Project Source</span>
           </button>
 
           <button
@@ -426,13 +444,13 @@ export function CreateBotModal({
               }
             }}
             disabled={!name.trim()}
-            className={`py-2 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
               step === 3
-                ? "text-indigo-400 font-bold bg-[#141A28] border-b-2 border-indigo-500"
+                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C2538] text-[10px]">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
               3
             </span>
             <span>Runtime & Secrets</span>
@@ -457,7 +475,7 @@ export function CreateBotModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Bot Display Name <span className="text-indigo-400">*</span>
+                    Bot Display Name <span className="text-[#FACC15]">*</span>
                   </label>
                   <input
                     type="text"
@@ -466,7 +484,7 @@ export function CreateBotModal({
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="e.g. Moderation Bot"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
                   />
                 </div>
 
@@ -485,7 +503,7 @@ export function CreateBotModal({
                       setId(slugify(e.target.value));
                     }}
                     placeholder="e.g. mod-bot"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
                   />
                   <p className="text-[11px] text-slate-500 mt-1 font-mono">
                     Filled in automatically from the display name. Only
@@ -503,7 +521,7 @@ export function CreateBotModal({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Primary role: Discord moderation, auto-warn, audit logs"
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
+                  className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
                 />
               </div>
 
@@ -517,12 +535,12 @@ export function CreateBotModal({
                     value={botPath}
                     onChange={(e) => setBotPath(e.target.value)}
                     placeholder="bots/<bot-id> (default auto-placed)"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
                   />
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1 font-mono">
                   Defaults to{" "}
-                  <code className="text-indigo-300">
+                  <code className="text-[#FACC15]">
                     bots/{id || "&lt;bot-id&gt;"}
                   </code>{" "}
                   on the server. Created automatically if it does not exist.
@@ -535,7 +553,7 @@ export function CreateBotModal({
                     type="checkbox"
                     checked={autoStart}
                     onChange={(e) => setAutoStart(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-[#FACC15] cursor-pointer"
                   />
                   <div>
                     <span className="font-semibold text-white block">
@@ -555,39 +573,52 @@ export function CreateBotModal({
           {step === 2 && (
             <div className="space-y-4 animate-in fade-in duration-150">
               {/* Source Tab Selector */}
-              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#0B0E14] border border-[#1E273A]">
+              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#0B0E14] border border-[#1E273A] overflow-x-auto">
                 <button
                   type="button"
-                  onClick={() => setSourceType("template")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer ${
-                    sourceType === "template"
-                      ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                  onClick={() => setSourceType("github")}
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+                    sourceType === "github"
+                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Starter Templates</span>
+                  <GitBranch className="w-3.5 h-3.5" />
+                  <span>GitHub Repo</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSourceType("upload")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
                     sourceType === "upload"
-                      ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
                   <UploadCloud className="w-3.5 h-3.5" />
-                  <span>Upload Project (.ZIP)</span>
+                  <span>Upload ZIP</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSourceType("template")}
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+                    sourceType === "template"
+                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Templates</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setSourceType("empty")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
                     sourceType === "empty"
-                      ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -595,6 +626,43 @@ export function CreateBotModal({
                   <span>Empty Folder</span>
                 </button>
               </div>
+
+              {/* Sub-view: GitHub Repository */}
+              {sourceType === "github" && (
+                <div className="space-y-3 p-4 rounded-xl bg-[#0B0E14] border border-[#1E273A]">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <GitBranch className="w-4 h-4 text-[#FACC15]" />
+                    <span>Clone & Track Remote GitHub Repository</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    NexusPanel will automatically clone your repository, track commits, and sync updates into this server container.
+                  </p>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
+                      Git Repository URL <span className="text-[#FACC15]">*</span>
+                    </label>
+                    <input
+                      type="url"
+                      value={gitRepoUrl}
+                      onChange={(e) => setGitRepoUrl(e.target.value)}
+                      placeholder="https://github.com/username/discord-bot.git"
+                      className="w-full px-3 py-2 rounded-lg bg-[#14161B] border border-[#22242B] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
+                      Target Branch
+                    </label>
+                    <input
+                      type="text"
+                      value={gitBranch}
+                      onChange={(e) => setGitBranch(e.target.value)}
+                      placeholder="main"
+                      className="w-full px-3 py-2 rounded-lg bg-[#14161B] border border-[#22242B] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Sub-view: Starter Templates */}
               {sourceType === "template" && (
@@ -608,14 +676,14 @@ export function CreateBotModal({
                           onClick={() => handleTemplateSelect(tpl.id)}
                           className={`p-3.5 rounded-lg border transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? "bg-indigo-500/10 border-indigo-500 shadow-md"
+                              ? "bg-[#FACC15]/10 border-[#FACC15] shadow-md"
                               : "bg-[#0B0E14] border-[#1E273A] hover:border-slate-700 hover:bg-[#111622]"
                           }`}
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-1.5">
                               <span className="font-bold text-xs text-white flex items-center gap-1.5">
-                                <Code className="w-3.5 h-3.5 text-indigo-400" />
+                                <Code className="w-3.5 h-3.5 text-[#FACC15]" />
                                 {tpl.name}
                               </span>
                               <span
@@ -663,8 +731,8 @@ export function CreateBotModal({
                     onClick={() => fileInputRef.current?.click()}
                     className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
                       isDragOver
-                        ? "border-indigo-500 bg-indigo-500/10"
-                        : "border-[#222D40] hover:border-indigo-500/50 bg-[#0B0E14]"
+                        ? "border-[#FACC15] bg-[#FACC15]/10"
+                        : "border-[#222D40] hover:border-[#FACC15]/50 bg-[#0B0E14]"
                     }`}
                   >
                     <input
@@ -674,7 +742,7 @@ export function CreateBotModal({
                       onChange={handleZipChange}
                       className="hidden"
                     />
-                    <div className="p-3 rounded-full bg-indigo-500/10 text-indigo-400 mb-2">
+                    <div className="p-3 rounded-full bg-[#FACC15]/10 text-[#FACC15] mb-2">
                       <UploadCloud className="w-6 h-6" />
                     </div>
                     <p className="text-xs font-semibold text-white">
@@ -689,7 +757,7 @@ export function CreateBotModal({
                   {uploadedZip && (
                     <div className="p-3 rounded-lg bg-[#121724] border border-[#1E273A] flex items-center justify-between text-xs font-mono">
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <FileCode2 className="w-4 h-4 text-indigo-400 shrink-0" />
+                        <FileCode2 className="w-4 h-4 text-[#FACC15] shrink-0" />
                         <span className="text-white font-semibold truncate">
                           {uploadedZip.name}
                         </span>
@@ -740,7 +808,7 @@ export function CreateBotModal({
                     value={command}
                     onChange={(e) => setCommand(e.target.value)}
                     placeholder="node / python3 / npm"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
                   />
                 </div>
                 <div>
@@ -752,7 +820,7 @@ export function CreateBotModal({
                     value={argsText}
                     onChange={(e) => setArgsText(e.target.value)}
                     placeholder="index.js / bot.py / start"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
                   />
                 </div>
               </div>
@@ -764,15 +832,15 @@ export function CreateBotModal({
                     type="checkbox"
                     checked={installDependencies}
                     onChange={(e) => setInstallDependencies(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-[#FACC15] cursor-pointer"
                   />
                   <div>
                     <span className="font-semibold text-white block">
                       Auto-install dependencies
                     </span>
                     <span className="text-[11px] text-slate-400">
-                      Run <code className="text-indigo-300">npm install</code>{" "}
-                      or <code className="text-indigo-300">pip install</code>{" "}
+                      Run <code className="text-[#FACC15]">npm install</code>{" "}
+                      or <code className="text-[#FACC15]">pip install</code>{" "}
                       immediately after project setup.
                     </span>
                   </div>
@@ -792,7 +860,7 @@ export function CreateBotModal({
                       <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
                         RAM Limit (MB)
                       </label>
-                      <span className="text-[10px] font-mono text-indigo-400 font-semibold">
+                      <span className="text-[10px] font-mono text-[#FACC15] font-semibold">
                         {ramLimitMB === 0 ? "Unlimited" : `${ramLimitMB} MB`}
                       </span>
                     </div>
@@ -805,7 +873,7 @@ export function CreateBotModal({
                         setRamLimitMB(Math.max(0, parseInt(e.target.value, 10) || 0))
                       }
                       placeholder="512"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
                     />
                     <div className="mt-1.5 flex items-center gap-1.5">
                       {[256, 512, 1024, 2048].map((mb) => (
@@ -815,7 +883,7 @@ export function CreateBotModal({
                           onClick={() => setRamLimitMB(mb)}
                           className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
                             ramLimitMB === mb
-                              ? "bg-indigo-600 text-white font-bold"
+                              ? "bg-[#FACC15] text-[#0D0E12] font-bold"
                               : "bg-[#182030] text-slate-400 hover:text-white"
                           }`}
                         >
@@ -827,7 +895,7 @@ export function CreateBotModal({
                         onClick={() => setRamLimitMB(0)}
                         className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
                           ramLimitMB === 0
-                            ? "bg-indigo-600 text-white font-bold"
+                            ? "bg-[#FACC15] text-[#0D0E12] font-bold"
                             : "bg-[#182030] text-slate-400 hover:text-white"
                         }`}
                       >
@@ -856,7 +924,7 @@ export function CreateBotModal({
                         )
                       }
                       placeholder="1024"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
                     />
                     <div className="mt-1.5 flex items-center gap-1.5">
                       {[500, 1000, 2000, 5000].map((mb) => (
@@ -903,7 +971,7 @@ export function CreateBotModal({
                   <button
                     type="button"
                     onClick={addEnvRow}
-                    className="inline-flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-mono cursor-pointer"
+                    className="inline-flex items-center gap-1 text-[11px] text-[#FACC15] hover:text-[#FACC15] font-mono cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Add Variable
@@ -922,7 +990,7 @@ export function CreateBotModal({
                             handleEnvRowChange(index, "key", e.target.value)
                           }
                           placeholder="KEY_NAME"
-                          className="w-1/3 px-2.5 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 uppercase"
+                          className="w-1/3 px-2.5 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] uppercase"
                         />
                         <div className="relative flex-1">
                           <input
@@ -938,7 +1006,7 @@ export function CreateBotModal({
                                 ? "Paste Discord Bot Token"
                                 : "Value"
                             }
-                            className="w-full pl-2.5 pr-8 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            className="w-full pl-2.5 pr-8 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
                           />
                           {row.isSecret && (
                             <button
@@ -977,7 +1045,7 @@ export function CreateBotModal({
                   type="button"
                   onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-[#141A28] border border-[#202A3C] transition-colors cursor-pointer"
+                  className="forge-btn-dark text-xs py-1.5 px-3"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back</span>
@@ -986,7 +1054,7 @@ export function CreateBotModal({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+                  className="forge-btn-dark text-xs py-1.5 px-3 text-slate-400"
                 >
                   Cancel
                 </button>
@@ -998,7 +1066,7 @@ export function CreateBotModal({
                 <button
                   type="button"
                   onClick={handleNextStep}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                  className="forge-btn-primary text-xs py-2 px-4 font-bold"
                 >
                   <span>Continue</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1008,7 +1076,7 @@ export function CreateBotModal({
                   id="btn-create-bot-submit"
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold disabled:opacity-50 shadow-md transition-all cursor-pointer"
+                  className="forge-btn-primary text-xs py-2 px-4 font-bold disabled:opacity-50"
                 >
                   {isLoading ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1017,8 +1085,8 @@ export function CreateBotModal({
                   )}
                   <span>
                     {isLoading
-                      ? "Creating Bot & Project..."
-                      : "Finish & Create Bot"}
+                      ? "Deploying Container..."
+                      : "Finish & Deploy Server"}
                   </span>
                 </button>
               )}
