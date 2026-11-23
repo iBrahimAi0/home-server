@@ -1,0 +1,9 @@
+{
+  "name": "role-bot",
+  "version": "1.0.0",
+  "description": "Discord automated role management and reaction roles handler",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}

@@ -75,16 +75,27 @@ class BotManager extends EventEmitter {
       for (const conf of configs) {
         if (!conf.id) continue;
 
-        // Auto-fix path if the configured path doesn't exist on disk but local bots/<id> does
-        if (conf.path && !fs.existsSync(conf.path)) {
+        // Auto-resolve path if missing or non-existent
+        if (!conf.path || !conf.path.trim() || !fs.existsSync(conf.path)) {
           const fallback = path.resolve(defaultBotsBase, conf.id);
           if (
             fs.existsSync(fallback) ||
+            !conf.path ||
+            !conf.path.trim() ||
             !path.isAbsolute(conf.path) ||
             (process.platform === "win32" && conf.path.startsWith("/"))
           ) {
             conf.path = fallback;
           }
+        }
+
+        // Ensure the bot working directory exists
+        try {
+          if (conf.path && !fs.existsSync(conf.path)) {
+            fs.mkdirSync(conf.path, { recursive: true });
+          }
+        } catch {
+          // ignore
         }
 
         conf.ramLimitMB = Math.max(0, parseInt(conf.ramLimitMB, 10) || 0);
@@ -1155,6 +1166,27 @@ class BotManager extends EventEmitter {
       lastCrashReason: bot.lastCrashReason,
       logsCount: bot.logs.length,
     };
+  }
+
+  /**
+   * Returns list of all bots.
+   */
+  getAllBots() {
+    const list = [];
+    for (const id of this.bots.keys()) {
+      const data = this.getBotData(id);
+      if (data) list.push(data);
+    }
+    return list;
+  }
+
+  /**
+   * Returns bot logs.
+   */
+  getBotLogs(id, limit = 200) {
+    const bot = this.bots.get(id);
+    if (!bot) return [];
+    return bot.logs.slice(-limit);
   }
 
   /**

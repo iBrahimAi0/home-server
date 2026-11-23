@@ -3,10 +3,17 @@
     "id": "bot-1",
     "name": "Role Bot",
     "description": "Discord automated role management and reaction roles handler",
-    "path": "/home/ibra/home-server/bots/bot-1",
-    "command": "npm",
-    "args": ["start"],
-    "autoStart": true,
-    "env": {}
+    "path": "C:\\Gomo\\home-server\\bots\\bot-1",
+    "command": "node",
+    "args": [
+      "index.js"
+    ],
+    "autoStart": false,
+    "ramLimitMB": 512,
+    "storageLimitMB": 1024,
+    "env": {
+      "DATABASE_URL": "sqlite:///database.sqlite",
+      "DB_PATH": "database.sqlite"
+    }
   }
 ]
