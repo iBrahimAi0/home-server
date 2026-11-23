@@ -73,7 +73,7 @@ function ConsoleContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0B0D13]">
+    <div className="flex min-h-screen bg-[#080B10]">
       <Sidebar
         serverStatus={systemStatus?.status || 'online'}
         serverUptime={systemStatus?.uptime}
@@ -91,14 +91,14 @@ function ConsoleContent() {
 
         <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-4">
           {/* Top Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg bg-[#121722] border border-[#1E273A] p-3.5 text-xs">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                <Radio className="w-3.5 h-3.5 animate-pulse" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 text-xs shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+                <Radio className="w-4 h-4 animate-pulse" />
               </div>
               <div>
                 <span className="font-bold text-white text-xs font-mono">Real-time Event Stream Active</span>
-                <p className="text-slate-400 text-[11px] font-mono">
+                <p className="text-slate-400 text-[11px] font-mono mt-0.5">
                   Streaming standard output and standard error from active bot processes.
                 </p>
               </div>

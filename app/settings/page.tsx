@@ -117,7 +117,7 @@ sudo systemctl start nexuspanel-dashboard
 sudo systemctl status nexuspanel-dashboard`;
 
   return (
-    <div className="flex min-h-screen bg-[#0B0D13]">
+    <div className="flex min-h-screen bg-[#080B10]">
       <Sidebar
         serverStatus={systemStatus?.status || 'online'}
         serverUptime={systemStatus?.uptime}
@@ -133,11 +133,11 @@ sudo systemctl status nexuspanel-dashboard`;
           isRefreshing={refreshing}
         />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-5">
+        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
           {/* Server Hardware Information */}
-          <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-5 shadow-sm">
-            <div className="flex items-center gap-2.5 pb-4 border-b border-[#1E273A]">
-              <div className="p-2 rounded-lg bg-[#182133] border border-[#232E44] text-indigo-400">
+          <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="flex items-center gap-3 pb-4 border-b border-white/[0.06]">
+              <div className="p-2.5 rounded-xl bg-gradient-to-b from-[#182133] to-[#0F1422] border border-white/[0.08] text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
                 <Server className="w-4 h-4" />
               </div>
               <div>
@@ -149,14 +149,14 @@ sudo systemctl status nexuspanel-dashboard`;
             </div>
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 font-mono">
-              <div className="p-3 rounded-md bg-[#0C1018] border border-[#1A2232]">
+              <div className="p-3.5 rounded-xl bg-[#090C12]/90 border border-white/[0.05]">
                 <span className="text-[10px] font-semibold text-slate-400 uppercase">Hostname</span>
                 <p className="text-xs font-bold text-white mt-0.5">
                   {systemStatus?.hostname || 'ubuntu-home-server'}
                 </p>
               </div>
 
-              <div className="p-3 rounded-md bg-[#0C1018] border border-[#1A2232]">
+              <div className="p-3.5 rounded-xl bg-[#090C12]/90 border border-white/[0.05]">
                 <span className="text-[10px] font-semibold text-slate-400 uppercase">Operating System</span>
                 <p className="text-xs font-bold text-white mt-0.5">
                   Ubuntu Server ({systemStatus?.platform || 'linux'} {systemStatus?.arch || 'x64'})

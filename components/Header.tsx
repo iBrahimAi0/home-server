@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { RefreshCw, Terminal, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Terminal, CheckCircle2, AlertTriangle, Bot } from 'lucide-react';
 import { BotData, SystemStatus } from '@/lib/types';
 
 interface HeaderProps {
@@ -40,7 +40,7 @@ export function Header({
   return (
     <header
       id="app-header"
-      className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#0B0D13]/90 backdrop-blur-md border-b border-[#1B2332] px-6 py-3.5"
+      className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#080B10]/80 backdrop-blur-xl border-b border-white/[0.06] px-6 py-3.5 transition-colors"
     >
       <div>
         <h1 className="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
@@ -52,28 +52,28 @@ export function Header({
       <div className="flex items-center gap-2.5 flex-wrap">
         {/* Real-time Server Health Indicator */}
         {crashedCount > 0 ? (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-500/10 border border-rose-500/20 text-rose-400">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 border border-rose-500/30 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.2)]">
             <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
             <span>{crashedCount} Crashed</span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
             <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Operational</span>
+            <span>Host Operational</span>
           </div>
         )}
 
         {/* Active Bots Count */}
-        <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#121724] border border-[#1E273A] text-slate-300">
-          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+        <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white/[0.04] border border-white/[0.08] text-slate-300">
+          <Bot className="w-3.5 h-3.5 text-indigo-400" />
           <span>
-            Bots: <strong className="text-white font-mono">{onlineCount}/{bots.length}</strong>
+            Fleet: <strong className="text-white font-mono">{onlineCount}/{bots.length}</strong>
           </span>
         </div>
 
         {/* Live Node Time */}
         {timeStr && (
-          <div className="hidden lg:inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono text-slate-400 bg-[#121724] border border-[#1E273A]">
+          <div className="hidden lg:inline-flex items-center px-3 py-1 rounded-full text-xs font-mono text-slate-400 bg-white/[0.03] border border-white/[0.06]">
             {timeStr}
           </div>
         )}
@@ -82,7 +82,7 @@ export function Header({
         <Link
           id="header-link-console"
           href="/console"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#161D2B] hover:bg-[#1E273A] text-slate-200 border border-[#222D40] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white/[0.05] hover:bg-white/[0.09] text-slate-200 border border-white/[0.08] hover:border-indigo-500/30 transition-all"
         >
           <Terminal className="w-3.5 h-3.5 text-indigo-400" />
           <span>Console</span>
@@ -95,7 +95,7 @@ export function Header({
             onClick={onRefresh}
             disabled={isRefreshing}
             title="Refresh metrics"
-            className="p-1.5 rounded-md bg-[#121724] hover:bg-[#1A2232] text-slate-300 hover:text-white border border-[#1E273A] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] transition-all cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-indigo-400' : ''}`} />
           </button>

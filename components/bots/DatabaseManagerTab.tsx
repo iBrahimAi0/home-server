@@ -285,7 +285,7 @@ export function DatabaseManagerTab({
   return (
     <div className="space-y-4 font-sans">
       {/* Top Database Toolbar */}
-      <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-wrap items-center justify-between gap-3.5 shadow-sm">
+      <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] p-4 flex flex-wrap items-center justify-between gap-3.5 shadow-sm">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-inner">
             <Database className="w-5 h-5" />
@@ -362,7 +362,7 @@ export function DatabaseManagerTab({
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-12 text-center">
+        <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mx-auto mb-3" />
           <p className="text-xs font-mono text-slate-400">
             Connecting to bot SQLite engine...
@@ -370,7 +370,7 @@ export function DatabaseManagerTab({
         </div>
       ) : !dbInfo?.hasDatabases ? (
         /* Empty State: No database yet */
-        <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-8 text-center space-y-4 shadow-sm">
+        <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] p-8 text-center space-y-4 shadow-sm">
           <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
             <Database className="w-7 h-7" />
           </div>
@@ -478,7 +478,7 @@ export function DatabaseManagerTab({
           {viewMode === "tables" && (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               {/* Left Column: Table List */}
-              <div className="md:col-span-4 rounded-xl bg-[#121722] border border-[#1E273A] p-3 space-y-2">
+              <div className="md:col-span-4 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] p-3 space-y-2">
                 <div className="flex items-center justify-between px-2 py-1">
                   <span className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
                     <TableIcon className="w-3.5 h-3.5 text-indigo-400" />
@@ -522,7 +522,7 @@ export function DatabaseManagerTab({
                   <>
                     {/* Columns Schema Box */}
                     {tables.find((t) => t.name === selectedTable) && (
-                      <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-3.5 space-y-2.5">
+                      <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] p-3.5 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5 text-sky-400" />
@@ -566,7 +566,7 @@ export function DatabaseManagerTab({
                     )}
 
                     {/* Table Data Viewer */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] overflow-hidden shadow-sm">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] overflow-hidden shadow-sm">
                       <div className="px-4 py-3 bg-[#131926] border-b border-[#1E273A] flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-white font-mono">
@@ -752,7 +752,7 @@ export function DatabaseManagerTab({
 
               {/* Query Results */}
               {queryResult && (
-                <div className="rounded-xl bg-[#121722] border border-[#1E273A] overflow-hidden shadow-sm">
+                <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] overflow-hidden shadow-sm">
                   <div className="px-4 py-2.5 bg-[#131926] border-b border-[#1E273A] flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-white font-mono">

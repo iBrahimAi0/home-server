@@ -12,11 +12,11 @@ import {
   AlertTriangle,
   Hash,
   FileCode2,
-  GitBranch,
   Trash2,
   UploadCloud,
   Key,
   Database,
+  Zap,
 } from "lucide-react";
 import { BotData } from "@/lib/types";
 import { StatusBadge } from "./StatusBadge";
@@ -52,27 +52,50 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isUploadProjectOpen, setIsUploadProjectOpen] = useState(false);
 
+  const ramPercent =
+    bot.ramLimitMB && bot.ramLimitMB > 0
+      ? Math.min(100, Math.round(((bot.ramUsageMB || 0) / bot.ramLimitMB) * 100))
+      : 0;
+
+  const storagePercent =
+    bot.storageLimitMB && bot.storageLimitMB > 0
+      ? Math.min(100, Math.round(((bot.storageUsedMB || 0) / bot.storageLimitMB) * 100))
+      : 0;
+
   return (
     <div
       id={`bot-card-${bot.id}`}
-      className="group relative flex flex-col justify-between rounded-xl bg-[#121722] border border-[#1E273A] p-4.5 transition-all duration-200 hover:border-indigo-500/30 hover:bg-[#141A28] shadow-md hover:shadow-xl"
+      className="group relative flex flex-col justify-between rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-5 transition-all duration-200 hover:border-indigo-500/30 hover:bg-[#121827] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_30px_-4px_rgba(99,102,241,0.15)]"
     >
       {/* Top Header */}
       <div>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#182133] border border-[#232E44] text-indigo-400 group-hover:scale-105 transition-transform shadow-inner">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-[#182133] to-[#0F1422] border border-white/[0.09] text-indigo-400 group-hover:scale-105 transition-transform shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]">
               <Bot className="w-5 h-5" />
+              {bot.status === "online" && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-[#0E131F]" />
+                </span>
+              )}
             </div>
+
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <Link
                   href={`/bots/${bot.id}`}
-                  className="font-bold text-white hover:text-indigo-400 transition-colors text-sm flex items-center gap-1.5 truncate"
+                  className="font-bold text-white hover:text-indigo-400 transition-colors text-sm flex items-center gap-1.5 truncate tracking-tight"
                 >
                   <span className="truncate">{bot.name}</span>
                   <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 shrink-0" />
                 </Link>
+                {bot.autoStart && (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold">
+                    <Zap className="w-2.5 h-2.5" />
+                    Auto
+                  </span>
+                )}
               </div>
               <p
                 className="text-[11px] text-slate-400 truncate mt-0.5 font-mono"
@@ -88,7 +111,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
 
         {/* Crash alert banner */}
         {bot.status === "crashed" && bot.lastCrashReason && (
-          <div className="mt-3 rounded-lg bg-rose-500/10 border border-rose-500/25 p-2.5 flex items-start gap-2 text-xs text-rose-300 font-mono">
+          <div className="mt-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 flex items-start gap-2.5 text-xs text-rose-300 font-mono shadow-[0_0_15px_-3px_rgba(244,63,94,0.15)]">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
             <div className="overflow-hidden">
               <span className="font-bold text-rose-200">Crash Alert: </span>
@@ -104,26 +127,26 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
           </div>
         )}
 
-        {/* Real-time telemetry metrics grid */}
-        <div className="mt-3.5 grid grid-cols-4 gap-2 rounded-lg bg-[#0C1018] border border-[#1A2232] p-2.5">
+        {/* Resource Telemetry Micro-HUD */}
+        <div className="mt-4 grid grid-cols-4 gap-2 rounded-xl bg-[#090C12]/90 border border-white/[0.05] p-3">
           {/* CPU */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 font-mono">
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
               <Cpu className="w-3 h-3 text-indigo-400" />
               <span>CPU</span>
             </div>
-            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
+            <span className="mt-1 text-xs font-bold font-mono text-white">
               {bot.status === "online" ? `${bot.cpuUsage}%` : "—"}
             </span>
           </div>
 
           {/* RAM */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 font-mono">
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
               <HardDrive className="w-3 h-3 text-sky-400" />
               <span>RAM</span>
             </div>
-            <span className="mt-0.5 text-xs font-semibold font-mono text-white truncate">
+            <span className="mt-1 text-xs font-bold font-mono text-white truncate">
               {bot.status === "online" ? `${bot.ramUsageMB}M` : "—"}
               {bot.ramLimitMB > 0 && (
                 <span className="text-[10px] text-slate-400 font-normal">
@@ -131,34 +154,59 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
                 </span>
               )}
             </span>
+            {bot.status === "online" && bot.ramLimitMB > 0 && (
+              <div className="mt-1 h-1 w-full bg-[#182030] rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    ramPercent > 85 ? "bg-rose-500" : "bg-sky-500"
+                  }`}
+                  style={{ width: `${ramPercent}%` }}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Uptime */}
+          {/* Storage / Uptime */}
           <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 font-mono">
-              <Clock className="w-3 h-3 text-emerald-400" />
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
+              <Database className="w-3 h-3 text-emerald-400" />
+              <span>Disk</span>
+            </div>
+            <span className="mt-1 text-xs font-bold font-mono text-white truncate">
+              {bot.storageUsedMB !== undefined ? `${bot.storageUsedMB}M` : "—"}
+              {bot.storageLimitMB > 0 && (
+                <span className="text-[10px] text-slate-400 font-normal">
+                  /{bot.storageLimitMB}M
+                </span>
+              )}
+            </span>
+            {bot.storageLimitMB > 0 && (
+              <div className="mt-1 h-1 w-full bg-[#182030] rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${
+                    storagePercent > 85 ? "bg-rose-500" : "bg-emerald-500"
+                  }`}
+                  style={{ width: `${storagePercent}%` }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* PID / Uptime */}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
+              <Clock className="w-3 h-3 text-amber-400" />
               <span>Uptime</span>
             </div>
-            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
+            <span className="mt-1 text-xs font-bold font-mono text-white truncate">
               {bot.status === "online" ? formatUptime(bot.uptime) : "—"}
-            </span>
-          </div>
-
-          {/* PID */}
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 font-mono">
-              <Hash className="w-3 h-3 text-amber-400" />
-              <span>PID</span>
-            </div>
-            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
-              {bot.status === "online" && bot.pid ? bot.pid : "—"}
             </span>
           </div>
         </div>
       </div>
 
       {/* Card Footer: Lifecycle Controls & Action Tabs Links */}
-      <div className="mt-3.5 pt-3 border-t border-[#1B2332] flex items-center justify-between gap-2 flex-wrap">
+      <div className="mt-4 pt-3.5 border-t border-white/[0.06] flex items-center justify-between gap-2 flex-wrap">
         <BotControls
           botId={bot.id}
           botName={bot.name}
@@ -178,7 +226,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`btn-upload-project-${bot.id}`}
             onClick={() => setIsUploadProjectOpen(true)}
             title="Upload Project ZIP"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/25 transition-all cursor-pointer"
           >
             <UploadCloud className="w-3 h-3" />
             <span>Upload</span>
@@ -188,7 +236,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-env-${bot.id}`}
             href={`/bots/${bot.id}?tab=env`}
             title="Manage .env secrets"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
           >
             <Key className="w-3 h-3 text-amber-400" />
             <span>.env</span>
@@ -197,8 +245,8 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
           <Link
             id={`link-files-${bot.id}`}
             href={`/bots/${bot.id}?tab=files`}
-            title="Manage bot files"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+            title="Manage bot files and code editor"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
           >
             <FileCode2 className="w-3 h-3 text-indigo-400" />
             <span>Files</span>
@@ -208,7 +256,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-db-${bot.id}`}
             href={`/bots/${bot.id}?tab=database`}
             title="Manage SQLite Database"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
           >
             <Database className="w-3 h-3 text-emerald-400" />
             <span>DB</span>
@@ -218,9 +266,9 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-logs-${bot.id}`}
             href={`/bots/${bot.id}?tab=logs`}
             title="Live console stream"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all"
           >
-            <Terminal className="w-3 h-3 text-emerald-400" />
+            <Terminal className="w-3 h-3 text-sky-400" />
             <span>Logs</span>
           </Link>
 
@@ -228,7 +276,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`btn-delete-bot-${bot.id}`}
             onClick={() => setIsDeleteOpen(true)}
             title="Remove bot from dashboard"
-            className="inline-flex items-center gap-1 p-1 rounded-md text-slate-400 hover:text-rose-400 bg-[#182030] hover:bg-rose-500/10 border border-[#232E44] hover:border-rose-500/30 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 p-1.5 rounded-lg text-slate-400 hover:text-rose-400 bg-white/[0.03] hover:bg-rose-500/10 border border-white/[0.06] hover:border-rose-500/30 transition-all cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

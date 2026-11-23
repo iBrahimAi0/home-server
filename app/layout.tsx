@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         suppressHydrationWarning
-        className="bg-[#0B0D13] text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200"
+        className="bg-[#080B10] text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200"
       >
         <ToastProvider>{children}</ToastProvider>
       </body>

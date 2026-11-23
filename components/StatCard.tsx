@@ -28,24 +28,28 @@ export function StatCard({
 }: StatCardProps) {
   const colorMap = {
     purple: {
-      iconBg: 'bg-[#182133] border-[#243048] text-indigo-400',
-      progressFill: 'bg-indigo-500',
+      iconBg: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.15)]',
+      progressFill: 'bg-gradient-to-r from-indigo-500 to-violet-500',
       accent: 'text-indigo-400',
+      topGlow: 'before:via-indigo-500/50',
     },
     blue: {
-      iconBg: 'bg-[#142236] border-[#1C3250] text-sky-400',
-      progressFill: 'bg-sky-500',
+      iconBg: 'bg-sky-500/10 border-sky-500/20 text-sky-400 shadow-[0_0_12px_rgba(14,165,233,0.15)]',
+      progressFill: 'bg-gradient-to-r from-sky-500 to-cyan-500',
       accent: 'text-sky-400',
+      topGlow: 'before:via-sky-500/50',
     },
     emerald: {
-      iconBg: 'bg-[#122620] border-[#183B30] text-emerald-400',
-      progressFill: 'bg-emerald-500',
+      iconBg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]',
+      progressFill: 'bg-gradient-to-r from-emerald-500 to-teal-500',
       accent: 'text-emerald-400',
+      topGlow: 'before:via-emerald-500/50',
     },
     amber: {
-      iconBg: 'bg-[#272114] border-[#3E341C] text-amber-400',
-      progressFill: 'bg-amber-500',
+      iconBg: 'bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]',
+      progressFill: 'bg-gradient-to-r from-amber-500 to-orange-500',
       accent: 'text-amber-400',
+      topGlow: 'before:via-amber-500/50',
     },
   };
 
@@ -54,7 +58,7 @@ export function StatCard({
   return (
     <div
       id={id}
-      className="relative overflow-hidden rounded-lg bg-[#121722] border border-[#1E273A] p-4.5 transition-all duration-150 hover:border-[#2A3750]"
+      className={`group relative overflow-hidden rounded-xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 transition-all duration-200 hover:border-white/[0.15] hover:bg-[#121827] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-transparent ${theme.topGlow} before:to-transparent before:opacity-75 hover:before:opacity-100`}
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -67,38 +71,38 @@ export function StatCard({
               {value}
             </span>
             {badgeText && (
-              <span className="text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded bg-[#182133] text-slate-300 border border-[#232E44]">
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-white/[0.05] text-slate-300 border border-white/[0.08]">
                 {badgeText}
               </span>
             )}
           </div>
         </div>
 
-        <div className={`p-2 rounded-lg border ${theme.iconBg}`}>
+        <div className={`p-2.5 rounded-xl border transition-transform duration-200 group-hover:scale-105 ${theme.iconBg}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
 
       {/* Subtitle / Ratio */}
       {subtitle && (
-        <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+        <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-400">
           <span className="font-mono truncate">{subtitle}</span>
-          {trend && <span className={`${theme.accent} font-mono shrink-0 ml-2`}>{trend}</span>}
+          {trend && <span className={`${theme.accent} font-mono shrink-0 ml-2 font-medium`}>{trend}</span>}
         </div>
       )}
 
       {/* Visual Percentage Progress Bar */}
       {percentage !== undefined && (
-        <div className="mt-2.5">
-          <div className="h-1 w-full overflow-hidden rounded-full bg-[#1A2232]">
+        <div className="mt-3">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#161C2C] p-[1px]">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${theme.progressFill}`}
+              className={`h-full rounded-full transition-all duration-500 shadow-sm ${theme.progressFill}`}
               style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
             />
           </div>
-          <div className="mt-1 flex justify-between text-[10px] text-slate-400 font-mono">
+          <div className="mt-1.5 flex justify-between text-[10px] text-slate-400 font-mono">
             <span>Utilization</span>
-            <span className="font-semibold text-slate-300">{percentage}%</span>
+            <span className="font-semibold text-slate-200">{percentage}%</span>
           </div>
         </div>
       )}

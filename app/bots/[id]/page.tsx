@@ -228,7 +228,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0B0D13]">
+    <div className="flex min-h-screen bg-[#080B10]">
       <Sidebar
         serverStatus={systemStatus?.status || "online"}
         serverUptime={systemStatus?.uptime}
@@ -244,7 +244,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
           isRefreshing={refreshing}
         />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-5">
+        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
           {/* Breadcrumb Navigation */}
           <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
             <Link
@@ -252,7 +252,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
               className="inline-flex items-center gap-1 hover:text-white transition-colors font-medium"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Bots</span>
+              <span>Bots Fleet</span>
             </Link>
             <span className="text-slate-600">/</span>
             <span className="text-slate-200 font-semibold">{botId}</span>
@@ -260,11 +260,11 @@ function BotDetailsContent({ botId }: { botId: string }) {
 
           {loading ? (
             <div className="space-y-4">
-              <div className="h-28 rounded-xl bg-[#121722] border border-[#1E273A] animate-pulse" />
-              <div className="h-64 rounded-xl bg-[#121722] border border-[#1E273A] animate-pulse" />
+              <div className="h-28 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] animate-pulse" />
+              <div className="h-64 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] animate-pulse" />
             </div>
           ) : error || !bot ? (
-            <div className="rounded-xl bg-rose-500/10 border border-rose-500/20 p-8 text-center">
+            <div className="rounded-2xl bg-rose-500/10 border border-rose-500/20 p-8 text-center">
               <AlertTriangle className="w-9 h-9 text-rose-400 mx-auto mb-2" />
               <h3 className="text-sm font-bold text-white">Bot Not Found</h3>
               <p className="text-xs text-rose-300 mt-1 font-mono">
@@ -272,7 +272,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
               </p>
               <Link
                 href="/bots"
-                className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
+                className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
               >
                 Return to Bots List
               </Link>
@@ -282,11 +282,11 @@ function BotDetailsContent({ botId }: { botId: string }) {
               {/* Bot Header Card with Controls */}
               <div
                 id="bot-detail-header-card"
-                className="rounded-xl bg-[#121722] border border-[#1E273A] p-5 shadow-sm"
+                className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-5 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                   <div className="flex items-start gap-4 min-w-0">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#182133] border border-[#232E44] text-indigo-400 shadow-inner">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-[#182133] to-[#0F1422] border border-white/[0.09] text-indigo-400 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]">
                       <Bot className="w-6 h-6" />
                     </div>
                     <div className="min-w-0">
@@ -296,7 +296,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                         </h2>
                         <StatusBadge status={bot.status} size="md" />
                         {bot.autoStart && (
-                          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/25">
                             Auto-Start
                           </span>
                         )}
@@ -345,7 +345,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
 
                 {/* Crash Information Banner if applicable */}
                 {bot.status === "crashed" && (
-                  <div className="mt-4 rounded-lg bg-rose-500/10 border border-rose-500/30 p-3.5 flex items-start gap-2.5 text-xs text-rose-300 font-mono">
+                  <div className="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/30 p-3.5 flex items-start gap-2.5 text-xs text-rose-300 font-mono shadow-[0_0_15px_-3px_rgba(244,63,94,0.2)]">
                     <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                     <div>
                       <h4 className="font-bold text-rose-200 text-xs">
@@ -369,14 +369,14 @@ function BotDetailsContent({ botId }: { botId: string }) {
               </div>
 
               {/* Navigation Tabs (Overview, Files, Secrets, Logs, GitHub) */}
-              <div className="flex items-center gap-1.5 border-b border-[#1E273A] pb-2 overflow-x-auto">
+              <div className="flex items-center gap-1.5 border-b border-white/[0.06] pb-3 overflow-x-auto">
                 <button
                   id="tab-btn-overview"
                   onClick={() => setActiveTab("overview")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "overview"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5 text-indigo-400" />
@@ -386,10 +386,10 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 <button
                   id="tab-btn-files"
                   onClick={() => setActiveTab("files")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "files"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   <FileCode2 className="w-3.5 h-3.5 text-indigo-400" />
@@ -399,23 +399,23 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 <button
                   id="tab-btn-database"
                   onClick={() => setActiveTab("database")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "database"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
-                  <Database className="w-3.5 h-3.5 text-indigo-400" />
+                  <Database className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Database</span>
                 </button>
 
                 <button
                   id="tab-btn-env"
                   onClick={() => setActiveTab("env")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "env"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   <Key className="w-3.5 h-3.5 text-amber-400" />
@@ -425,15 +425,15 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 <button
                   id="tab-btn-logs"
                   onClick={() => setActiveTab("logs")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "logs"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   <TerminalIcon className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Logs</span>
-                  <span className="text-[9px] px-1 py-0.2 rounded bg-slate-800 text-slate-300 font-mono">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-slate-300 font-mono">
                     {bot.logsCount || 0}
                   </span>
                 </button>
@@ -441,10 +441,10 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 <button
                   id="tab-btn-github"
                   onClick={() => setActiveTab("github")}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer ${
                     activeTab === "github"
-                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                      ? "bg-gradient-to-r from-indigo-500/20 to-violet-500/10 text-white border border-indigo-500/40 font-semibold shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent"
                   }`}
                 >
                   <GitBranch className="w-3.5 h-3.5 text-purple-400" />
@@ -456,7 +456,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
               {activeTab === "overview" && (
                 <div className="space-y-4">
                   {/* Quick Action Suite */}
-                  <div className="p-3.5 rounded-xl bg-[#121722] border border-[#1E273A] flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                  <div className="p-4 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] flex flex-wrap items-center justify-between gap-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-white font-mono">
                         Quick Actions:
@@ -466,7 +466,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     <div className="flex items-center gap-2 flex-wrap">
                       <button
                         onClick={() => setIsUploadProjectOpen(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600/25 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition-colors cursor-pointer"
                       >
                         <UploadCloud className="w-3.5 h-3.5" />
                         <span>Upload Project (.ZIP)</span>
@@ -475,7 +475,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                       <button
                         onClick={handleInstallDependencies}
                         disabled={isInstalling}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/[0.08] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
                       >
                         {isInstalling ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
@@ -487,7 +487,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
 
                       <button
                         onClick={handleExportProject}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/[0.08] text-xs font-medium transition-colors cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Export Backup (.ZIP)</span>
@@ -495,7 +495,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
 
                       <button
                         onClick={handleOpenLimitsModal}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-200 hover:text-white border border-white/[0.08] text-xs font-medium transition-colors cursor-pointer"
                       >
                         <Sliders className="w-3.5 h-3.5 text-indigo-400" />
                         <span>Set RAM & Storage</span>
@@ -506,7 +506,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                   {/* 5 Detail Metric Cards */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
                     {/* Process PID */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                       <div>
                         <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
                           <Hash className="w-3.5 h-3.5 text-indigo-400" />
@@ -524,7 +524,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     </div>
 
                     {/* CPU Usage */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                       <div>
                         <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
                           <Cpu className="w-3.5 h-3.5 text-sky-400" />
@@ -542,7 +542,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     </div>
 
                     {/* RAM Usage & Limit */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                       <div>
                         <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 uppercase font-mono">
                           <span className="flex items-center gap-1.5">
@@ -597,7 +597,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     </div>
 
                     {/* Storage Footprint & Limit */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                       <div>
                         <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 uppercase font-mono">
                           <span className="flex items-center gap-1.5">
@@ -650,7 +650,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     </div>
 
                     {/* Uptime */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                    <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                       <div>
                         <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
                           <Clock className="w-3.5 h-3.5 text-indigo-400" />
@@ -671,7 +671,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
                   </div>
 
                   {/* Environment & Working Directory Card */}
-                  <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 space-y-3">
+                  <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 space-y-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
                     <h3 className="font-semibold text-white text-xs flex items-center gap-2 font-mono">
                       <Folder className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Host Directory & Process Configuration</span>
@@ -939,7 +939,7 @@ export default function BotDetailsPage({
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen bg-[#0B0D13] items-center justify-center text-slate-400 font-mono text-xs">
+        <div className="flex min-h-screen bg-[#080B10] items-center justify-center text-slate-400 font-mono text-xs">
           Loading bot details...
         </div>
       }
