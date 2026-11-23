@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexuspanel-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - BOTS_DIR=/app/bots
+      - BOTS_CONFIG_PATH=/app/config/bots.json
+    volumes:
+      - ./bots:/app/bots
+      - ./backend/config:/app/config
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexuspanel-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    depends_on:
+      - backend
