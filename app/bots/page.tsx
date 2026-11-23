@@ -5,8 +5,6 @@ import {
   Bot,
   Search,
   Plus,
-  CheckCircle2,
-  AlertTriangle,
   Play,
   Square,
   Info,
@@ -27,9 +25,7 @@ type SortOption = "name" | "status" | "cpu" | "ram";
 export default function BotsPage() {
   const toast = useToast();
   const [bots, setBots] = useState<BotData[]>([]);
-  const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(
-    null,
-  );
+  const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortOption>("status");
@@ -119,8 +115,7 @@ export default function BotsPage() {
       toast.success(`Started ${offlineBots.length} bot(s).`);
       handleRefresh();
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to start all bots";
+      const msg = err instanceof Error ? err.message : "Failed to start all bots";
       toast.error(msg);
     }
   };
@@ -136,8 +131,7 @@ export default function BotsPage() {
       toast.success(`Stopped ${runningBots.length} bot(s).`);
       handleRefresh();
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : "Failed to stop all bots";
+      const msg = err instanceof Error ? err.message : "Failed to stop all bots";
       toast.error(msg);
     }
   };
@@ -185,110 +179,106 @@ export default function BotsPage() {
   const crashedCount = bots.filter((b) => b.status === "crashed").length;
 
   return (
-    <div className="flex min-h-screen bg-[#080B10]">
+    <div className="flex min-h-screen bg-[#0D0E12] text-slate-100 font-sans">
       <Sidebar
-        serverStatus={systemStatus?.status || "online"}
-        serverUptime={systemStatus?.uptime}
+        currentBotId={bots[0]?.id || "bot-1"}
+        activeTab="overview"
+        bots={bots}
+        onRefresh={handleRefresh}
       />
 
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
-        <Header
-          title="Discord Bot Fleet"
-          subtitle="Direct process management, file inspection, and lifecycle controller"
-          bots={bots}
-          systemStatus={systemStatus}
-          onRefresh={handleRefresh}
-          isRefreshing={refreshing}
-        />
+      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-200">
+        <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+          <Header
+            title="Server Fleet"
+            badge={<span>{bots.length} Active Containers</span>}
+          />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="forge-card p-4 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono tracking-wider">
                   Configured
                 </span>
-                <p className="text-2xl font-extrabold font-mono text-white mt-1">
+                <p className="text-2xl font-bold font-mono text-white mt-1">
                   {bots.length}
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-b from-[#182133] to-[#0F1422] border border-white/[0.08] text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-[#F5A623]">
                 <Bot className="w-5 h-5" />
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="forge-card p-4 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono tracking-wider">
                   Online
                 </span>
-                <p className="text-2xl font-extrabold font-mono text-emerald-400 mt-1">
+                <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">
                   {onlineCount}
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+              <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
                 <Play className="w-5 h-5 fill-current" />
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="forge-card p-4 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono tracking-wider">
                   Offline
                 </span>
-                <p className="text-2xl font-extrabold font-mono text-slate-400 mt-1">
+                <p className="text-2xl font-bold font-mono text-slate-400 mt-1">
                   {offlineCount}
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/[0.07] text-slate-400">
+              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-slate-400">
                 <Square className="w-5 h-5 fill-current" />
               </div>
             </div>
 
-            <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+            <div className="forge-card p-4 flex items-center justify-between">
               <div>
                 <span className="text-[11px] font-semibold text-slate-400 uppercase font-mono tracking-wider">
                   Crashed
                 </span>
-                <p
-                  className={`text-2xl font-extrabold font-mono mt-1 ${crashedCount > 0 ? "text-rose-400" : "text-slate-400"}`}
-                >
+                <p className={`text-2xl font-bold font-mono mt-1 ${crashedCount > 0 ? "text-rose-400" : "text-slate-400"}`}>
                   {crashedCount}
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.2)]">
-                <AlertTriangle className="w-5 h-5" />
+              <div className="p-2.5 rounded-lg bg-rose-500/10 text-rose-400">
+                <Square className="w-5 h-5" />
               </div>
             </div>
           </div>
 
           {/* Search, Filter & Action Toolbar */}
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 bg-[#0E131F]/90 border border-white/[0.07] p-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 forge-card p-4">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
               {/* Search Box */}
               <div className="relative flex-1 max-w-sm">
-                <Search className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   id="input-bots-search"
-                  placeholder="Search bots by name, ID, or path..."
+                  placeholder="Search servers by name or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#090C12] text-white placeholder-slate-500 pl-9 pr-3.5 py-2 text-xs font-mono rounded-xl border border-white/[0.08] focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-[#0D0E12] text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-lg border border-[#1C1E24] focus:outline-none focus:border-[#F5A623] transition-colors"
                 />
               </div>
 
               {/* Status Filter Tabs */}
-              <div className="flex items-center gap-1 bg-[#090C12] p-1 rounded-xl border border-white/[0.08] text-xs font-mono">
+              <div className="flex items-center gap-1 bg-[#0D0E12] p-1 rounded-lg border border-[#1C1E24] text-xs font-mono">
                 {(["all", "online", "offline", "crashed"] as const).map(
                   (st) => (
                     <button
                       key={st}
                       onClick={() => setStatusFilter(st)}
-                      className={`px-3 py-1.5 rounded-lg capitalize font-medium transition-colors text-xs cursor-pointer ${
+                      className={`px-2.5 py-1 rounded capitalize font-medium transition-colors text-xs cursor-pointer ${
                         statusFilter === st
-                          ? "bg-indigo-600 text-white font-semibold shadow-sm"
+                          ? "bg-[#1C1E24] text-[#F5A623] font-semibold"
                           : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
@@ -299,25 +289,17 @@ export default function BotsPage() {
               </div>
 
               {/* Sort By Dropdown */}
-              <div className="flex items-center gap-2 bg-[#090C12] px-3 py-1.5 rounded-xl border border-white/[0.08] text-xs font-mono">
+              <div className="flex items-center gap-2 bg-[#0D0E12] px-3 py-1.5 rounded-lg border border-[#1C1E24] text-xs font-mono">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="bg-transparent text-slate-200 text-xs font-mono focus:outline-none cursor-pointer"
                 >
-                  <option value="status" className="bg-[#0E131F] text-white">
-                    Sort: Status
-                  </option>
-                  <option value="name" className="bg-[#0E131F] text-white">
-                    Sort: Name
-                  </option>
-                  <option value="cpu" className="bg-[#0E131F] text-white">
-                    Sort: CPU
-                  </option>
-                  <option value="ram" className="bg-[#0E131F] text-white">
-                    Sort: RAM
-                  </option>
+                  <option value="status" className="bg-[#14161B] text-white">Sort: Status</option>
+                  <option value="name" className="bg-[#14161B] text-white">Sort: Name</option>
+                  <option value="cpu" className="bg-[#14161B] text-white">Sort: CPU</option>
+                  <option value="ram" className="bg-[#14161B] text-white">Sort: RAM</option>
                 </select>
               </div>
             </div>
@@ -328,7 +310,7 @@ export default function BotsPage() {
                 id="btn-start-all"
                 onClick={handleStartAll}
                 disabled={onlineCount === bots.length}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Start All</span>
@@ -338,7 +320,7 @@ export default function BotsPage() {
                 id="btn-stop-all"
                 onClick={handleStopAll}
                 disabled={onlineCount === 0}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 <Square className="w-3.5 h-3.5 fill-current" />
                 <span>Stop All</span>
@@ -347,10 +329,10 @@ export default function BotsPage() {
               <button
                 id="btn-add-bot"
                 onClick={() => setIsCreateBotOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-[0_0_15px_-3px_rgba(99,102,241,0.35)] transition-all cursor-pointer active:scale-95"
+                className="forge-btn-primary"
               >
-                <Plus className="w-4 h-4" />
-                <span>Deploy Bot</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Deploy Server</span>
               </button>
             </div>
           </div>
@@ -361,30 +343,30 @@ export default function BotsPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-56 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] animate-pulse"
+                  className="h-56 rounded-xl bg-[#14161B] border border-[#1C1E24] animate-pulse"
                 />
               ))}
             </div>
           ) : filteredBots.length === 0 ? (
-            <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-12 text-center font-mono">
-              <div className="p-3.5 rounded-full bg-indigo-500/10 text-indigo-400 w-14 h-14 mx-auto flex items-center justify-center mb-3.5 shadow-[0_0_15px_-3px_rgba(99,102,241,0.25)]">
-                <Bot className="w-7 h-7" />
+            <div className="forge-card p-12 text-center font-mono">
+              <div className="p-3.5 rounded-full bg-[#F5A623]/10 text-[#F5A623] w-12 h-12 mx-auto flex items-center justify-center mb-3.5">
+                <Bot className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-white font-sans">
-                No Bots Found
+              <h3 className="text-sm font-bold text-white font-sans">
+                No Servers Found
               </h3>
-              <p className="text-xs text-slate-400 mt-1.5 max-w-md mx-auto">
+              <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
                 {searchQuery || statusFilter !== "all"
-                  ? "No bots match your current filter parameters."
-                  : "Get started by creating a new Discord bot with a starter template or by uploading your project ZIP."}
+                  ? "No servers match your current filter parameters."
+                  : "Get started by deploying a new server container or uploading a project ZIP."}
               </p>
               {!searchQuery && statusFilter === "all" && (
                 <button
                   onClick={() => setIsCreateBotOpen(true)}
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 cursor-pointer"
+                  className="mt-4 forge-btn-primary"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Deploy Your First Bot</span>
+                  <span>Deploy First Server</span>
                 </button>
               )}
             </div>
@@ -397,21 +379,21 @@ export default function BotsPage() {
           )}
 
           {/* Guide Banner */}
-          <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 flex items-start gap-3.5 text-xs text-slate-400 font-mono shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
-            <Info className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+          <div className="forge-card p-4 flex items-start gap-3 text-xs text-slate-400 font-mono">
+            <Info className="w-4 h-4 text-[#F5A623] shrink-0 mt-0.5" />
             <div>
               <p className="text-slate-200 font-semibold mb-0.5">
                 Isolated Process Security & Quotas
               </p>
               <p>
-                Each bot runs inside its own isolated process group with automatic crash recovery, in-memory log buffer, RAM and disk storage quota limits, and zero-setup SQLite database management.
+                Each server container runs inside its own isolated process group with automatic crash recovery, in-memory log stream, RAM and disk storage quota limits, and zero-setup SQLite database management.
               </p>
             </div>
           </div>
         </main>
       </div>
 
-      {/* Create Bot Modal (3-Step Wizard) */}
+      {/* Create Bot Modal */}
       <CreateBotModal
         isOpen={isCreateBotOpen}
         onClose={() => setIsCreateBotOpen(false)}

@@ -3,5 +3,7 @@ node_modules/
 coverage/
 .DS_Store
 *.log
+*.sqlite
+*.sqlite-journal
 .env*
 !.env.example

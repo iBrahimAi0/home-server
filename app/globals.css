@@ -1,85 +1,101 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080b10;
-  --surface: #0d121d;
-  --surface-raised: #131927;
-  --surface-hover: #1a2234;
-  --border: #1e273a;
-  --border-strong: #2d3950;
+  --background: #0d0e12;
+  --surface: #14161b;
+  --surface-raised: #1a1c23;
+  --surface-hover: #20232c;
+  --border: #22242b;
   --border-subtle: rgba(255, 255, 255, 0.06);
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-subtle: rgba(99, 102, 241, 0.12);
-  --foreground: #f8fafc;
-  --foreground-muted: #94a3b8;
-  --foreground-subtle: #64748b;
+  --accent: #f5a623;
+  --accent-hover: #e0981f;
+  --accent-subtle: rgba(245, 166, 35, 0.12);
+  --foreground: #f4f5f7;
+  --foreground-muted: #8c919d;
+  --foreground-subtle: #5a5f6c;
 }
 
 body {
   background-color: var(--background);
-  background-image: 
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99, 102, 241, 0.08), transparent 70%),
-    radial-gradient(ellipse 50% 30% at 90% 100%, rgba(56, 189, 248, 0.04), transparent 60%);
-  background-attachment: fixed;
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Glassmorphic & Surface Utility Classes */
-.glass-panel {
-  background: rgba(13, 18, 29, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+/* Forge Card & Panel Standards */
+.forge-card {
+  background-color: #14161b;
+  border: 1px solid #22242b;
+  border-radius: 0.75rem;
 }
 
-.glass-card {
-  background: rgba(14, 19, 31, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+.forge-card-inner {
+  background-color: #0f1014;
+  border: 1px solid #1c1e24;
+  border-radius: 0.5rem;
 }
 
-.glass-card:hover {
-  background: rgba(19, 26, 42, 0.85);
-  border-color: rgba(99, 102, 241, 0.25);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(99, 102, 241, 0.1);
+/* Forge Button Utilities */
+.forge-btn-primary {
+  background-color: #f5a623;
+  color: #0d0e12;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-/* Glow Accent Utilities */
-.glow-accent {
-  box-shadow: 0 0 20px -4px rgba(99, 102, 241, 0.35);
+.forge-btn-primary:hover {
+  background-color: #e0981f;
 }
 
-.glow-emerald {
-  box-shadow: 0 0 16px -4px rgba(16, 185, 129, 0.35);
+.forge-btn-primary:active {
+  transform: scale(0.98);
 }
 
-.glow-rose {
-  box-shadow: 0 0 16px -4px rgba(244, 63, 94, 0.35);
+.forge-btn-dark {
+  background-color: #1a1c23;
+  color: #e5e7eb;
+  border: 1px solid #282b35;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-/* Custom Technical Scrollbar */
+.forge-btn-dark:hover {
+  background-color: #242732;
+  color: #ffffff;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090c12;
+  background: #0d0e12;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e273a;
+  background: #22242b;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #343743;
 }
 
 /* Monospace font standard class */
@@ -89,6 +105,6 @@ body {
 
 /* Focus styling */
 *:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid #f5a623;
   outline-offset: 1px;
 }

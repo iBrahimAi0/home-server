@@ -148,7 +148,9 @@ export interface BotFileItem {
   path: string;
   isDirectory: boolean;
   size: number;
+  sizeFormatted?: string;
   modifiedAt: string;
+  modified?: string;
   extension: string;
   isSensitive: boolean;
   isArchive: boolean;

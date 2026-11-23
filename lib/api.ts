@@ -263,6 +263,15 @@ export const api = {
   },
 
   /**
+   * Alias for installBotDependencies
+   */
+  async installDependencies(
+    botId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.installBotDependencies(botId);
+  },
+
+  /**
    * Sends text input directly to a running bot process's stdin.
    */
   async sendBotStdin(
@@ -304,6 +313,19 @@ export const api = {
       success: boolean;
       data: { success: boolean; exitCode: number | null; message: string };
     }>(res);
+  },
+
+  /**
+   * Alias for execBotCommand
+   */
+  async executeBotCommand(
+    botId: string,
+    command: string,
+  ): Promise<{
+    success: boolean;
+    data: { success: boolean; exitCode: number | null; message: string };
+  }> {
+    return this.execBotCommand(botId, command);
   },
 
   /**
@@ -403,6 +425,13 @@ export const api = {
       cache: "no-store",
     });
     return handleResponse<FileListResult>(res);
+  },
+
+  /**
+   * Alias for listFiles
+   */
+  async getFiles(botId: string, relativePath = ""): Promise<FileListResult> {
+    return this.listFiles(botId, relativePath);
   },
 
   /**
@@ -672,6 +701,13 @@ export const api = {
   },
 
   /**
+   * Alias for pullGitUpdates
+   */
+  async pullGit(botId: string, branch = "main"): Promise<GitPullResult> {
+    return this.pullGitUpdates(botId, branch);
+  },
+
+  /**
    * Configures repository URL and branch for a bot
    */
   async configureGitRepo(
@@ -801,5 +837,12 @@ export const api = {
    */
   getBotDatabaseDownloadUrl(botId: string, db = "database.sqlite"): string {
     return `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/download?db=${encodeURIComponent(db)}`;
+  },
+
+  /**
+   * Returns download URL for full bot project ZIP backup/export
+   */
+  getBotExportDownloadUrl(botId: string): string {
+    return `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/export`;
   },
 };

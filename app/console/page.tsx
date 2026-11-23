@@ -1,22 +1,23 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { ShieldCheck, Radio } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { BotData, SystemStatus as SystemStatusType } from '@/lib/types';
 import { api } from '@/lib/api';
 import { realtime } from '@/lib/socket';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
-import { Terminal } from '@/components/Terminal';
+import { ForgeConsoleTab } from '@/components/forge/ForgeConsoleTab';
+import { Loader2 } from 'lucide-react';
 
 function ConsoleContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const requestedBot = searchParams.get('bot') || 'all';
+  const requestedBot = searchParams.get('bot');
 
   const [bots, setBots] = useState<BotData[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -33,9 +34,7 @@ function ConsoleContent() {
       } catch (err) {
         console.error('Error fetching console data:', err);
       } finally {
-        if (isMounted) {
-          setRefreshing(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
 
@@ -58,65 +57,38 @@ function ConsoleContent() {
     };
   }, []);
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      const [botList, sys] = await Promise.all([
-        api.getBots().catch(() => []),
-        api.getSystemStatus().catch(() => null),
-      ]);
-      setBots(botList);
-      if (sys) setSystemStatus(sys);
-    } finally {
-      setRefreshing(false);
-    }
+  const activeBot = (requestedBot ? bots.find(b => b.id === requestedBot) : null) || bots[0];
+
+  const handleTabChange = (tab: string) => {
+    const targetId = activeBot?.id || 'bot-1';
+    router.push(`/bots/${targetId}?tab=${tab}`);
   };
 
   return (
-    <div className="flex min-h-screen bg-[#080B10]">
+    <div className="flex min-h-screen bg-[#0D0E12] text-slate-100 font-sans">
       <Sidebar
-        serverStatus={systemStatus?.status || 'online'}
-        serverUptime={systemStatus?.uptime}
+        currentBotId={activeBot?.id || 'bot-1'}
+        activeTab="console"
+        onTabChange={handleTabChange}
+        bots={bots}
       />
 
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">
-        <Header
-          title="Live Server Console"
-          subtitle="Real-time terminal stream, output logs, and debugging monitor"
-          bots={bots}
-          systemStatus={systemStatus}
-          onRefresh={handleRefresh}
-          isRefreshing={refreshing}
-        />
+      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-200">
+        <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          <Header title="Console" />
 
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-4">
-          {/* Top Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-4 text-xs shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
-                <Radio className="w-4 h-4 animate-pulse" />
-              </div>
-              <div>
-                <span className="font-bold text-white text-xs font-mono">Real-time Event Stream Active</span>
-                <p className="text-slate-400 text-[11px] font-mono mt-0.5">
-                  Streaming standard output and standard error from active bot processes.
-                </p>
-              </div>
+          {loading ? (
+            <div className="py-24 flex items-center justify-center text-slate-500 font-mono text-xs gap-2">
+              <Loader2 className="w-5 h-5 animate-spin text-[#F5A623]" />
+              <span>Connecting to server console...</span>
             </div>
-
-            <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Sanitized stdout/stderr stream</span>
+          ) : !activeBot ? (
+            <div className="forge-card p-10 text-center space-y-3">
+              <h2 className="text-base font-bold text-white">No Server Configured</h2>
             </div>
-          </div>
-
-          {/* Full Screen Terminal Component */}
-          <Terminal
-            initialBotId={requestedBot}
-            bots={bots}
-            heightClass="h-[calc(100vh-270px)] min-h-[500px]"
-            showBotSelector={true}
-          />
+          ) : (
+            <ForgeConsoleTab bot={activeBot} />
+          )}
         </main>
       </div>
     </div>
@@ -125,11 +97,13 @@ function ConsoleContent() {
 
 export default function ConsolePage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen bg-[#0B0D13] items-center justify-center text-slate-400 font-mono text-xs">
-        Loading console...
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen bg-[#0D0E12] items-center justify-center text-slate-400 font-mono text-xs">
+          Loading console...
+        </div>
+      }
+    >
       <ConsoleContent />
     </Suspense>
   );
