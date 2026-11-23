@@ -110,7 +110,7 @@ export default function RootDashboardPage() {
 
           {loading ? (
             <div className="py-24 flex items-center justify-center text-slate-500 font-mono text-xs gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-[#F5A623]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#FACC15]" />
               <span>Connecting to server container...</span>
             </div>
           ) : !defaultBot ? (

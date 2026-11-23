@@ -112,7 +112,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
               return (
                 <div key={i} className="flex items-start gap-2 leading-relaxed">
                   {isDeploy ? (
-                    <span className="text-[#F5A623] shrink-0 font-bold">[DEPLOY]</span>
+                    <span className="text-[#FACC15] shrink-0 font-bold">[DEPLOY]</span>
                   ) : isError ? (
                     <span className="text-rose-400 shrink-0 font-bold">[ERROR]</span>
                   ) : isMember ? (
@@ -137,7 +137,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
             placeholder="Type a command..."
-            className="w-full bg-[#0A0B0E] text-white placeholder-slate-500 px-3.5 py-2.5 text-xs font-mono rounded-lg border border-[#1A1C22] focus:outline-none focus:border-[#F5A623] transition-colors"
+            className="w-full bg-[#0A0B0E] text-white placeholder-slate-500 px-3.5 py-2.5 text-xs font-mono rounded-lg border border-[#1A1C22] focus:outline-none focus:border-[#FACC15] transition-colors"
           />
         </form>
       </div>
@@ -156,7 +156,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
               <path
                 d="M0,35 Q30,30 60,33 T120,25 T160,20 T200,32"
                 fill="none"
-                stroke="#F5A623"
+                stroke="#FACC15"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -175,7 +175,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
               <path
                 d="M0,28 Q40,29 80,28 T140,29 T200,28"
                 fill="none"
-                stroke="#F5A623"
+                stroke="#FACC15"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -194,7 +194,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
               <path
                 d="M0,32 Q50,34 90,28 T130,12 T170,26 T200,29"
                 fill="none"
-                stroke="#F5A623"
+                stroke="#FACC15"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />

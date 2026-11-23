@@ -37,7 +37,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                 type="checkbox"
                 checked={enabled}
                 onChange={(e) => setEnabled(e.target.checked)}
-                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
               />
               <span>Enable automatic backups</span>
             </label>
@@ -47,7 +47,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] cursor-pointer"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
               >
                 <option value="Daily">Daily</option>
                 <option value="Weekly">Weekly</option>
@@ -61,7 +61,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                 type="text"
                 value={timeUtc}
                 onChange={(e) => setTimeUtc(e.target.value)}
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
               />
             </div>
 
@@ -73,7 +73,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                 max={10}
                 value={keepLatest}
                 onChange={(e) => setKeepLatest(parseInt(e.target.value, 10) || 1)}
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
               />
             </div>
           </div>
@@ -90,7 +90,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                   type="checkbox"
                   checked={ruleDeploy}
                   onChange={(e) => setRuleDeploy(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Back up before every GitHub deploy</span>
               </label>
@@ -100,7 +100,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                   type="checkbox"
                   checked={ruleLock}
                   onChange={(e) => setRuleLock(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Lock the newest backup</span>
               </label>
@@ -110,7 +110,7 @@ export function ForgeAutoBackupsTab({ bot }: ForgeAutoBackupsTabProps) {
                   type="checkbox"
                   checked={ruleDeleteOldest}
                   onChange={(e) => setRuleDeleteOldest(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Delete the oldest when the limit is reached</span>
               </label>

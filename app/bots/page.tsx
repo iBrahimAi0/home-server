@@ -205,7 +205,7 @@ export default function BotsPage() {
                   {bots.length}
                 </p>
               </div>
-              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-[#F5A623]">
+              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-[#FACC15]">
                 <Bot className="w-5 h-5" />
               </div>
             </div>
@@ -265,7 +265,7 @@ export default function BotsPage() {
                   placeholder="Search servers by name or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0D0E12] text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-lg border border-[#1C1E24] focus:outline-none focus:border-[#F5A623] transition-colors"
+                  className="w-full bg-[#0D0E12] text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-lg border border-[#1C1E24] focus:outline-none focus:border-[#FACC15] transition-colors"
                 />
               </div>
 
@@ -278,7 +278,7 @@ export default function BotsPage() {
                       onClick={() => setStatusFilter(st)}
                       className={`px-2.5 py-1 rounded capitalize font-medium transition-colors text-xs cursor-pointer ${
                         statusFilter === st
-                          ? "bg-[#1C1E24] text-[#F5A623] font-semibold"
+                          ? "bg-[#1C1E24] text-[#FACC15] font-semibold"
                           : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
@@ -349,7 +349,7 @@ export default function BotsPage() {
             </div>
           ) : filteredBots.length === 0 ? (
             <div className="forge-card p-12 text-center font-mono">
-              <div className="p-3.5 rounded-full bg-[#F5A623]/10 text-[#F5A623] w-12 h-12 mx-auto flex items-center justify-center mb-3.5">
+              <div className="p-3.5 rounded-full bg-[#FACC15]/10 text-[#FACC15] w-12 h-12 mx-auto flex items-center justify-center mb-3.5">
                 <Bot className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-bold text-white font-sans">
@@ -380,7 +380,7 @@ export default function BotsPage() {
 
           {/* Guide Banner */}
           <div className="forge-card p-4 flex items-start gap-3 text-xs text-slate-400 font-mono">
-            <Info className="w-4 h-4 text-[#F5A623] shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-[#FACC15] shrink-0 mt-0.5" />
             <div>
               <p className="text-slate-200 font-semibold mb-0.5">
                 Isolated Process Security & Quotas

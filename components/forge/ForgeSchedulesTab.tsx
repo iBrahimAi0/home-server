@@ -123,7 +123,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Nightly automated reboot"
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
                 value={newCron}
                 onChange={(e) => setNewCron(e.target.value)}
                 placeholder="0 4 * * *"
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
               />
             </div>
 
@@ -169,7 +169,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
 
             <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-[#1E2027] flex items-center justify-between">
               <span className="text-slate-300">Deploy from GitHub</span>
-              <span className="px-2 py-0.5 rounded bg-[#F5A623]/10 text-[#F5A623] border border-[#F5A623]/25 font-bold">New</span>
+              <span className="px-2 py-0.5 rounded bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/25 font-bold">New</span>
             </div>
           </div>
 

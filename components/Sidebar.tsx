@@ -252,7 +252,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
                         onClick={() => handleNavClick(item.id)}
                         className={`w-full flex items-center px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors text-left cursor-pointer ${
                           isActive
-                            ? 'bg-[#1E1B15] text-[#F5A623] font-semibold'
+                            ? 'bg-[#FACC15]/10 text-[#FACC15] font-semibold border-l-2 border-[#FACC15]'
                             : 'text-slate-400 hover:text-slate-200 hover:bg-[#14161B]'
                         }`}
                       >
@@ -269,7 +269,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
         {/* Bottom User Account Pill */}
         <div className="p-3 border-t border-[#1C1E24]">
           <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-[#14161B] transition-colors cursor-pointer text-slate-300">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#F5A623] text-black font-bold text-xs">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FACC15] text-black font-bold text-xs">
               A
             </div>
             <span className="text-xs font-medium text-slate-200">Account</span>

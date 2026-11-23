@@ -7,9 +7,9 @@
   --surface-hover: #20232c;
   --border: #22242b;
   --border-subtle: rgba(255, 255, 255, 0.06);
-  --accent: #f5a623;
-  --accent-hover: #e0981f;
-  --accent-subtle: rgba(245, 166, 35, 0.12);
+  --accent: #FACC15;
+  --accent-hover: #EAB308;
+  --accent-subtle: rgba(250, 204, 21, 0.15);
   --foreground: #f4f5f7;
   --foreground-muted: #8c919d;
   --foreground-subtle: #5a5f6c;
@@ -38,7 +38,7 @@ body {
 
 /* Forge Button Utilities */
 .forge-btn-primary {
-  background-color: #f5a623;
+  background-color: #FACC15;
   color: #0d0e12;
   font-weight: 600;
   border-radius: 0.5rem;
@@ -52,7 +52,7 @@ body {
 }
 
 .forge-btn-primary:hover {
-  background-color: #e0981f;
+  background-color: #EAB308;
 }
 
 .forge-btn-primary:active {
@@ -105,6 +105,6 @@ body {
 
 /* Focus styling */
 *:focus-visible {
-  outline: 2px solid #f5a623;
+  outline: 2px solid #FACC15;
   outline-offset: 1px;
 }

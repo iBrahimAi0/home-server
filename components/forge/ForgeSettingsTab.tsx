@@ -71,7 +71,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
               />
             </div>
 
@@ -82,7 +82,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Server notes and description..."
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] resize-none"
+                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] resize-none"
               />
             </div>
 

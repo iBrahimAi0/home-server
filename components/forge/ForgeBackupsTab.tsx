@@ -85,7 +85,7 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
           </div>
           <div className="h-1 w-full bg-[#1E2027] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#F5A623] rounded-full transition-all duration-300"
+              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -120,13 +120,13 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
                   <td className="py-3 text-right space-x-3">
                     <button
                       onClick={() => handleDownload(bk.name)}
-                      className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                     >
                       Download
                     </button>
                     <button
                       onClick={() => handleRestore(bk.name)}
-                      className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                     >
                       Restore
                     </button>

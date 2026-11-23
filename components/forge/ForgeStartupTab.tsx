@@ -109,7 +109,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               type="text"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
         </div>
@@ -122,7 +122,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
             <select
               value={dockerImage}
               onChange={(e) => setDockerImage(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] cursor-pointer"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
             >
               <option value="NodeJs 24">NodeJs 24</option>
               <option value="NodeJs 22">NodeJs 22</option>
@@ -146,7 +146,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               value={additionalPackages}
               onChange={(e) => setAdditionalPackages(e.target.value)}
               placeholder="e.g. canvas sqlite3"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
 
@@ -156,7 +156,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               type="text"
               value={jsFile}
               onChange={(e) => setJsFile(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
         </div>
@@ -215,7 +215,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
                     <button
                       type="button"
                       onClick={() => toggleReveal(idx)}
-                      className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                     >
                       {p.revealed ? 'Hide' : 'Reveal'}
                     </button>

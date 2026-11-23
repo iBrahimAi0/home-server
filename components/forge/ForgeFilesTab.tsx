@@ -105,7 +105,7 @@ export function ForgeFilesTab({ bot }: ForgeFilesTabProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search"
-              className="bg-[#0D0E12] text-white text-xs font-mono pl-8 pr-3 py-1.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] w-36 sm:w-44"
+              className="bg-[#0D0E12] text-white text-xs font-mono pl-8 pr-3 py-1.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] w-36 sm:w-44"
             />
           </div>
 
@@ -157,7 +157,7 @@ export function ForgeFilesTab({ bot }: ForgeFilesTabProps) {
 
         {loading ? (
           <div className="py-12 flex items-center justify-center text-slate-500 font-mono text-xs gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-[#F5A623]" />
+            <Loader2 className="w-4 h-4 animate-spin text-[#FACC15]" />
             <span>Reading container directory...</span>
           </div>
         ) : filteredFiles.length === 0 ? (
@@ -184,7 +184,7 @@ export function ForgeFilesTab({ bot }: ForgeFilesTabProps) {
                       {/* Name */}
                       <td className="py-3 flex items-center gap-2.5 text-slate-200">
                         {isDir ? (
-                          <Folder className="w-4 h-4 text-[#F5A623] fill-current" />
+                          <Folder className="w-4 h-4 text-[#FACC15] fill-current" />
                         ) : (
                           <FileText className="w-4 h-4 text-slate-400" />
                         )}
@@ -217,14 +217,14 @@ export function ForgeFilesTab({ bot }: ForgeFilesTabProps) {
                         {isDir ? (
                           <button
                             onClick={() => handleOpenFolder(file.name)}
-                            className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                            className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                           >
                             Open
                           </button>
                         ) : (
                           <button
                             onClick={() => setEditingFile({ path: file.path, name: file.name })}
-                            className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                            className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                           >
                             Edit
                           </button>

@@ -95,7 +95,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
           <select
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] cursor-pointer"
+            className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
           >
             <option value="main">main</option>
             <option value="master">master</option>
@@ -128,22 +128,22 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
           <div className="forge-card-inner p-3.5 space-y-1">
-            <span className="text-xs font-bold text-[#F5A623] font-mono">1 Push</span>
+            <span className="text-xs font-bold text-[#FACC15] font-mono">1 Push</span>
             <p className="text-[11px] text-slate-400">You push to the selected branch</p>
           </div>
 
           <div className="forge-card-inner p-3.5 space-y-1">
-            <span className="text-xs font-bold text-[#F5A623] font-mono">2 Webhook</span>
+            <span className="text-xs font-bold text-[#FACC15] font-mono">2 Webhook</span>
             <p className="text-[11px] text-slate-400">GitHub notifies the panel</p>
           </div>
 
           <div className="forge-card-inner p-3.5 space-y-1">
-            <span className="text-xs font-bold text-[#F5A623] font-mono">3 Pull</span>
+            <span className="text-xs font-bold text-[#FACC15] font-mono">3 Pull</span>
             <p className="text-[11px] text-slate-400">Files update, npm install if needed</p>
           </div>
 
           <div className="forge-card-inner p-3.5 space-y-1">
-            <span className="text-xs font-bold text-[#F5A623] font-mono">4 Restart</span>
+            <span className="text-xs font-bold text-[#FACC15] font-mono">4 Restart</span>
             <p className="text-[11px] text-slate-400">Server restarts with new code</p>
           </div>
         </div>
@@ -203,7 +203,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
                 type="checkbox"
                 checked={optAutoDeploy}
                 onChange={(e) => setOptAutoDeploy(e.target.checked)}
-                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
               />
               <span>Auto-deploy on push</span>
             </label>
@@ -213,7 +213,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
                 type="checkbox"
                 checked={optNpmInstall}
                 onChange={(e) => setOptNpmInstall(e.target.checked)}
-                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
               />
               <span>Run npm install when package.json changes</span>
             </label>
@@ -223,7 +223,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
                 type="checkbox"
                 checked={optRestart}
                 onChange={(e) => setOptRestart(e.target.checked)}
-                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
               />
               <span>Restart server after deploy</span>
             </label>
@@ -233,7 +233,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
                 type="checkbox"
                 checked={optBackup}
                 onChange={(e) => setOptBackup(e.target.checked)}
-                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
               />
               <span>Create a backup before each deploy</span>
             </label>
@@ -268,7 +268,7 @@ export function ForgeGitHubTab({ bot, onRefresh }: ForgeGitHubTabProps) {
                 <span className="text-slate-500 font-mono text-[11px]">{h.time}</span>
                 <button
                   onClick={() => toast.info(`Viewing deploy log for ${h.commit}`)}
-                  className="text-[#F5A623] hover:underline font-medium text-xs cursor-pointer"
+                  className="text-[#FACC15] hover:underline font-medium text-xs cursor-pointer"
                 >
                   View log
                 </button>

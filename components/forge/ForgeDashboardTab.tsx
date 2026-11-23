@@ -136,7 +136,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           </div>
           <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#F5A623] rounded-full transition-all duration-300"
+              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (bot.cpuUsage || 0.47) * 2)}%` }}
             />
           </div>
@@ -150,7 +150,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           </div>
           <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#F5A623] rounded-full transition-all duration-300"
+              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
               style={{ width: `${Math.max(5, ramPercent)}%` }}
             />
           </div>
@@ -164,7 +164,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           </div>
           <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#F5A623] rounded-full transition-all duration-300"
+              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
               style={{ width: `${Math.max(8, storagePercent)}%` }}
             />
           </div>
@@ -244,7 +244,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
               id="dashboard-auto-deploy"
               checked={autoDeploy}
               onChange={(e) => setAutoDeploy(e.target.checked)}
-              className="w-3.5 h-3.5 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623] cursor-pointer"
+              className="w-3.5 h-3.5 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15] cursor-pointer"
             />
             <label htmlFor="dashboard-auto-deploy" className="text-xs text-slate-300 select-none cursor-pointer">
               Auto-deploy on push
@@ -298,7 +298,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
             placeholder="Type a command..."
-            className="w-full bg-[#0D0E12] text-white placeholder-slate-500 px-3.5 py-2 text-xs font-mono rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] transition-colors"
+            className="w-full bg-[#0D0E12] text-white placeholder-slate-500 px-3.5 py-2 text-xs font-mono rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] transition-colors"
           />
         </form>
       </div>

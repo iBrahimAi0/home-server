@@ -83,7 +83,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   <td className="py-3.5 text-white font-medium">{u.email}</td>
                   <td className="py-3.5">
                     {u.isOwner ? (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F5A623]/15 text-[#F5A623] border border-[#F5A623]/30">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">
                         Owner
                       </span>
                     ) : (
@@ -105,7 +105,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                     {!u.isOwner && (
                       <button
                         onClick={() => toast.info(`Editing permissions for ${u.email}`)}
-                        className="text-[#F5A623] hover:underline font-medium cursor-pointer"
+                        className="text-[#FACC15] hover:underline font-medium cursor-pointer"
                       >
                         Edit
                       </button>
@@ -131,7 +131,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="operator@company.com"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
 
@@ -143,7 +143,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permConsole}
                   onChange={(e) => setPermConsole(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Console</span>
               </label>
@@ -153,7 +153,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permFiles}
                   onChange={(e) => setPermFiles(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Files</span>
               </label>
@@ -163,7 +163,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permBackups}
                   onChange={(e) => setPermBackups(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Backups</span>
               </label>
@@ -173,7 +173,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permGithub}
                   onChange={(e) => setPermGithub(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>GitHub Deploy</span>
               </label>
@@ -183,7 +183,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permStartup}
                   onChange={(e) => setPermStartup(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Startup</span>
               </label>
@@ -193,7 +193,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   type="checkbox"
                   checked={permSchedules}
                   onChange={(e) => setPermSchedules(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#F5A623]"
+                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
                 />
                 <span>Schedules</span>
               </label>

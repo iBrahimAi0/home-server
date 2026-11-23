@@ -65,13 +65,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
   return (
     <div
       id={`bot-card-${bot.id}`}
-      className="group relative flex flex-col justify-between rounded-xl bg-[#14161B] border border-[#1C1E24] p-5 transition-all duration-200 hover:border-[#F5A623]/40 hover:bg-[#181B22] shadow-sm"
+      className="group relative flex flex-col justify-between rounded-xl bg-[#14161B] border border-[#1C1E24] p-5 transition-all duration-200 hover:border-[#FACC15]/40 hover:bg-[#181B22] shadow-sm"
     >
       {/* Top Header */}
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#1C1E24] border border-[#2A2E38] text-[#F5A623] group-hover:scale-105 transition-transform">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#1C1E24] border border-[#2A2E38] text-[#FACC15] group-hover:scale-105 transition-transform">
               <Bot className="w-5 h-5" />
               {bot.status === "online" && (
                 <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
@@ -85,13 +85,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href={`/bots/${bot.id}`}
-                  className="font-bold text-white hover:text-[#F5A623] transition-colors text-sm flex items-center gap-1.5 truncate tracking-tight"
+                  className="font-bold text-white hover:text-[#FACC15] transition-colors text-sm flex items-center gap-1.5 truncate tracking-tight"
                 >
                   <span className="truncate">{bot.name}</span>
                   <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 shrink-0" />
                 </Link>
                 {bot.autoStart && (
-                  <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-[#F5A623]/10 text-[#F5A623] border border-[#F5A623]/20 font-semibold">
+                  <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20 font-semibold">
                     <Zap className="w-2.5 h-2.5" />
                     Auto
                   </span>
@@ -132,7 +132,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
           {/* CPU */}
           <div className="flex flex-col">
             <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
-              <Cpu className="w-3 h-3 text-[#F5A623]" />
+              <Cpu className="w-3 h-3 text-[#FACC15]" />
               <span>CPU</span>
             </div>
             <span className="mt-1 text-xs font-bold font-mono text-white">
@@ -158,7 +158,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               <div className="mt-1 h-1 w-full bg-[#1C1E24] rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    ramPercent > 85 ? "bg-rose-500" : "bg-[#F5A623]"
+                    ramPercent > 85 ? "bg-rose-500" : "bg-[#FACC15]"
                   }`}
                   style={{ width: `${ramPercent}%` }}
                 />
@@ -226,7 +226,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`btn-upload-project-${bot.id}`}
             onClick={() => setIsUploadProjectOpen(true)}
             title="Upload Project ZIP"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-[#F5A623] hover:text-white bg-[#F5A623]/10 hover:bg-[#F5A623]/20 border border-[#F5A623]/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-[#FACC15] hover:text-white bg-[#FACC15]/10 hover:bg-[#FACC15]/20 border border-[#FACC15]/30 transition-all cursor-pointer"
           >
             <UploadCloud className="w-3 h-3" />
             <span>Upload</span>
@@ -238,7 +238,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             title="Manage bot files and code editor"
             className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-[#1C1E24] hover:bg-[#252830] border border-[#2A2E38] transition-all"
           >
-            <FileCode2 className="w-3 h-3 text-[#F5A623]" />
+            <FileCode2 className="w-3 h-3 text-[#FACC15]" />
             <span>Files</span>
           </Link>
 

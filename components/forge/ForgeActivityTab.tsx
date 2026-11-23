@@ -57,7 +57,7 @@ export function ForgeActivityTab({ bot }: ForgeActivityTabProps) {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-[#0D0E12] text-slate-300 text-xs font-mono px-3 py-1.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] cursor-pointer"
+            className="bg-[#0D0E12] text-slate-300 text-xs font-mono px-3 py-1.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
           >
             <option value="all">All events</option>
             <option value="server">Power events</option>

@@ -118,7 +118,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
                 {databases.map((d) => (
                   <tr key={d.relativePath} className="hover:bg-[#181A20] transition-colors">
                     <td className="py-3 text-white font-bold flex items-center gap-2">
-                      <Database className="w-3.5 h-3.5 text-[#F5A623]" />
+                      <Database className="w-3.5 h-3.5 text-[#FACC15]" />
                       <span>{d.name}</span>
                     </td>
                     <td className="py-3 text-slate-400">sqlite_root</td>
@@ -145,7 +145,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
               value={newDbName}
               onChange={(e) => setNewDbName(e.target.value)}
               placeholder="database.sqlite"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
 
@@ -156,7 +156,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
               value={connectionsFrom}
               onChange={(e) => setConnectionsFrom(e.target.value)}
               placeholder="%"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623]"
+              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
             />
           </div>
 
@@ -189,7 +189,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
           rows={3}
           value={sqlQuery}
           onChange={(e) => setSqlQuery(e.target.value)}
-          className="w-full bg-[#0D0E12] text-emerald-400 font-mono text-xs px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#F5A623] resize-none"
+          className="w-full bg-[#0D0E12] text-emerald-400 font-mono text-xs px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] resize-none"
         />
 
         {queryResult && (
