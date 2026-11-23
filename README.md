@@ -22,10 +22,22 @@ NexusPanel is a high-security, technical server management panel designed for Ub
   * Centralized sensitive file protection blocking read/write access to `.env*`, `id_rsa*`, `*.pem`, `*.key`, `*.token`, `.git/`.
   * Modular authentication middleware supporting optional Bearer tokens / API keys.
   * Rate limiting, request size limits, and sanitized error responses.
+* **Embedded Bot SQLite Database Manager**:
+  * Zero-config, native SQLite support powered by Node.js built-in `node:sqlite`.
+  * Automatic `DATABASE_URL` and `DB_PATH` injection into bot's `.env`.
+  * Visual schema and table browser with column types, primary key badges, and row counts.
+  * Paginated table records viewer with live search/offsets.
+  * Interactive SQL Query Console with `Ctrl+Enter` execution and timing telemetry.
+  * 1-click starter schemas: **General Settings & Logs**, **Economy & Leveling**, **Moderation & Logs**, **Reaction Roles**.
+  * Instant database backup export download.
+* **Configurable RAM & Storage Limits**:
+  * Allocate exact RAM limit (MB) per bot, strictly enforced on Node processes via `--max-old-space-size` and monitored via live RSS telemetry alerts.
+  * Allocate exact Storage quota (MB) per bot, actively calculated from directory footprint and enforced against uploads, archive extraction, and code editor saves.
+  * Real-time visual progress bars on both Bot Cards and Bot Details Overview.
 * **Modern Technical UI**:
   * Dark charcoal aesthetic with deep neutral surfaces, crisp borders, and indigo accent.
   * Original geometric vector SVG NexusPanel logo.
-  * 4-tab bot details view: **Overview | Files | Logs | GitHub**.
+  * 6-tab bot details view: **Overview | Files | Database | Environment & Secrets | Logs | GitHub**.
 
 ---
 
@@ -58,12 +70,15 @@ home-server/
 │
 ├── backend/
 │   ├── server.js               # Express + Socket.IO server (Port 3001)
+│   ├── test-suite.js           # Verification test suite (limits, process, SQLite)
 │   ├── managers/
-│   │   └── BotManager.js       # Process Group & Crash Recovery Manager
+│   │   └── BotManager.js       # Process Group, RAM/Storage Quota & Crash Recovery
 │   ├── services/
+│   │   ├── DatabaseService.js  # SQLite database manager & query engine (node:sqlite)
 │   │   └── GitService.js       # Restricted Git synchronization service
 │   ├── routes/
 │   │   ├── bots.js             # Bot lifecycle API
+│   │   ├── db.js               # Bot SQLite database API (query, seed, tables)
 │   │   ├── files.js            # File management & ZIP archive API
 │   │   ├── git.js              # GitHub synchronization API
 │   │   └── system.js           # Hardware telemetry API
@@ -83,6 +98,7 @@ home-server/
 │
 ├── app/                        # Next.js App Router (Dashboard UI)
 ├── components/                 # UI components & modals
+│   ├── bots/                   # CreateBotModal, DatabaseManagerTab, EnvManagerTab, UploadProjectModal
 │   ├── files/                  # FileManager, CodeEditorModal, Upload, Extract, Rename, Delete
 │   └── git/                    # GitHubSync, PullConfirmModal
 ├── lib/

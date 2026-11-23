@@ -16,6 +16,7 @@ import {
   Trash2,
   UploadCloud,
   Key,
+  Database,
 } from "lucide-react";
 import { BotData } from "@/lib/types";
 import { StatusBadge } from "./StatusBadge";
@@ -122,8 +123,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               <HardDrive className="w-3 h-3 text-sky-400" />
               <span>RAM</span>
             </div>
-            <span className="mt-0.5 text-xs font-semibold font-mono text-white">
-              {bot.status === "online" ? `${bot.ramUsageMB}MB` : "—"}
+            <span className="mt-0.5 text-xs font-semibold font-mono text-white truncate">
+              {bot.status === "online" ? `${bot.ramUsageMB}M` : "—"}
+              {bot.ramLimitMB > 0 && (
+                <span className="text-[10px] text-slate-400 font-normal">
+                  /{bot.ramLimitMB}M
+                </span>
+              )}
             </span>
           </div>
 
@@ -196,6 +202,16 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
           >
             <FileCode2 className="w-3 h-3 text-indigo-400" />
             <span>Files</span>
+          </Link>
+
+          <Link
+            id={`link-db-${bot.id}`}
+            href={`/bots/${bot.id}?tab=database`}
+            title="Manage SQLite Database"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-slate-300 hover:text-white bg-[#182030] hover:bg-[#202B40] border border-[#232E44] transition-colors"
+          >
+            <Database className="w-3 h-3 text-emerald-400" />
+            <span>DB</span>
           </Link>
 
           <Link

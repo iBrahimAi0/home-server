@@ -208,6 +208,18 @@ module.exports = function createFilesRouter(botManager) {
       }
 
       const targetPath = resolveSecurePath(botRoot, relativePath);
+      const incomingBytes = Buffer.byteLength(content, 'utf8');
+      const cleanId = validateBotId(req.params.id);
+      const existingSize = fs.existsSync(targetPath) ? fs.statSync(targetPath).size : 0;
+      const netBytes = Math.max(0, incomingBytes - existingSize);
+      const storageCheck = botManager.checkStorageAvailable(cleanId, netBytes);
+      if (!storageCheck.allowed) {
+        const err = new Error(
+          `Storage limit exceeded: Saving this file exceeds allocated bot storage limit of ${storageCheck.limitMB} MB.`
+        );
+        err.status = 413;
+        throw err;
+      }
 
       const parentDir = path.dirname(targetPath);
       if (!fs.existsSync(parentDir)) {
@@ -470,7 +482,18 @@ module.exports = function createFilesRouter(botManager) {
   router.post('/upload', upload.array('files', 30), async (req, res, next) => {
     const uploadedTempFiles = req.files || [];
     try {
-      const botRoot = getBotRoot(req.params.id);
+      const cleanId = validateBotId(req.params.id);
+      const totalUploadBytes = uploadedTempFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+      const storageCheck = botManager.checkStorageAvailable(cleanId, totalUploadBytes);
+      if (!storageCheck.allowed) {
+        const err = new Error(
+          `Storage limit exceeded: Uploading ${(totalUploadBytes / 1024 / 1024).toFixed(1)} MB exceeds allocated bot storage limit of ${storageCheck.limitMB} MB (current: ${storageCheck.currentMB} MB).`
+        );
+        err.status = 413;
+        throw err;
+      }
+
+      const botRoot = getBotRoot(cleanId);
       const targetFolderRelative = (req.body.destinationPath || '').toString();
       const overwrite = req.body.overwrite === 'true' || req.body.overwrite === true;
 

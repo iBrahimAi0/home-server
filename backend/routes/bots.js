@@ -4,6 +4,7 @@ const path = require("path");
 const multer = require("multer");
 const createFilesRouter = require("./files");
 const createGitRouter = require("./git");
+const createDatabaseRouter = require("./db");
 const { validateBotId } = require("../utils/pathSecurity");
 const { scaffoldTemplate } = require("../utils/botTemplates");
 const {
@@ -32,6 +33,9 @@ module.exports = function createBotsRouter(botManager) {
 
   // Mount restricted bot Git management sub-router
   router.use("/:id/git", createGitRouter(botManager));
+
+  // Mount bot SQLite Database management sub-router
+  router.use("/:id/db", createDatabaseRouter(botManager));
 
   /**
    * GET /api/bots
@@ -65,6 +69,8 @@ module.exports = function createBotsRouter(botManager) {
         command,
         args,
         autoStart,
+        ramLimitMB,
+        storageLimitMB,
         env,
         template,
         installDependencies,
@@ -118,6 +124,8 @@ module.exports = function createBotsRouter(botManager) {
         command: chosenCommand,
         args: chosenArgs,
         autoStart: autoStart,
+        ramLimitMB: ramLimitMB ? parseInt(ramLimitMB, 10) : 0,
+        storageLimitMB: storageLimitMB ? parseInt(storageLimitMB, 10) : 0,
         env: env || {},
       });
 
@@ -259,6 +267,8 @@ module.exports = function createBotsRouter(botManager) {
         command,
         args,
         autoStart,
+        ramLimitMB,
+        storageLimitMB,
         env,
       } = req.body || {};
 
@@ -269,6 +279,8 @@ module.exports = function createBotsRouter(botManager) {
         command,
         args,
         autoStart,
+        ramLimitMB,
+        storageLimitMB,
         env,
       });
 
@@ -349,6 +361,17 @@ module.exports = function createBotsRouter(botManager) {
           const err = new Error("No project archive (.zip) provided.");
           err.status = 400;
           throw err;
+        }
+
+        if (bot.storageLimitMB && bot.storageLimitMB > 0) {
+          const check = botManager.checkStorageAvailable(cleanId, uploadedFile.size);
+          if (!check.allowed) {
+            const err = new Error(
+              `Storage limit exceeded: Upload of ${(uploadedFile.size / 1024 / 1024).toFixed(1)} MB exceeds allocated bot storage limit of ${bot.storageLimitMB} MB (current: ${check.currentMB} MB).`
+            );
+            err.status = 413;
+            throw err;
+          }
         }
 
         const botDir = bot.path;

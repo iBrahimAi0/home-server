@@ -133,6 +133,8 @@ export function CreateBotModal({
   const [command, setCommand] = useState("node");
   const [argsText, setArgsText] = useState("index.js");
   const [installDependencies, setInstallDependencies] = useState(true);
+  const [ramLimitMB, setRamLimitMB] = useState<number>(512);
+  const [storageLimitMB, setStorageLimitMB] = useState<number>(1024);
   const [envRows, setEnvRows] = useState<EnvRow[]>([
     { key: "DISCORD_TOKEN", value: "", isSecret: true },
     { key: "CLIENT_ID", value: "", isSecret: false },
@@ -235,6 +237,8 @@ export function CreateBotModal({
     setCommand("node");
     setArgsText("index.js");
     setInstallDependencies(true);
+    setRamLimitMB(512);
+    setStorageLimitMB(1024);
     setEnvRows([
       { key: "DISCORD_TOKEN", value: "", isSecret: true },
       { key: "CLIENT_ID", value: "", isSecret: false },
@@ -318,6 +322,8 @@ export function CreateBotModal({
         command: command.trim() || "npm",
         args: args.length > 0 ? args : ["start"],
         autoStart,
+        ramLimitMB,
+        storageLimitMB,
         env: envObj,
         template: sourceType === "template" ? selectedTemplate : undefined,
         installDependencies: installDependencies,
@@ -771,6 +777,115 @@ export function CreateBotModal({
                     </span>
                   </div>
                 </label>
+              </div>
+
+              {/* Resource Allocation Limits (RAM & Storage) */}
+              <div className="p-3.5 rounded-lg bg-[#121724] border border-[#1E273A] space-y-3">
+                <span className="block text-xs font-bold text-white font-mono">
+                  Resource Allocation & Limits
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* RAM Limit */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
+                        RAM Limit (MB)
+                      </label>
+                      <span className="text-[10px] font-mono text-indigo-400 font-semibold">
+                        {ramLimitMB === 0 ? "Unlimited" : `${ramLimitMB} MB`}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      min={0}
+                      step={64}
+                      value={ramLimitMB}
+                      onChange={(e) =>
+                        setRamLimitMB(Math.max(0, parseInt(e.target.value, 10) || 0))
+                      }
+                      placeholder="512"
+                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                    />
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      {[256, 512, 1024, 2048].map((mb) => (
+                        <button
+                          key={mb}
+                          type="button"
+                          onClick={() => setRamLimitMB(mb)}
+                          className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                            ramLimitMB === mb
+                              ? "bg-indigo-600 text-white font-bold"
+                              : "bg-[#182030] text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          {mb >= 1024 ? `${mb / 1024}G` : `${mb}M`}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setRamLimitMB(0)}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                          ramLimitMB === 0
+                            ? "bg-indigo-600 text-white font-bold"
+                            : "bg-[#182030] text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        ∞</button>
+                    </div>
+                  </div>
+
+                  {/* Storage Limit */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
+                        Storage Limit (MB)
+                      </label>
+                      <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+                        {storageLimitMB === 0 ? "Unlimited" : `${storageLimitMB} MB`}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      min={0}
+                      step={256}
+                      value={storageLimitMB}
+                      onChange={(e) =>
+                        setStorageLimitMB(
+                          Math.max(0, parseInt(e.target.value, 10) || 0),
+                        )
+                      }
+                      placeholder="1024"
+                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                    />
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      {[500, 1000, 2000, 5000].map((mb) => (
+                        <button
+                          key={mb}
+                          type="button"
+                          onClick={() => setStorageLimitMB(mb)}
+                          className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                            storageLimitMB === mb
+                              ? "bg-emerald-600 text-white font-bold"
+                              : "bg-[#182030] text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          {mb >= 1000 ? `${mb / 1000}G` : `${mb}M`}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setStorageLimitMB(0)}
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                          storageLimitMB === 0
+                            ? "bg-emerald-600 text-white font-bold"
+                            : "bg-[#182030] text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        ∞</button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Environment Variables & Secrets Vault */}

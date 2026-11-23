@@ -25,6 +25,8 @@ export interface BotConfig {
   command?: string;
   args?: string[];
   autoStart?: boolean;
+  ramLimitMB?: number;
+  storageLimitMB?: number;
   env?: Record<string, string>;
   git?: {
     repoUrl?: string;
@@ -40,6 +42,8 @@ export interface BotCreatePayload {
   command?: string;
   args?: string[];
   autoStart?: boolean;
+  ramLimitMB?: number;
+  storageLimitMB?: number;
   env?: Record<string, string>;
   template?: string;
   installDependencies?: boolean;
@@ -63,6 +67,8 @@ export interface BotUpdatePayload {
   command?: string;
   args?: string[];
   autoStart?: boolean;
+  ramLimitMB?: number;
+  storageLimitMB?: number;
   env?: Record<string, string>;
 }
 
@@ -74,6 +80,9 @@ export interface BotData {
   command: string;
   args: string[];
   autoStart: boolean;
+  ramLimitMB: number;
+  storageLimitMB: number;
+  storageUsedMB: number;
   status: BotStatus;
   pid: number | null;
   uptime: number; // in seconds
@@ -219,4 +228,51 @@ export interface GitPullResult {
   pullOutput: string;
   newCommit: GitCommit | null;
   pulledAt: string;
+}
+
+export interface BotDatabaseFile {
+  name: string;
+  relativePath: string;
+  sizeBytes: number;
+  sizeFormatted: string;
+  modifiedAt: string;
+}
+
+export interface BotDatabaseInfo {
+  databases: BotDatabaseFile[];
+  defaultDb: string;
+  hasDatabases: boolean;
+}
+
+export interface TableColumnSchema {
+  cid: number;
+  name: string;
+  type: string;
+  notnull: boolean;
+  defaultValue: string | null;
+  pk: boolean;
+}
+
+export interface TableInfo {
+  name: string;
+  columns: TableColumnSchema[];
+  rowCount: number;
+}
+
+export interface TableDataResult {
+  table: string;
+  columns: string[];
+  rows: Record<string, unknown>[];
+  totalRows: number;
+  limit: number;
+  offset: number;
+}
+
+export interface QueryResult {
+  type: "select" | "mutation";
+  columns?: string[];
+  rows?: Record<string, unknown>[];
+  count?: number;
+  message?: string;
+  durationMs: number;
 }

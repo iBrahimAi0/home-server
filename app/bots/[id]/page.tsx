@@ -23,6 +23,8 @@ import {
   Wrench,
   Loader2,
   RefreshCw,
+  Database,
+  Sliders,
 } from "lucide-react";
 import { BotData, SystemStatus as SystemStatusType } from "@/lib/types";
 import { api } from "@/lib/api";
@@ -35,6 +37,7 @@ import { Terminal } from "@/components/Terminal";
 import { FileManager } from "@/components/files/FileManager";
 import { GitHubSync } from "@/components/git/GitHubSync";
 import { EnvManagerTab } from "@/components/bots/EnvManagerTab";
+import { DatabaseManagerTab } from "@/components/bots/DatabaseManagerTab";
 import { UploadProjectModal } from "@/components/bots/UploadProjectModal";
 import { useToast } from "@/components/ui/Toast";
 
@@ -53,7 +56,7 @@ function formatUptime(seconds?: number): string {
   return parts.join(" ");
 }
 
-type TabType = "overview" | "files" | "env" | "logs" | "github";
+type TabType = "overview" | "files" | "database" | "env" | "logs" | "github";
 
 function BotDetailsContent({ botId }: { botId: string }) {
   const searchParams = useSearchParams();
@@ -71,6 +74,10 @@ function BotDetailsContent({ botId }: { botId: string }) {
   const [refreshing, setRefreshing] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [isUploadProjectOpen, setIsUploadProjectOpen] = useState(false);
+  const [isConfigLimitsOpen, setIsConfigLimitsOpen] = useState(false);
+  const [editRamLimit, setEditRamLimit] = useState<number>(512);
+  const [editStorageLimit, setEditStorageLimit] = useState<number>(1024);
+  const [isSavingLimits, setIsSavingLimits] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -187,6 +194,37 @@ function BotDetailsContent({ botId }: { botId: string }) {
     const url = api.getBotProjectExportUrl(botId);
     window.open(url, "_blank");
     toast.info(`Exporting ${bot?.name} project archive (.zip)...`);
+  };
+
+  const handleOpenLimitsModal = () => {
+    if (bot) {
+      setEditRamLimit(bot.ramLimitMB || 0);
+      setEditStorageLimit(bot.storageLimitMB || 0);
+    }
+    setIsConfigLimitsOpen(true);
+  };
+
+  const handleSaveLimits = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bot) return;
+    setIsSavingLimits(true);
+    try {
+      await api.updateBot(botId, {
+        ramLimitMB: editRamLimit,
+        storageLimitMB: editStorageLimit,
+      });
+      toast.success(
+        "Resource limits updated successfully.",
+        "Limits Updated",
+      );
+      setIsConfigLimitsOpen(false);
+      handleRefresh();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update limits";
+      toast.error(msg, "Update Failed");
+    } finally {
+      setIsSavingLimits(false);
+    }
   };
 
   return (
@@ -359,6 +397,19 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 </button>
 
                 <button
+                  id="tab-btn-database"
+                  onClick={() => setActiveTab("database")}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                    activeTab === "database"
+                      ? "bg-[#182030] text-white border border-indigo-500/40 font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-[#131926]"
+                  }`}
+                >
+                  <Database className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Database</span>
+                </button>
+
+                <button
                   id="tab-btn-env"
                   onClick={() => setActiveTab("env")}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
@@ -441,21 +492,31 @@ function BotDetailsContent({ botId }: { botId: string }) {
                         <Download className="w-3.5 h-3.5 text-emerald-400" />
                         <span>Export Backup (.ZIP)</span>
                       </button>
+
+                      <button
+                        onClick={handleOpenLimitsModal}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+                      >
+                        <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>Set RAM & Storage</span>
+                      </button>
                     </div>
                   </div>
 
-                  {/* 4 Detail Metric Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                  {/* 5 Detail Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
                     {/* Process PID */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
-                        <Hash className="w-3.5 h-3.5 text-indigo-400" />
-                        <span>PID</span>
+                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
+                          <Hash className="w-3.5 h-3.5 text-indigo-400" />
+                          <span>PID</span>
+                        </div>
+                        <p className="mt-1 text-xl font-bold font-mono text-white">
+                          {bot.status === "online" && bot.pid ? bot.pid : "—"}
+                        </p>
                       </div>
-                      <p className="mt-1 text-xl font-bold font-mono text-white">
-                        {bot.status === "online" && bot.pid ? bot.pid : "—"}
-                      </p>
-                      <span className="text-[10px] text-slate-500 font-mono">
+                      <span className="text-[10px] text-slate-500 font-mono mt-1">
                         {bot.status === "online"
                           ? `PGID: -${bot.pid}`
                           : "Process offline"}
@@ -463,49 +524,145 @@ function BotDetailsContent({ botId }: { botId: string }) {
                     </div>
 
                     {/* CPU Usage */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
-                        <Cpu className="w-3.5 h-3.5 text-sky-400" />
-                        <span>CPU Load</span>
+                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
+                          <Cpu className="w-3.5 h-3.5 text-sky-400" />
+                          <span>CPU Load</span>
+                        </div>
+                        <p className="mt-1 text-xl font-bold font-mono text-white">
+                          {bot.status === "online"
+                            ? `${bot.cpuUsage || 0}%`
+                            : "0%"}
+                        </p>
                       </div>
-                      <p className="mt-1 text-xl font-bold font-mono text-white">
-                        {bot.status === "online"
-                          ? `${bot.cpuUsage || 0}%`
-                          : "0%"}
-                      </p>
-                      <span className="text-[10px] text-slate-500 font-mono">
+                      <span className="text-[10px] text-slate-500 font-mono mt-1">
                         ps telemetry
                       </span>
                     </div>
 
-                    {/* RAM Usage */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
-                        <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>Memory (RAM)</span>
+                    {/* RAM Usage & Limit */}
+                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 uppercase font-mono">
+                          <span className="flex items-center gap-1.5">
+                            <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Memory (RAM)</span>
+                          </span>
+                          {bot.ramLimitMB > 0 && (
+                            <span className="text-indigo-400 text-[9px]">
+                              Max {bot.ramLimitMB}M
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xl font-bold font-mono text-white">
+                          {bot.status === "online"
+                            ? `${bot.ramUsageMB || 0} MB`
+                            : "0 MB"}
+                        </p>
                       </div>
-                      <p className="mt-1 text-xl font-bold font-mono text-white">
-                        {bot.status === "online"
-                          ? `${bot.ramUsageMB || 0} MB`
-                          : "0 MB"}
-                      </p>
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        Resident Set Size
-                      </span>
+
+                      {/* Visual progress bar */}
+                      <div className="mt-1.5">
+                        <div className="w-full bg-[#1A2232] rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              bot.ramLimitMB > 0 &&
+                              bot.ramUsageMB > bot.ramLimitMB * 0.85
+                                ? "bg-rose-500"
+                                : "bg-emerald-500"
+                            }`}
+                            style={{
+                              width: `${
+                                bot.ramLimitMB > 0
+                                  ? Math.min(
+                                      100,
+                                      Math.round(
+                                        ((bot.ramUsageMB || 0) /
+                                          bot.ramLimitMB) *
+                                          100,
+                                      ),
+                                    )
+                                  : 0
+                              }%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-[9px] text-slate-400 font-mono block mt-1">
+                          {bot.ramLimitMB > 0
+                            ? `${Math.round(((bot.ramUsageMB || 0) / bot.ramLimitMB) * 100)}% of ${bot.ramLimitMB}MB`
+                            : "Resident Set Size (Unlimited)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Storage Footprint & Limit */}
+                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400 uppercase font-mono">
+                          <span className="flex items-center gap-1.5">
+                            <Folder className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Storage</span>
+                          </span>
+                          {bot.storageLimitMB > 0 && (
+                            <span className="text-amber-400 text-[9px]">
+                              Max {bot.storageLimitMB}M
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xl font-bold font-mono text-white">
+                          {bot.storageUsedMB || 0} MB
+                        </p>
+                      </div>
+
+                      {/* Storage progress bar */}
+                      <div className="mt-1.5">
+                        <div className="w-full bg-[#1A2232] rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              bot.storageLimitMB > 0 &&
+                              bot.storageUsedMB > bot.storageLimitMB * 0.85
+                                ? "bg-rose-500"
+                                : "bg-amber-500"
+                            }`}
+                            style={{
+                              width: `${
+                                bot.storageLimitMB > 0
+                                  ? Math.min(
+                                      100,
+                                      Math.round(
+                                        ((bot.storageUsedMB || 0) /
+                                          bot.storageLimitMB) *
+                                          100,
+                                      ),
+                                    )
+                                  : 0
+                              }%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-[9px] text-slate-400 font-mono block mt-1">
+                          {bot.storageLimitMB > 0
+                            ? `${Math.round(((bot.storageUsedMB || 0) / bot.storageLimitMB) * 100)}% of ${bot.storageLimitMB}MB`
+                            : "Disk Usage (Unlimited)"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Uptime */}
-                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Uptime</span>
+                    <div className="rounded-xl bg-[#121722] border border-[#1E273A] p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase font-mono">
+                          <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                          <span>Uptime</span>
+                        </div>
+                        <p className="mt-1 text-xl font-bold font-mono text-white">
+                          {bot.status === "online"
+                            ? formatUptime(bot.uptime)
+                            : "—"}
+                        </p>
                       </div>
-                      <p className="mt-1 text-xl font-bold font-mono text-white">
-                        {bot.status === "online"
-                          ? formatUptime(bot.uptime)
-                          : "—"}
-                      </p>
-                      <span className="text-[10px] text-slate-500 font-mono">
+                      <span className="text-[10px] text-slate-500 font-mono mt-1">
                         {bot.startedAt
                           ? `Started: ${new Date(bot.startedAt).toLocaleTimeString()}`
                           : "Offline"}
@@ -552,7 +709,15 @@ function BotDetailsContent({ botId }: { botId: string }) {
                 />
               )}
 
-              {/* Tab 3: Environment & Secrets Manager */}
+              {/* Tab 3: Database Manager */}
+              {activeTab === "database" && (
+                <DatabaseManagerTab
+                  botId={bot.id}
+                  botName={bot.name}
+                />
+              )}
+
+              {/* Tab 4: Environment & Secrets Manager */}
               {activeTab === "env" && (
                 <EnvManagerTab
                   botId={bot.id}
@@ -608,6 +773,158 @@ function BotDetailsContent({ botId }: { botId: string }) {
           onClose={() => setIsUploadProjectOpen(false)}
           onSuccess={handleRefresh}
         />
+      )}
+
+      {/* Configure Resource Limits Modal */}
+      {bot && isConfigLimitsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md bg-[#0E121A] border border-[#1E273A] rounded-xl shadow-2xl p-5 space-y-4 font-sans">
+            <div className="flex items-center justify-between border-b border-[#1E273A] pb-3">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-white font-mono">
+                  Configure Resource Limits for {bot.name}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsConfigLimitsOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLimits} className="space-y-4">
+              {/* RAM Limit */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-mono font-medium text-slate-300">
+                    RAM Limit (MB)
+                  </label>
+                  <span className="text-[11px] font-mono text-indigo-400 font-semibold">
+                    {editRamLimit === 0 ? "Unlimited" : `${editRamLimit} MB`}
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min={0}
+                  step={64}
+                  value={editRamLimit}
+                  onChange={(e) =>
+                    setEditRamLimit(Math.max(0, parseInt(e.target.value, 10) || 0))
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-[#080B10] border border-[#1E273A] text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                />
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  {[256, 512, 1024, 2048].map((mb) => (
+                    <button
+                      key={mb}
+                      type="button"
+                      onClick={() => setEditRamLimit(mb)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                        editRamLimit === mb
+                          ? "bg-indigo-600 text-white font-bold"
+                          : "bg-[#182030] text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {mb >= 1024 ? `${mb / 1024} GB` : `${mb} MB`}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEditRamLimit(0)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                      editRamLimit === 0
+                        ? "bg-indigo-600 text-white font-bold"
+                        : "bg-[#182030] text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Unlimited
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 font-mono mt-1">
+                  Node processes automatically receive --max-old-space-size
+                </p>
+              </div>
+
+              {/* Storage Limit */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-mono font-medium text-slate-300">
+                    Storage Limit (MB)
+                  </label>
+                  <span className="text-[11px] font-mono text-amber-400 font-semibold">
+                    {editStorageLimit === 0 ? "Unlimited" : `${editStorageLimit} MB`}
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min={0}
+                  step={256}
+                  value={editStorageLimit}
+                  onChange={(e) =>
+                    setEditStorageLimit(
+                      Math.max(0, parseInt(e.target.value, 10) || 0),
+                    )
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-[#080B10] border border-[#1E273A] text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                />
+                <div className="mt-1.5 flex items-center gap-1.5">
+                  {[500, 1000, 2000, 5000].map((mb) => (
+                    <button
+                      key={mb}
+                      type="button"
+                      onClick={() => setEditStorageLimit(mb)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                        editStorageLimit === mb
+                          ? "bg-amber-600 text-white font-bold"
+                          : "bg-[#182030] text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      {mb >= 1000 ? `${mb / 1000} GB` : `${mb} MB`}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setEditStorageLimit(0)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                      editStorageLimit === 0
+                        ? "bg-amber-600 text-white font-bold"
+                        : "bg-[#182030] text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    Unlimited
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 font-mono mt-1">
+                  Enforced on file uploads, code edits, and archive extractions
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+                <button
+                  type="button"
+                  onClick={() => setIsConfigLimitsOpen(false)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-[#182030] border border-[#232E44] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingLimits}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 cursor-pointer disabled:opacity-50"
+                >
+                  {isSavingLimits ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sliders className="w-3.5 h-3.5" />
+                  )}
+                  <span>Save Limits</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

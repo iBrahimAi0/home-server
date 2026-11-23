@@ -69,9 +69,26 @@ class BotManager extends EventEmitter {
 
       const raw = fs.readFileSync(this.configPath, "utf8");
       const configs = JSON.parse(raw);
+      const defaultBotsBase =
+        process.env.BOTS_DIR || path.resolve(__dirname, "../../bots");
 
       for (const conf of configs) {
         if (!conf.id) continue;
+
+        // Auto-fix path if the configured path doesn't exist on disk but local bots/<id> does
+        if (conf.path && !fs.existsSync(conf.path)) {
+          const fallback = path.resolve(defaultBotsBase, conf.id);
+          if (
+            fs.existsSync(fallback) ||
+            !path.isAbsolute(conf.path) ||
+            (process.platform === "win32" && conf.path.startsWith("/"))
+          ) {
+            conf.path = fallback;
+          }
+        }
+
+        conf.ramLimitMB = Math.max(0, parseInt(conf.ramLimitMB, 10) || 0);
+        conf.storageLimitMB = Math.max(0, parseInt(conf.storageLimitMB, 10) || 0);
 
         // Preserve existing runtime state if bot is already loaded
         const existing = this.bots.get(conf.id);
@@ -88,6 +105,8 @@ class BotManager extends EventEmitter {
             uptime: 0,
             cpuUsage: 0,
             ramUsageMB: 0,
+            storageUsedMB: 0,
+            lastRamAlertTime: 0,
             restartHistory: [], // array of timestamps
             restartCount: 0,
             lastCrashReason: null,
@@ -159,6 +178,8 @@ class BotManager extends EventEmitter {
       command: conf.command || "npm",
       args: Array.isArray(conf.args) ? conf.args : ["start"],
       autoStart: !!conf.autoStart,
+      ramLimitMB: Math.max(0, parseInt(conf.ramLimitMB, 10) || 0),
+      storageLimitMB: Math.max(0, parseInt(conf.storageLimitMB, 10) || 0),
       env: conf.env && typeof conf.env === "object" ? conf.env : {},
     };
 
@@ -172,6 +193,8 @@ class BotManager extends EventEmitter {
       uptime: 0,
       cpuUsage: 0,
       ramUsageMB: 0,
+      storageUsedMB: 0,
+      lastRamAlertTime: 0,
       restartHistory: [],
       restartCount: 0,
       lastCrashReason: null,
@@ -238,6 +261,10 @@ class BotManager extends EventEmitter {
         : nextConfig.args;
     if (updates.autoStart !== undefined)
       nextConfig.autoStart = !!updates.autoStart;
+    if (updates.ramLimitMB !== undefined)
+      nextConfig.ramLimitMB = Math.max(0, parseInt(updates.ramLimitMB, 10) || 0);
+    if (updates.storageLimitMB !== undefined)
+      nextConfig.storageLimitMB = Math.max(0, parseInt(updates.storageLimitMB, 10) || 0);
     if (updates.env !== undefined && typeof updates.env === "object")
       nextConfig.env = updates.env;
 
@@ -735,12 +762,21 @@ class BotManager extends EventEmitter {
       const args = bot.config.args || ["start"];
       const env = { ...process.env, ...(bot.config.env || {}) };
 
-      // Spawn real process with detached: true (creates new process group leader)
-      // shell: false is enforced by omitting shell / passing command directly
+      // Enforce RAM limit for Node/npm processes via V8 flag
+      if (bot.config.ramLimitMB && bot.config.ramLimitMB > 0) {
+        const memFlag = `--max-old-space-size=${bot.config.ramLimitMB}`;
+        if (!env.NODE_OPTIONS || !env.NODE_OPTIONS.includes("--max-old-space-size")) {
+          env.NODE_OPTIONS = `${memFlag} ${env.NODE_OPTIONS || ""}`.trim();
+        }
+      }
+
+      // Spawn real process with detached: true (creates new process group leader on POSIX)
+      const isWin = process.platform === "win32";
       const child = spawn(command, args, {
         cwd: botDir,
         env,
-        detached: true,
+        detached: !isWin,
+        shell: isWin,
         stdio: ["pipe", "pipe", "pipe"],
       });
 
@@ -814,6 +850,17 @@ class BotManager extends EventEmitter {
    * Safely sends a signal to a process group and specific PIDs, handling ESRCH gracefully.
    */
   killTargetProcesses(mainPid, childPids = [], signal = "SIGTERM") {
+    if (process.platform === "win32") {
+      if (mainPid && mainPid > 0) {
+        try {
+          exec(`taskkill /PID ${mainPid} /T /F`, { timeout: 2000 }, () => {});
+        } catch {
+          // ignore
+        }
+      }
+      return;
+    }
+
     // 1. Kill process group
     if (mainPid && mainPid > 0) {
       try {
@@ -1095,6 +1142,9 @@ class BotManager extends EventEmitter {
       command: bot.config.command,
       args: bot.config.args,
       autoStart: !!bot.config.autoStart,
+      ramLimitMB: bot.config.ramLimitMB || 0,
+      storageLimitMB: bot.config.storageLimitMB || 0,
+      storageUsedMB: bot.storageUsedMB !== undefined ? bot.storageUsedMB : this.getBotStorageMB(bot.id),
       status: bot.status,
       pid: bot.pid,
       uptime: uptime,
@@ -1108,34 +1158,127 @@ class BotManager extends EventEmitter {
   }
 
   /**
-   * Returns list of all bots.
+   * Recursively calculates disk size of a directory in bytes.
    */
-  getAllBots() {
-    const list = [];
-    for (const id of this.bots.keys()) {
-      const data = this.getBotData(id);
-      if (data) list.push(data);
+  getDirectorySizeBytes(dirPath) {
+    let totalBytes = 0;
+    if (!fs.existsSync(dirPath)) return 0;
+    try {
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.name === ".git") continue;
+        const fullPath = path.join(dirPath, entry.name);
+        try {
+          if (entry.isDirectory()) {
+            totalBytes += this.getDirectorySizeBytes(fullPath);
+          } else if (entry.isFile()) {
+            const st = fs.statSync(fullPath);
+            totalBytes += st.size;
+          }
+        } catch {
+          // ignore unreadable files
+        }
+      }
+    } catch {
+      // ignore
     }
-    return list;
+    return totalBytes;
   }
 
   /**
-   * Returns bot logs.
+   * Returns disk storage used by a bot in bytes.
    */
-  getBotLogs(id, limit = 200) {
-    const bot = this.bots.get(id);
-    if (!bot) return [];
-    return bot.logs.slice(-limit);
+  getBotStorageBytes(botId) {
+    const bot = this.bots.get(botId);
+    if (!bot || !bot.config || !bot.config.path) return 0;
+    return this.getDirectorySizeBytes(bot.config.path);
   }
 
   /**
-   * Measures real CPU & RAM for running bot processes using the Linux `ps` command.
+   * Returns disk storage used by a bot in MB.
+   */
+  getBotStorageMB(botId) {
+    const bytes = this.getBotStorageBytes(botId);
+    return Math.round((bytes / (1024 * 1024)) * 10) / 10;
+  }
+
+  /**
+   * Checks if writing additionalBytes would violate the bot's configured storage limit.
+   */
+  checkStorageAvailable(botId, additionalBytes = 0) {
+    const bot = this.bots.get(botId);
+    if (!bot) return { allowed: true };
+    const limitMB = bot.config.storageLimitMB || 0;
+    if (limitMB <= 0) return { allowed: true, limitMB: 0 };
+
+    const currentBytes = this.getBotStorageBytes(botId);
+    const limitBytes = limitMB * 1024 * 1024;
+    const projectedBytes = currentBytes + additionalBytes;
+    const allowed = projectedBytes <= limitBytes;
+
+    return {
+      allowed,
+      currentMB: Math.round((currentBytes / (1024 * 1024)) * 10) / 10,
+      limitMB,
+      projectedMB: Math.round((projectedBytes / (1024 * 1024)) * 10) / 10,
+    };
+  }
+
+  /**
+   * Checks RAM usage and logs throttled warning if over limit.
+   */
+  checkRamAlert(bot) {
+    const limit = bot.config.ramLimitMB;
+    if (limit && limit > 0 && bot.ramUsageMB > limit) {
+      const now = Date.now();
+      if (!bot.lastRamAlertTime || now - bot.lastRamAlertTime > 60000) {
+        bot.lastRamAlertTime = now;
+        this.appendLog(
+          bot.id,
+          "WARN",
+          `Memory limit warning: RAM usage (${bot.ramUsageMB} MB) has exceeded allocated limit of ${limit} MB.`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Measures real CPU & RAM for running bot processes.
    */
   async updateProcessMetrics(bot) {
     if (!bot.pid || bot.status !== "online") {
       bot.cpuUsage = 0;
       bot.ramUsageMB = 0;
       return;
+    }
+
+    if (process.platform === "win32") {
+      return new Promise((resolve) => {
+        exec(
+          `tasklist /FI "PID eq ${bot.pid}" /FO CSV /NH`,
+          { timeout: 1500 },
+          (error, stdout) => {
+            if (error || !stdout || !stdout.trim()) {
+              bot.cpuUsage = 0;
+              bot.ramUsageMB = 0;
+              return resolve();
+            }
+            try {
+              const parts = stdout.trim().split('","');
+              if (parts.length >= 5) {
+                const memStr = parts[4].replace(/[^0-9]/g, "");
+                const memKb = parseInt(memStr, 10) || 0;
+                bot.ramUsageMB = Math.round(memKb / 1024);
+                bot.cpuUsage = 0;
+              }
+            } catch {
+              bot.ramUsageMB = 0;
+            }
+            this.checkRamAlert(bot);
+            resolve();
+          },
+        );
+      });
     }
 
     return new Promise((resolve) => {
@@ -1163,6 +1306,7 @@ class BotManager extends EventEmitter {
             bot.ramUsageMB = 0;
           }
 
+          this.checkRamAlert(bot);
           resolve();
         },
       );
@@ -1174,11 +1318,17 @@ class BotManager extends EventEmitter {
    */
   startMetricsCollector() {
     if (this.statsInterval) clearInterval(this.statsInterval);
+    let cycleCount = 0;
 
     this.statsInterval = setInterval(async () => {
+      cycleCount++;
       const metricPromises = [];
+      const refreshStorage = cycleCount % 4 === 1; // refresh storage every ~10s
 
       for (const bot of this.bots.values()) {
+        if (refreshStorage) {
+          bot.storageUsedMB = this.getBotStorageMB(bot.id);
+        }
         if (bot.status === "online") {
           if (bot.startedAt) {
             bot.uptime = Math.floor((Date.now() - bot.startedAt) / 1000);

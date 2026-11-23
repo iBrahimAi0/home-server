@@ -12,6 +12,11 @@ import {
   GitStatus,
   GitUpdateCheckResult,
   GitPullResult,
+  BotDatabaseInfo,
+  BotDatabaseFile,
+  TableInfo,
+  TableDataResult,
+  QueryResult,
 } from "./types";
 
 function getApiBaseUrl(): string {
@@ -182,6 +187,10 @@ export const api = {
       if (payload.command) formData.append("command", payload.command);
       if (payload.args) formData.append("args", JSON.stringify(payload.args));
       formData.append("autoStart", String(!!payload.autoStart));
+      if (payload.ramLimitMB !== undefined)
+        formData.append("ramLimitMB", String(payload.ramLimitMB));
+      if (payload.storageLimitMB !== undefined)
+        formData.append("storageLimitMB", String(payload.storageLimitMB));
       formData.append(
         "installDependencies",
         String(!!payload.installDependencies),
@@ -680,5 +689,117 @@ export const api = {
       body: JSON.stringify({ repoUrl, branch }),
     });
     return handleResponse<{ repoUrl: string; branch: string }>(res);
+  },
+
+  /**
+   * Database Management: Lists all detected SQLite database files for a bot
+   */
+  async getBotDatabases(botId: string): Promise<BotDatabaseInfo> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db`;
+    const res = await fetch(url, {
+      headers: { ...getAuthHeaders() },
+      cache: "no-store",
+    });
+    return handleResponse<BotDatabaseInfo>(res);
+  },
+
+  /**
+   * Creates a new SQLite database file for a bot
+   */
+  async createBotDatabase(
+    botId: string,
+    name = "database.sqlite",
+    updateEnv = true,
+  ): Promise<BotDatabaseFile> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/create`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ name, updateEnv }),
+    });
+    return handleResponse<BotDatabaseFile>(res);
+  },
+
+  /**
+   * Retrieves tables and column schemas for a bot's SQLite database
+   */
+  async getBotTables(
+    botId: string,
+    db = "database.sqlite",
+  ): Promise<{ database: string; tables: TableInfo[] }> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/tables?db=${encodeURIComponent(db)}`;
+    const res = await fetch(url, {
+      headers: { ...getAuthHeaders() },
+      cache: "no-store",
+    });
+    return handleResponse<{ database: string; tables: TableInfo[] }>(res);
+  },
+
+  /**
+   * Retrieves paginated row data for a table in the bot's database
+   */
+  async getBotTableData(
+    botId: string,
+    table: string,
+    db = "database.sqlite",
+    limit = 50,
+    offset = 0,
+  ): Promise<TableDataResult> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/table-data?table=${encodeURIComponent(table)}&db=${encodeURIComponent(db)}&limit=${limit}&offset=${offset}`;
+    const res = await fetch(url, {
+      headers: { ...getAuthHeaders() },
+      cache: "no-store",
+    });
+    return handleResponse<TableDataResult>(res);
+  },
+
+  /**
+   * Executes arbitrary SQL query against the bot's database
+   */
+  async executeBotQuery(
+    botId: string,
+    query: string,
+    db = "database.sqlite",
+  ): Promise<QueryResult> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/query`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ query, db }),
+    });
+    return handleResponse<QueryResult>(res);
+  },
+
+  /**
+   * Seeds starter schema template into the bot's database
+   */
+  async seedBotDatabase(
+    botId: string,
+    template = "general",
+    db = "database.sqlite",
+  ): Promise<{ success: boolean; message: string }> {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/seed`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify({ template, db }),
+    });
+    return handleResponse<{ success: boolean; message: string }>(res);
+  },
+
+  /**
+   * Returns download URL for direct database file export
+   */
+  getBotDatabaseDownloadUrl(botId: string, db = "database.sqlite"): string {
+    return `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/db/download?db=${encodeURIComponent(db)}`;
   },
 };
