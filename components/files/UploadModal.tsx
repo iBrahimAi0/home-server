@@ -64,8 +64,8 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-md bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
-        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+      <div className="flex flex-col w-full max-w-md bg-inset border border-line rounded-lg shadow-2xl overflow-hidden font-sans">
+        <div className="flex items-center justify-between px-4 py-3 bg-panel border-b border-line">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <UploadCloud className="w-4 h-4" />
@@ -74,7 +74,7 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -100,7 +100,7 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
             className={`flex flex-col items-center justify-center p-5 border border-dashed rounded-lg cursor-pointer transition-all ${
               isDragOver
                 ? 'border-indigo-500 bg-indigo-500/10'
-                : 'border-[#222D40] hover:border-indigo-500/50 bg-[#0B0E14]'
+                : 'border-line hover:border-indigo-500/50 bg-inset'
             }`}
           >
             <input
@@ -129,7 +129,7 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
               {selectedFiles.map((file, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded-md bg-[#0B0E14] border border-[#1E273A] text-xs font-mono"
+                  className="flex items-center justify-between p-2 rounded-md bg-inset border border-line text-xs font-mono"
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
                     <File className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
@@ -159,7 +159,7 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
               type="checkbox"
               checked={overwrite}
               onChange={(e) => setOverwrite(e.target.checked)}
-              className="w-3.5 h-3.5 rounded text-indigo-600 focus:ring-indigo-500 bg-[#0B0E14] border-[#1E273A]"
+              className="w-3.5 h-3.5 rounded text-indigo-600 focus:ring-indigo-500 bg-inset border-line"
             />
             <label htmlFor="checkbox-overwrite" className="text-xs text-slate-300 cursor-pointer select-none">
               Replace existing files if duplicate name exists
@@ -167,11 +167,11 @@ export function UploadModal({ botId, destinationPath, isOpen, onClose, onUploade
           </div>
 
           {/* Modal Footer */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

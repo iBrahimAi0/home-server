@@ -24,7 +24,7 @@ function formatUptime(seconds: number): string {
 export function SystemStatus({ status }: SystemStatusProps) {
   if (!status) {
     return (
-      <div className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-8 h-64 flex items-center justify-center">
+      <div className="rounded-2xl bg-inset/90 border border-white/[0.07] p-8 h-64 flex items-center justify-center">
         <div className="text-slate-400 text-xs font-mono animate-pulse">Gathering host telemetry...</div>
       </div>
     );
@@ -33,11 +33,11 @@ export function SystemStatus({ status }: SystemStatusProps) {
   return (
     <div
       id="system-hardware-status"
-      className="rounded-2xl bg-[#0E131F]/90 border border-white/[0.07] p-5 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]"
+      className="rounded-2xl bg-inset/90 border border-white/[0.07] p-5 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.06]">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#182133] to-[#0F1422] border border-white/[0.09] text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b from-raised to-inset border border-white/[0.09] text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.2)]">
             <Server className="w-5 h-5" />
           </div>
           <div>
@@ -59,7 +59,7 @@ export function SystemStatus({ status }: SystemStatusProps) {
       {/* Hardware Specifications Grid */}
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Processor */}
-        <div className="rounded-xl bg-[#090C12]/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
+        <div className="rounded-xl bg-canvas/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
             <Cpu className="w-3.5 h-3.5 text-indigo-400" />
             <span>Processor</span>
@@ -74,7 +74,7 @@ export function SystemStatus({ status }: SystemStatusProps) {
         </div>
 
         {/* Memory */}
-        <div className="rounded-xl bg-[#090C12]/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
+        <div className="rounded-xl bg-canvas/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
             <HardDrive className="w-3.5 h-3.5 text-sky-400" />
             <span>Memory (RAM)</span>
@@ -89,7 +89,7 @@ export function SystemStatus({ status }: SystemStatusProps) {
         </div>
 
         {/* Storage */}
-        <div className="rounded-xl bg-[#090C12]/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
+        <div className="rounded-xl bg-canvas/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
             <Database className="w-3.5 h-3.5 text-emerald-400" />
             <span>Storage (SSD)</span>
@@ -104,7 +104,7 @@ export function SystemStatus({ status }: SystemStatusProps) {
         </div>
 
         {/* Runtime & Uptime */}
-        <div className="rounded-xl bg-[#090C12]/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
+        <div className="rounded-xl bg-canvas/90 border border-white/[0.05] p-3.5 hover:border-white/[0.1] transition-colors">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 uppercase tracking-wider font-mono">
             <Shield className="w-3.5 h-3.5 text-amber-400" />
             <span>OS & Node.js</span>

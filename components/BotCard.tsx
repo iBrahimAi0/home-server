@@ -65,18 +65,18 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
   return (
     <div
       id={`bot-card-${bot.id}`}
-      className="group relative flex flex-col justify-between rounded-xl bg-[#14161B] border border-[#1C1E24] p-5 transition-all duration-200 hover:border-[#FACC15]/40 hover:bg-[#181B22] shadow-sm"
+      className="group relative flex flex-col justify-between rounded-xl bg-panel border border-line p-5 transition-all duration-200 hover:border-gold/40 hover:bg-raised shadow-sm"
     >
       {/* Top Header */}
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#1C1E24] border border-[#2A2E38] text-[#FACC15] group-hover:scale-105 transition-transform">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-raised border border-line text-gold group-hover:scale-105 transition-transform">
               <Bot className="w-5 h-5" />
               {bot.status === "online" && (
                 <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-[#14161B]" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-line" />
                 </span>
               )}
             </div>
@@ -85,13 +85,13 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href={`/bots/${bot.id}`}
-                  className="font-bold text-white hover:text-[#FACC15] transition-colors text-sm flex items-center gap-1.5 truncate tracking-tight"
+                  className="font-bold text-white hover:text-gold transition-colors text-sm flex items-center gap-1.5 truncate tracking-tight"
                 >
                   <span className="truncate">{bot.name}</span>
                   <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 shrink-0" />
                 </Link>
                 {bot.autoStart && (
-                  <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20 font-semibold">
+                  <span className="inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/20 font-semibold">
                     <Zap className="w-2.5 h-2.5" />
                     Auto
                   </span>
@@ -128,11 +128,11 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
         )}
 
         {/* Resource Telemetry Micro-HUD */}
-        <div className="mt-4 grid grid-cols-4 gap-2 rounded-lg bg-[#0D0E12] border border-[#1C1E24] p-3">
+        <div className="mt-4 grid grid-cols-4 gap-2 rounded-lg bg-inset border border-line p-3">
           {/* CPU */}
           <div className="flex flex-col">
             <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 font-mono uppercase">
-              <Cpu className="w-3 h-3 text-[#FACC15]" />
+              <Cpu className="w-3 h-3 text-gold" />
               <span>CPU</span>
             </div>
             <span className="mt-1 text-xs font-bold font-mono text-white">
@@ -155,10 +155,10 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               )}
             </span>
             {bot.status === "online" && Boolean(bot.ramLimitMB && bot.ramLimitMB > 0) && (
-              <div className="mt-1 h-1 w-full bg-[#1C1E24] rounded-full overflow-hidden">
+              <div className="mt-1 h-1 w-full bg-raised rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
-                    ramPercent > 85 ? "bg-rose-500" : "bg-[#FACC15]"
+                    ramPercent > 85 ? "bg-rose-500" : "bg-gold"
                   }`}
                   style={{ width: `${ramPercent}%` }}
                 />
@@ -181,7 +181,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
               )}
             </span>
             {Boolean(bot.storageLimitMB && bot.storageLimitMB > 0) && (
-              <div className="mt-1 h-1 w-full bg-[#1C1E24] rounded-full overflow-hidden">
+              <div className="mt-1 h-1 w-full bg-raised rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${
                     storagePercent > 85 ? "bg-rose-500" : "bg-emerald-500"
@@ -206,7 +206,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
       </div>
 
       {/* Card Footer: Lifecycle Controls & Action Tabs Links */}
-      <div className="mt-4 pt-3.5 border-t border-[#1C1E24] flex items-center justify-between gap-2 flex-wrap">
+      <div className="mt-4 pt-3.5 border-t border-line flex items-center justify-between gap-2 flex-wrap">
         <BotControls
           botId={bot.id}
           botName={bot.name}
@@ -226,7 +226,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`btn-upload-project-${bot.id}`}
             onClick={() => setIsUploadProjectOpen(true)}
             title="Upload Project ZIP"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-[#FACC15] hover:text-white bg-[#FACC15]/10 hover:bg-[#FACC15]/20 border border-[#FACC15]/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium text-gold hover:text-white bg-gold/10 hover:bg-gold/20 border border-gold/30 transition-all cursor-pointer"
           >
             <UploadCloud className="w-3 h-3" />
             <span>Upload</span>
@@ -236,9 +236,9 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-files-${bot.id}`}
             href={`/bots/${bot.id}?tab=files`}
             title="Manage bot files and code editor"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-[#1C1E24] hover:bg-[#252830] border border-[#2A2E38] transition-all"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-raised hover:bg-raised border border-line transition-all"
           >
-            <FileCode2 className="w-3 h-3 text-[#FACC15]" />
+            <FileCode2 className="w-3 h-3 text-gold" />
             <span>Files</span>
           </Link>
 
@@ -246,7 +246,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-db-${bot.id}`}
             href={`/bots/${bot.id}?tab=databases`}
             title="Manage SQLite Database"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-[#1C1E24] hover:bg-[#252830] border border-[#2A2E38] transition-all"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-raised hover:bg-raised border border-line transition-all"
           >
             <Database className="w-3 h-3 text-emerald-400" />
             <span>DB</span>
@@ -256,7 +256,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`link-logs-${bot.id}`}
             href={`/bots/${bot.id}?tab=console`}
             title="Live console stream"
-            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-[#1C1E24] hover:bg-[#252830] border border-[#2A2E38] transition-all"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white bg-raised hover:bg-raised border border-line transition-all"
           >
             <Terminal className="w-3 h-3 text-sky-400" />
             <span>Console</span>
@@ -266,7 +266,7 @@ export function BotCard({ bot, onRefresh }: BotCardProps) {
             id={`btn-delete-bot-${bot.id}`}
             onClick={() => setIsDeleteOpen(true)}
             title="Remove bot from dashboard"
-            className="inline-flex items-center gap-1 p-1.5 rounded text-slate-400 hover:text-rose-400 bg-[#1C1E24] hover:bg-rose-500/10 border border-[#2A2E38] hover:border-rose-500/30 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1 p-1.5 rounded text-slate-400 hover:text-rose-400 bg-raised hover:bg-rose-500/10 border border-line hover:border-rose-500/30 transition-all cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

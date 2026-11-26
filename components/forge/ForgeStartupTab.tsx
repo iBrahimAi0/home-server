@@ -109,7 +109,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               type="text"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
         </div>
@@ -122,7 +122,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
             <select
               value={dockerImage}
               onChange={(e) => setDockerImage(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold cursor-pointer"
             >
               <option value="NodeJs 24">NodeJs 24</option>
               <option value="NodeJs 22">NodeJs 22</option>
@@ -146,7 +146,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               value={additionalPackages}
               onChange={(e) => setAdditionalPackages(e.target.value)}
               placeholder="e.g. canvas sqlite3"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
 
@@ -156,7 +156,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
               type="text"
               value={jsFile}
               onChange={(e) => setJsFile(e.target.value)}
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
         </div>
@@ -169,15 +169,15 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500">
+              <tr className="border-b border-line text-slate-500">
                 <th className="pb-3 font-semibold w-1/3">Key</th>
                 <th className="pb-3 font-semibold">Value</th>
                 <th className="pb-3 font-semibold text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24]">
+            <tbody className="divide-y divide-line">
               {envPairs.map((p, idx) => (
-                <tr key={idx} className="hover:bg-[#181A20] transition-colors">
+                <tr key={idx} className="hover:bg-raised transition-colors">
                   <td className="py-3">
                     <input
                       type="text"
@@ -203,7 +203,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
                             prev.map((item, i) => (i === idx ? { ...item, value: val } : item))
                           );
                         }}
-                        className="bg-[#0D0E12] text-slate-200 px-2 py-1 rounded border border-[#1E2027] focus:outline-none w-full max-w-sm"
+                        className="bg-inset text-slate-200 px-2 py-1 rounded border border-line focus:outline-none w-full max-w-sm"
                       />
                     ) : (
                       <span className="text-slate-500 tracking-widest font-mono">
@@ -215,7 +215,7 @@ export function ForgeStartupTab({ bot, onRefresh }: ForgeStartupTabProps) {
                     <button
                       type="button"
                       onClick={() => toggleReveal(idx)}
-                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
+                      className="text-gold hover:underline font-medium cursor-pointer"
                     >
                       {p.revealed ? 'Hide' : 'Reveal'}
                     </button>

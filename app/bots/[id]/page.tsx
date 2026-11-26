@@ -19,6 +19,7 @@ import { ForgeNetworkTab } from "@/components/forge/ForgeNetworkTab";
 import { ForgeGitHubTab } from "@/components/forge/ForgeGitHubTab";
 import { ForgeSchedulesTab } from "@/components/forge/ForgeSchedulesTab";
 import { ForgeUsersTab } from "@/components/forge/ForgeUsersTab";
+import { EnvManagerTab } from "@/components/bots/EnvManagerTab";
 import { ForgeStartupTab } from "@/components/forge/ForgeStartupTab";
 import { Loader2 } from "lucide-react";
 
@@ -35,7 +36,8 @@ type ForgeTabType =
   | "github"
   | "schedules"
   | "users"
-  | "startup";
+  | "startup"
+  | "env";
 
 function BotDetailsContent({ botId }: { botId: string }) {
   const router = useRouter();
@@ -48,9 +50,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
       ? "console"
       : rawTab === ("database" as any)
         ? "databases"
-        : rawTab === ("env" as any)
-          ? "startup"
-          : rawTab;
+        : rawTab;
 
   const [activeTab, setActiveTab] = useState<ForgeTabType>(normalizedTab);
   const [bot, setBot] = useState<BotData | null>(null);
@@ -69,38 +69,15 @@ function BotDetailsContent({ botId }: { botId: string }) {
     async function fetchData() {
       try {
         const [botData, botsList, sys] = await Promise.all([
-          api.getBot(botId).catch(() => null),
+          api.getBot(botId),
           api.getBots().catch(() => []),
           api.getSystemStatus().catch(() => null),
         ]);
 
         if (!isMounted) return;
 
-        if (!botData) {
-          // Provide fallback container so Forge UI always renders smoothly
-          const fallbackBot: BotData = {
-            id: botId,
-            name: botId === 'bot-1' ? 'Role Bot' : `Server (${botId})`,
-            description: 'Discord Bot Node.js Container',
-            path: `/home/ibra/home-server/bots/${botId}`,
-            command: 'npm',
-            args: ['start'],
-            autoStart: true,
-            status: 'online',
-            cpuUsage: 12.4,
-            ramUsageMB: 184,
-            ramLimitMB: 512,
-            storageUsedMB: 48,
-            storageLimitMB: 1024,
-            uptime: 14200,
-            restartCount: 0,
-          };
-          setBot(fallbackBot);
-          setError(null);
-        } else {
-          setBot(botData);
-          setError(null);
-        }
+        setBot(botData);
+        setError(null);
         setAllBots(botsList || []);
         if (sys) setSystemStatus(sys);
       } catch (err: unknown) {
@@ -144,7 +121,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
   const handleRefresh = async () => {
     try {
       const [botData, botsList, sys] = await Promise.all([
-        api.getBot(botId).catch(() => null),
+        api.getBot(botId),
         api.getBots().catch(() => []),
         api.getSystemStatus().catch(() => null),
       ]);
@@ -168,10 +145,11 @@ function BotDetailsContent({ botId }: { botId: string }) {
     schedules: "Schedules",
     users: "Users",
     startup: "Startup",
+    env: "Environment",
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0D0E12] text-slate-100 font-sans">
+    <div className="flex min-h-screen bg-inset text-slate-100 font-sans">
       <Sidebar
         currentBotId={botId}
         activeTab={activeTab}
@@ -180,21 +158,17 @@ function BotDetailsContent({ botId }: { botId: string }) {
         onRefresh={handleRefresh}
       />
 
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-200">
+      <div className="min-w-0 flex-1 flex flex-col md:pl-64 transition-all duration-200">
         <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {/* Top Page Header */}
           <Header
             title={titles[activeTab] || "Dashboard"}
-            badge={
-              activeTab === "overview" ? (
-                <span>Deployed from main &middot; a1b2c3d &middot; 2m ago</span>
-              ) : undefined
-            }
+            badge={bot?.name}
           />
 
           {loading ? (
             <div className="py-24 flex items-center justify-center text-slate-500 font-mono text-xs gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-[#FACC15]" />
+              <Loader2 className="w-5 h-5 animate-spin text-gold" />
               <span>Connecting to server container...</span>
             </div>
           ) : error || !bot ? (
@@ -245,6 +219,7 @@ function BotDetailsContent({ botId }: { botId: string }) {
 
               {activeTab === "users" && <ForgeUsersTab bot={bot} />}
 
+              {activeTab === "env" && <EnvManagerTab key={bot.id} botId={bot.id} botName={bot.name} botStatus={bot.status} onRestartRequest={handleRefresh}/> }
               {activeTab === "startup" && (
                 <ForgeStartupTab bot={bot} onRefresh={handleRefresh} />
               )}
@@ -265,12 +240,12 @@ export default function BotDetailsPage({
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen bg-[#0D0E12] items-center justify-center text-slate-400 font-mono text-xs">
+        <div className="flex min-h-screen bg-inset items-center justify-center text-slate-400 font-mono text-xs">
           Loading server...
         </div>
       }
     >
-      <BotDetailsContent botId={resolvedParams.id} />
+      <BotDetailsContent key={resolvedParams.id} botId={resolvedParams.id} />
     </Suspense>
   );
 }

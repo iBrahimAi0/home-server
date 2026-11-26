@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+const { randomUUID } = require("crypto");
 const { spawn, exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -331,6 +333,11 @@ class BotManager extends EventEmitter {
   /**
    * Retrieves merged environment variables for a bot (from config and .env file).
    */
+  getProcessEnv(id) {
+    const { AUTH_TOKEN, API_KEY, ...hostEnvironment } = process.env;
+    return { ...hostEnvironment, ...this.getBotEnv(id) };
+  }
+
   getBotEnv(id) {
     const bot = this.bots.get(id);
     if (!bot) {
@@ -339,37 +346,13 @@ class BotManager extends EventEmitter {
       throw err;
     }
 
-    const envMap = { ...(bot.config.env || {}) };
-    const botDir = bot.config.path;
-
-    // Read .env file if it exists and parse simple KEY=VALUE pairs
+    const envPath = path.join(bot.config.path, ".env");
     try {
-      const envPath = path.join(botDir, ".env");
-      if (fs.existsSync(envPath)) {
-        const raw = fs.readFileSync(envPath, "utf8");
-        const lines = raw.split(/\r?\n/);
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed.startsWith("#")) continue;
-          const eqIdx = trimmed.indexOf("=");
-          if (eqIdx > 0) {
-            const k = trimmed.substring(0, eqIdx).trim();
-            const v = trimmed
-              .substring(eqIdx + 1)
-              .trim()
-              .replace(/^["']|["']$/g, "");
-            envMap[k] = v;
-          }
-        }
-      }
-    } catch (err) {
-      console.warn(
-        `[BotManager] Could not read .env file for bot ${id}:`,
-        err.message,
-      );
+      return { ...bot.config.env, ...dotenv.parse(fs.readFileSync(envPath)) };
+    } catch (error) {
+      if (error.code === "ENOENT") return { ...bot.config.env };
+      throw error;
     }
-
-    return envMap;
   }
 
   /**
@@ -383,23 +366,27 @@ class BotManager extends EventEmitter {
       throw err;
     }
 
+    const lines = Object.entries(envVars).map(([key, value]) => {
+      if (/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(key) && typeof value === "string" && !value.includes("\0")) {
+        for (const delimiter of ["", "'", '"', "`"]) {
+          const line = `${key}=${delimiter}${value}${delimiter}`;
+          const parsed = dotenv.parse(line);
+          if (Object.keys(parsed).length === 1 && parsed[key] === value) return line;
+        }
+      }
+      throw Object.assign(new Error(`Invalid name or unsupported value for ${key}.`), { status: 400 });
+    });
+    fs.mkdirSync(bot.config.path, { recursive: true });
+    const envPath = path.join(bot.config.path, ".env");
+    const temporary = envPath + "." + randomUUID();
+    try {
+      fs.writeFileSync(temporary, lines.join("\n") + "\n", { mode: 0o600, flag: "wx" });
+      fs.renameSync(temporary, envPath);
+    } finally {
+      fs.rmSync(temporary, { force: true });
+    }
     bot.config.env = { ...envVars };
     this.persistConfig();
-
-    const botDir = bot.config.path;
-    try {
-      if (!fs.existsSync(botDir)) {
-        fs.mkdirSync(botDir, { recursive: true });
-      }
-      const envPath = path.join(botDir, ".env");
-      const lines = Object.entries(envVars).map(([k, v]) => `${k}=${v}`);
-      fs.writeFileSync(envPath, lines.join("\n") + "\n", "utf8");
-    } catch (err) {
-      console.warn(
-        `[BotManager] Error writing .env file for bot ${id}:`,
-        err.message,
-      );
-    }
 
     this.appendLog(id, "SYSTEM", "Environment variables updated.");
     this.emitStatus(id);
@@ -458,7 +445,7 @@ class BotManager extends EventEmitter {
       const child = spawn(cmd, args, {
         cwd: botDir,
         shell: true,
-        env: { ...process.env, ...(bot.config.env || {}) },
+        env: this.getProcessEnv(id),
       });
 
       child.stdout.on("data", (data) => {
@@ -566,7 +553,7 @@ class BotManager extends EventEmitter {
       const child = spawn(cleanCmd, [], {
         cwd: botDir,
         shell: true,
-        env: { ...process.env, ...(bot.config.env || {}) },
+        env: this.getProcessEnv(id),
       });
 
       child.stdout.on("data", (data) => {
@@ -771,7 +758,7 @@ class BotManager extends EventEmitter {
     try {
       const command = bot.config.command || "npm";
       const args = bot.config.args || ["start"];
-      const env = { ...process.env, ...(bot.config.env || {}) };
+      const env = this.getProcessEnv(id);
 
       // Enforce RAM limit for Node/npm processes via V8 flag
       if (bot.config.ramLimitMB && bot.config.ramLimitMB > 0) {

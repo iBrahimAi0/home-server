@@ -19,7 +19,7 @@ export default function SettingsRedirect() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-[#0D0E12] flex items-center justify-center text-slate-500 font-mono text-xs">
+    <div className="min-h-screen bg-inset flex items-center justify-center text-slate-500 font-mono text-xs">
       Loading Settings...
     </div>
   );

@@ -1,5 +1,7 @@
 # NexusPanel — Home Server Infrastructure & Bot Controller
 
+For sign-in credentials, SSH access, Docker Compose, and upgrading an existing installation, see [Run Forge on your home server](HOSTING.md).
+
 NexusPanel is a high-security, technical server management panel designed for Ubuntu Home Servers. It directly manages Discord bot processes via isolated process groups (`child_process.spawn`), provides a full-featured **Bot File Manager**, enables safe **GitHub Synchronization**, extracts archives with Zip-Slip/Zip Bomb defenses, monitors hardware telemetry in real-time, and keeps services running 24/7 with persistent systemd daemons.
 
 ---

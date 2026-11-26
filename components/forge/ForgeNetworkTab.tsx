@@ -21,20 +21,20 @@ export function ForgeNetworkTab({ bot, systemStatus }: ForgeNetworkTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500">
+              <tr className="border-b border-line text-slate-500">
                 <th className="pb-3 font-semibold">IP address</th>
                 <th className="pb-3 font-semibold">Port</th>
                 <th className="pb-3 font-semibold">Notes</th>
                 <th className="pb-3 font-semibold text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24]">
-              <tr className="hover:bg-[#181A20] transition-colors">
+            <tbody className="divide-y divide-line">
+              <tr className="hover:bg-raised transition-colors">
                 <td className="py-3.5 text-white font-medium">{serverIp}</td>
                 <td className="py-3.5 text-slate-300">{serverPort}</td>
                 <td className="py-3.5 text-slate-400">Dashboard and webhook</td>
                 <td className="py-3.5 text-right">
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30 font-bold">
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-gold/15 text-gold border border-gold/30 font-bold">
                     Primary
                   </span>
                 </td>
@@ -57,7 +57,7 @@ export function ForgeNetworkTab({ bot, systemStatus }: ForgeNetworkTabProps) {
               <path
                 d="M0,60 Q50,65 100,55 T180,45 T240,65 T300,40"
                 fill="none"
-                stroke="#FACC15"
+                stroke="#edb825"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
@@ -76,7 +76,7 @@ export function ForgeNetworkTab({ bot, systemStatus }: ForgeNetworkTabProps) {
               <path
                 d="M0,45 Q70,47 140,46 T220,44 T300,45"
                 fill="none"
-                stroke="#FACC15"
+                stroke="#edb825"
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />

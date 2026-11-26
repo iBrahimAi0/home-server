@@ -11,10 +11,10 @@ export function NexusLogo({ className = '', size = 28, showText = true }: ForgeL
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
       {/* Forge Golden Squircle Icon */}
       <div
-        className="relative flex items-center justify-center rounded-lg bg-[#FACC15] text-black shrink-0 shadow-[0_0_15px_rgba(245,166,35,0.3)]"
+        className="relative flex items-center justify-center rounded-lg bg-gold text-black shrink-0"
         style={{ width: size, height: size }}
       >
-        <svg viewBox="0 0 24 24" fill="none" className="w-[65%] h-[65%] text-[#0D0E12]">
+        <svg viewBox="0 0 24 24" fill="none" className="w-[65%] h-[65%] text-inset">
           <path
             d="M5 6H19M5 12H15M5 18H11"
             stroke="currentColor"
@@ -36,11 +36,11 @@ export function NexusLogo({ className = '', size = 28, showText = true }: ForgeL
 export function ForgeHexagon({ size = 56, className = '' }: { size?: number; className?: string }) {
   return (
     <div style={{ width: size, height: size }} className={`flex items-center justify-center shrink-0 ${className}`}>
-      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full text-[#FACC15]">
+      <svg viewBox="0 0 64 64" fill="none" className="w-full h-full text-gold">
         {/* Outer Hexagon */}
         <polygon
           points="32,4 58,18 58,46 32,60 6,46 6,18"
-          stroke="#FACC15"
+          stroke="#edb825"
           strokeWidth="3.5"
           fill="none"
           strokeLinejoin="round"
@@ -48,7 +48,7 @@ export function ForgeHexagon({ size = 56, className = '' }: { size?: number; cla
         {/* Inner Hexagon */}
         <polygon
           points="32,15 48,24 48,40 32,49 16,40 16,24"
-          stroke="#FACC15"
+          stroke="#edb825"
           strokeWidth="3"
           fill="none"
           strokeLinejoin="round"

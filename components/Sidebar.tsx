@@ -58,7 +58,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
     {
       category: 'GENERAL',
       items: [
-        { id: 'overview', name: 'Dashboard' },
+        { id: 'overview', name: 'Overview' },
         { id: 'servers', name: 'Servers' },
         { id: 'console', name: 'Console' },
         { id: 'settings', name: 'Settings' },
@@ -82,6 +82,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
         { id: 'schedules', name: 'Schedules' },
         { id: 'users', name: 'Users' },
         { id: 'startup', name: 'Startup' },
+        { id: 'env', name: 'Environment' },
       ],
     },
   ];
@@ -122,8 +123,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
     }
   };
 
-  const serverIp = systemStatus?.serverIp || '193.70.34.101';
-  const serverPort = currentBot?.id === 'bot-1' ? '20039' : '20040';
+  const serverIp = systemStatus?.serverIp || 'Host address unavailable';
 
   return (
     <>
@@ -132,7 +132,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
         id="btn-mobile-sidebar-toggle"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle navigation"
-        className="fixed top-3 left-4 z-50 p-2 rounded-lg bg-[#14161B] border border-[#22242B] text-slate-300 md:hidden"
+        className="fixed top-3 left-4 z-50 p-2 rounded-lg bg-panel border border-line text-slate-300 md:hidden"
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -148,31 +148,31 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
       {/* Sidebar Container */}
       <aside
         id="app-sidebar"
-        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between w-64 bg-[#0D0E12] border-r border-[#1C1E24] select-none transition-transform duration-200 ${
+        className={`fixed top-0 bottom-0 left-0 z-40 flex flex-col justify-between w-64 bg-inset border-r border-line select-none transition-transform duration-200 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           {/* Forge Brand Logo */}
-          <div className="px-5 py-4 border-b border-[#1C1E24]">
+          <div className="px-5 py-4 border-b border-line">
             <Link href="/" className="inline-block">
               <NexusLogo size={26} showText={true} />
             </Link>
           </div>
 
           {/* Current Bot / Server Header Card */}
-          <div className="px-5 py-3 border-b border-[#1C1E24]">
+          <div className="px-5 py-3 border-b border-line">
             <div className="relative group">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-white text-[14px] truncate tracking-tight">
-                  {currentBot ? currentBot.name : 'Role Manager'}
+                  {currentBot ? currentBot.name : 'No project selected'}
                 </span>
                 {botsList.length > 1 && (
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 )}
               </div>
               <div className="text-[11px] font-mono text-slate-500 mt-0.5">
-                {serverIp}:{serverPort}
+                {serverIp}
               </div>
 
               {/* Bot Selector Dropdown if multiple bots */}
@@ -196,13 +196,13 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
             </div>
 
             {/* Quick 3 Power Buttons */}
-            <div className="mt-3 grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-[#14161B] border border-[#22242B]">
+            <div className="mt-3 grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-panel border border-line">
               <button
                 id="btn-sidebar-power-start"
                 onClick={() => handlePowerAction('start')}
                 disabled={currentBot?.status === 'online' || powerLoading !== null}
                 title="Start Server"
-                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-[#1A1C23] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-emerald-400 hover:bg-raised disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {powerLoading === 'start' ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
@@ -216,7 +216,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
                 onClick={() => handlePowerAction('restart')}
                 disabled={powerLoading !== null}
                 title="Restart Server"
-                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-amber-400 hover:bg-[#1A1C23] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-amber-400 hover:bg-raised disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {powerLoading === 'restart' ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
@@ -230,7 +230,7 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
                 onClick={() => handlePowerAction('stop')}
                 disabled={currentBot?.status !== 'online' || powerLoading !== null}
                 title="Stop Server"
-                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-[#1A1C23] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                className="flex items-center justify-center py-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-raised disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {powerLoading === 'stop' ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-400" />
@@ -259,8 +259,8 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
                         onClick={() => handleNavClick(item.id)}
                         className={`w-full flex items-center px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors text-left cursor-pointer ${
                           isActive
-                            ? 'bg-[#FACC15]/10 text-[#FACC15] font-semibold border-l-2 border-[#FACC15]'
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-[#14161B]'
+                            ? 'bg-gold/10 text-gold font-semibold border-l-2 border-gold'
+                            : 'text-slate-400 hover:text-slate-200 hover:bg-panel'
                         }`}
                       >
                         <span>{item.name}</span>
@@ -274,10 +274,10 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
         </div>
 
         {/* Bottom User Account Pill with Sign In / Out */}
-        <div className="p-3 border-t border-[#1C1E24]">
-          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#14161B]/80 hover:bg-[#14161B] transition-colors border border-white/[0.05]">
+        <div className="p-3 border-t border-line">
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-panel/80 hover:bg-panel transition-colors border border-white/[0.05]">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FACC15] text-black font-bold text-xs shrink-0 shadow-sm">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gold text-black font-bold text-xs shrink-0 shadow-sm">
                 O
               </div>
               <div className="min-w-0">
@@ -287,14 +287,17 @@ export function Sidebar({ currentBotId, activeTab, onTabChange, bots: propBots, 
             </div>
             <button
               id="btn-sidebar-logout"
-              onClick={() => {
-                if (typeof window !== 'undefined') {
-                  localStorage.removeItem('forge_session');
+              onClick={async () => {
+                try {
+                  const response = await fetch("/session", { method: "DELETE" });
+                  if (!response.ok) throw new Error();
+                  window.location.replace("/login");
+                } catch {
+                  toast.error("Couldn’t sign out. Try again.");
                 }
-                router.push('/login');
               }}
               title="Sign Out"
-              className="p-1.5 rounded text-slate-400 hover:text-[#FACC15] hover:bg-white/[0.05] transition-colors cursor-pointer"
+              className="p-1.5 rounded text-slate-400 hover:text-gold hover:bg-white/[0.05] transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>

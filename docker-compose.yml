@@ -1,17 +1,13 @@
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: nexuspanel-backend
+    build: ./backend
     restart: unless-stopped
-    ports:
-      - "3001:3001"
     environment:
-      - PORT=3001
-      - NODE_ENV=production
-      - BOTS_DIR=/app/bots
-      - BOTS_CONFIG_PATH=/app/config/bots.json
+      PORT: 3001
+      NODE_ENV: production
+      BOTS_DIR: /app/bots
+      BOTS_CONFIG_PATH: /app/config/bots.json
+      AUTH_TOKEN: ${AUTH_TOKEN:?Run bash scripts/setup-host.sh first}
     volumes:
       - ./bots:/app/bots
       - ./backend/config:/app/config
@@ -19,13 +15,16 @@ services:
   dashboard:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: nexuspanel-dashboard
+      args:
+        FORGE_BACKEND_URL: http://backend:3001
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "127.0.0.1:${FORGE_PORT:-3000}:3000"
     environment:
-      - PORT=3000
-      - NODE_ENV=production
+      PORT: 3000
+      NODE_ENV: production
+      FORGE_BACKEND_URL: http://backend:3001
+      FORGE_USERNAME: ${FORGE_USERNAME:-admin}
+      AUTH_TOKEN: ${AUTH_TOKEN:?Run bash scripts/setup-host.sh first}
     depends_on:
       - backend

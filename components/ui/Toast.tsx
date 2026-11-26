@@ -121,12 +121,12 @@ function ToastContainer({
       className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
     >
       {toasts.map((toast) => {
-        let borderClass = "border-slate-700 bg-[#121722]/95 text-slate-200";
+        let borderClass = "border-slate-700 bg-panel/95 text-slate-200";
         let icon = <Info className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />;
 
         if (toast.type === "success") {
           borderClass =
-            "border-emerald-500/40 bg-[#0F1B19]/95 text-emerald-100 shadow-emerald-950/40";
+            "border-emerald-500/40 bg-inset/95 text-emerald-100 shadow-emerald-950/40";
           icon = (
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
           );
@@ -144,7 +144,7 @@ function ToastContainer({
           );
         } else if (toast.type === "info") {
           borderClass =
-            "border-indigo-500/40 bg-[#131726]/95 text-indigo-100 shadow-indigo-950/40";
+            "border-indigo-500/40 bg-panel/95 text-indigo-100 shadow-indigo-950/40";
           icon = <Info className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />;
         }
 

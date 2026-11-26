@@ -47,6 +47,7 @@ export function EnvManagerTab({
   const [restartOnSave, setRestartOnSave] = useState(botStatus === "online");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ export function EnvManagerTab({
           key: k,
           value: v,
         }));
+        setLoaded(true);
         setEnvItems(items);
         setRawText(items.map((i) => `${i.key}=${i.value}`).join("\n"));
       } catch (err: unknown) {
@@ -175,7 +177,7 @@ export function EnvManagerTab({
   return (
     <div className="space-y-4">
       {/* Top Banner & Mode Toggle */}
-      <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div className="rounded-lg bg-panel border border-line p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-2.5">
           <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <Key className="w-4 h-4" />
@@ -195,7 +197,7 @@ export function EnvManagerTab({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-[#0B0E14] p-0.5 rounded-lg border border-[#1E273A] text-xs font-mono">
+          <div className="flex items-center gap-1 bg-inset p-0.5 rounded-lg border border-line text-xs font-mono">
             <button
               onClick={() => setIsRawMode(false)}
               className={`px-2.5 py-1 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer ${
@@ -222,7 +224,7 @@ export function EnvManagerTab({
 
           <button
             onClick={addRow}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-raised hover:bg-raised text-slate-200 hover:text-white border border-line text-xs font-medium transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-indigo-400" />
             <span>Add Secret</span>
@@ -239,13 +241,13 @@ export function EnvManagerTab({
 
       {/* Main Content Area */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center p-12 text-slate-400 font-mono gap-2 rounded-lg bg-[#121722] border border-[#1E273A]">
+        <div className="flex flex-col items-center justify-center p-12 text-slate-400 font-mono gap-2 rounded-lg bg-panel border border-line">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
           <span className="text-xs">Reading bot environment & secrets...</span>
         </div>
       ) : isRawMode ? (
-        <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-4 space-y-2 font-mono">
-          <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-[#1E273A]">
+        <div className="rounded-lg bg-panel border border-line p-4 space-y-2 font-mono">
+          <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-line">
             <span>Raw .env file format (KEY=VALUE per line)</span>
             <span>{envItems.length} entries parsed</span>
           </div>
@@ -253,12 +255,12 @@ export function EnvManagerTab({
             value={rawText}
             onChange={(e) => handleRawTextChange(e.target.value)}
             rows={12}
-            className="w-full p-3 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-slate-200 text-xs font-mono leading-relaxed focus:outline-none focus:border-indigo-500 resize-y"
+            className="w-full p-3 rounded-lg bg-inset border border-line text-slate-200 text-xs font-mono leading-relaxed focus:outline-none focus:border-indigo-500 resize-y"
             placeholder="DISCORD_TOKEN=your_token&#10;CLIENT_ID=12345&#10;PREFIX=!"
           />
         </div>
       ) : envItems.length === 0 ? (
-        <div className="p-10 rounded-lg bg-[#121722] border border-[#1E273A] text-center font-mono space-y-2">
+        <div className="p-10 rounded-lg bg-panel border border-line text-center font-mono space-y-2">
           <Key className="w-8 h-8 text-slate-500 mx-auto opacity-50" />
           <h4 className="text-xs font-bold text-white">
             No Environment Variables Configured
@@ -269,17 +271,17 @@ export function EnvManagerTab({
           </p>
         </div>
       ) : (
-        <div className="rounded-lg bg-[#121722] border border-[#1E273A] overflow-hidden shadow-sm">
+        <div className="rounded-lg bg-panel border border-line overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse font-mono">
               <thead>
-                <tr className="border-b border-[#1E273A] bg-[#0E131E] text-slate-400 font-semibold select-none">
+                <tr className="border-b border-line bg-inset text-slate-400 font-semibold select-none">
                   <th className="py-2.5 px-4 w-1/3">Variable Key</th>
                   <th className="py-2.5 px-4">Value / Token</th>
                   <th className="py-2.5 px-4 w-28 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#182030]">
+              <tbody className="divide-y divide-line">
                 {envItems.map((item, index) => {
                   const isVisible = !!visibleKeys[item.key];
                   const isToken =
@@ -291,7 +293,7 @@ export function EnvManagerTab({
                   return (
                     <tr
                       key={index}
-                      className="hover:bg-[#151C2A] transition-colors"
+                      className="hover:bg-panel transition-colors"
                     >
                       <td className="py-2.5 px-4">
                         <input
@@ -301,7 +303,7 @@ export function EnvManagerTab({
                             handleRowChange(index, "key", e.target.value)
                           }
                           placeholder="KEY_NAME"
-                          className="w-full px-2.5 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono uppercase focus:outline-none focus:border-indigo-500"
+                          className="w-full px-2.5 py-1.5 rounded-md bg-inset border border-line text-white text-xs font-mono uppercase focus:outline-none focus:border-indigo-500"
                         />
                       </td>
 
@@ -314,7 +316,7 @@ export function EnvManagerTab({
                               handleRowChange(index, "value", e.target.value)
                             }
                             placeholder="value"
-                            className="w-full pl-2.5 pr-8 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-slate-200 text-xs font-mono focus:outline-none focus:border-indigo-500"
+                            className="w-full pl-2.5 pr-8 py-1.5 rounded-md bg-inset border border-line text-slate-200 text-xs font-mono focus:outline-none focus:border-indigo-500"
                           />
                           {isToken && (
                             <button
@@ -338,7 +340,7 @@ export function EnvManagerTab({
                           <button
                             type="button"
                             onClick={() => handleCopy(item.key, item.value)}
-                            className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-[#1E273A] transition-colors cursor-pointer"
+                            className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
                             title="Copy secret"
                           >
                             {copiedKey === item.key ? (
@@ -368,7 +370,7 @@ export function EnvManagerTab({
       )}
 
       {/* Security note & Save actions */}
-      <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm font-mono">
+      <div className="rounded-lg bg-panel border border-line p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm font-mono">
         <div className="flex items-center gap-2 text-xs text-slate-400">
           <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>
@@ -384,7 +386,7 @@ export function EnvManagerTab({
                 type="checkbox"
                 checked={restartOnSave}
                 onChange={(e) => setRestartOnSave(e.target.checked)}
-                className="w-3.5 h-3.5 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                className="w-3.5 h-3.5 rounded border-line bg-raised accent-indigo-500 cursor-pointer"
               />
               <span className="text-[11px]">Restart bot to apply changes</span>
             </label>
@@ -393,7 +395,7 @@ export function EnvManagerTab({
           <button
             id="btn-save-env-secrets"
             onClick={handleSave}
-            disabled={isSaving || isLoading}
+            disabled={isSaving || isLoading || !loaded}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm disabled:opacity-50 transition-all cursor-pointer"
           >
             {isSaving ? (

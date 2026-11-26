@@ -129,6 +129,12 @@ app.get("/health", (req, res) => {
 app.use(errorHandler);
 
 // Socket.IO Realtime handling
+io.use((socket, next) => {
+  authMiddleware.authorize(socket.handshake.headers)
+    .then(allowed => next(allowed ? undefined : new Error("Sign in to access this host.")))
+    .catch(next);
+});
+
 io.on("connection", async (socket) => {
   console.log(`[Socket.IO] Client connected: ${socket.id}`);
 

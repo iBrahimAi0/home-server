@@ -26,16 +26,12 @@ function getApiBaseUrl(): string {
   ) {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
   }
-  if (typeof window !== "undefined" && window.location.hostname) {
-    return `http://${window.location.hostname}:3001`;
-  }
-  return "http://localhost:3001";
+  return "";
 }
 
 function getAuthHeaders(): HeadersInit {
   const headers: Record<string, string> = {};
   const token =
-    process.env.NEXT_PUBLIC_API_KEY ||
     (typeof window !== "undefined"
       ? localStorage.getItem("nexus_api_key")
       : null);
@@ -82,16 +78,8 @@ export const api = {
    * Fetches all Discord bots and their runtime states from Express backend
    */
   async getBots(): Promise<BotData[]> {
-    try {
-      const url = `${getApiBaseUrl()}/api/bots`;
-      const res = await fetch(url, {
-        headers: { ...getAuthHeaders() },
-        cache: "no-store",
-      });
-      return await handleResponse<BotData[]>(res);
-    } catch {
-      return [];
-    }
+    const res = await fetch(`${getApiBaseUrl()}/api/bots`, { headers: getAuthHeaders(), cache: "no-store" });
+    return handleResponse<BotData[]>(res);
   },
 
   /**
@@ -197,6 +185,7 @@ export const api = {
       );
       if (payload.env) formData.append("env", JSON.stringify(payload.env));
       if (payload.template) formData.append("template", payload.template);
+      if (payload.envText) formData.append("envText", payload.envText);
       formData.append("projectArchive", payload.projectArchive);
 
       const res = await fetch(url, {
@@ -350,6 +339,12 @@ export const api = {
   /**
    * Updates environment variables and secrets for a bot
    */
+  async updateBotEnvText(botId: string, envText: string) {
+    const url = `${getApiBaseUrl()}/api/bots/${encodeURIComponent(botId)}/env`;
+    const res = await fetch(url, { method: "PUT", headers: { ...getAuthHeaders(), "Content-Type": "application/json" }, body: JSON.stringify({ envText }) });
+    return handleResponse<Record<string, string>>(res);
+  },
+
   async updateBotEnv(
     botId: string,
     env: Record<string, string>,

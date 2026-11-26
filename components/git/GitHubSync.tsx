@@ -138,10 +138,10 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
       )}
 
       {/* Main Git Overview Card */}
-      <div className="rounded-lg bg-[#121722] border border-[#1E273A] p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1E273A]">
+      <div className="rounded-lg bg-panel border border-line p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#182133] border border-[#232E44] text-indigo-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-raised border border-line text-indigo-400">
               <GitBranch className="w-5 h-5" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={() => setIsConfigOpen(!isConfigOpen)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-200 border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-raised hover:bg-raised text-slate-200 border border-line text-xs font-medium transition-colors cursor-pointer"
             >
               <Settings className="w-3.5 h-3.5 text-slate-400" />
               <span>Configure</span>
@@ -175,7 +175,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
                   id="btn-git-check-updates"
                   onClick={handleCheckUpdates}
                   disabled={isChecking || isLoading}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-200 border border-[#232E44] text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-raised hover:bg-raised text-slate-200 border border-line text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 text-indigo-400 ${isChecking ? 'animate-spin' : ''}`} />
                   <span>{isChecking ? 'Checking...' : 'Check Updates'}</span>
@@ -197,7 +197,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
 
         {/* Configure Repository Form */}
         {isConfigOpen && (
-          <form onSubmit={handleSaveConfig} className="mt-4 p-4 rounded-md bg-[#0C1018] border border-[#1E273A] space-y-3">
+          <form onSubmit={handleSaveConfig} className="mt-4 p-4 rounded-md bg-inset border border-line space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-white text-xs">Configure Remote Repository</h4>
               <span className="text-[10px] text-slate-500 font-mono">Restricted Git Service</span>
@@ -214,7 +214,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
                   placeholder="https://github.com/owner/repo.git"
                   value={repoUrlInput}
                   onChange={(e) => setRepoUrlInput(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-md bg-[#121722] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-1.5 rounded-md bg-panel border border-line text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
@@ -228,7 +228,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
                   placeholder="main"
                   value={branchInput}
                   onChange={(e) => setBranchInput(e.target.value)}
-                  className="w-full px-3 py-1.5 rounded-md bg-[#121722] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-1.5 rounded-md bg-panel border border-line text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
                 />
               </div>
             </div>
@@ -237,7 +237,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
               <button
                 type="button"
                 onClick={() => setIsConfigOpen(false)}
-                className="px-3 py-1.5 rounded-md text-xs text-slate-400 hover:text-white hover:bg-[#182030] cursor-pointer"
+                className="px-3 py-1.5 rounded-md text-xs text-slate-400 hover:text-white hover:bg-raised cursor-pointer"
               >
                 Cancel
               </button>
@@ -259,7 +259,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
             <span>Inspecting Git status...</span>
           </div>
         ) : !status?.isGitRepo ? (
-          <div className="mt-4 p-8 text-center bg-[#0C1018] rounded-md border border-[#1A2232] space-y-2">
+          <div className="mt-4 p-8 text-center bg-inset rounded-md border border-line space-y-2">
             <GitBranch className="w-8 h-8 text-slate-500 mx-auto opacity-50" />
             <h4 className="text-sm font-semibold text-white">No Git Repository Linked</h4>
             <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -288,7 +288,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
             )}
 
             {/* Current Commit Details Card */}
-            <div className="p-4 rounded-md bg-[#0C1018] border border-[#1A2232] space-y-2.5">
+            <div className="p-4 rounded-md bg-inset border border-line space-y-2.5">
               <div className="flex items-center justify-between text-xs font-mono text-slate-400">
                 <span className="flex items-center gap-1.5 font-semibold text-slate-300">
                   <GitCommitIcon className="w-3.5 h-3.5 text-indigo-400" />
@@ -324,8 +324,8 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
 
             {/* Updates Inspection Panel if check performed */}
             {updateInfo && (
-              <div className="p-4 rounded-md bg-[#0C1018] border border-[#1A2232] space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-[#1A2232]">
+              <div className="p-4 rounded-md bg-inset border border-line space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-line">
                   <div className="flex items-center gap-2">
                     {updateInfo.hasUpdates ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold font-mono text-emerald-400">
@@ -352,7 +352,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
                     </span>
                     <div className="space-y-1 font-mono text-xs">
                       {updateInfo.incomingCommits.map((c, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 rounded bg-[#121722] border border-[#1E273A]">
+                        <div key={idx} className="flex items-center justify-between p-2 rounded bg-panel border border-line">
                           <div className="flex items-center gap-2 truncate">
                             <span className="text-indigo-400 font-bold shrink-0">{c.shortHash}</span>
                             <span className="text-slate-200 truncate">{c.message}</span>
@@ -397,7 +397,7 @@ export function GitHubSync({ botId, botName, botPath }: GitHubSyncProps) {
       </div>
 
       {/* Security Guarantee Banner */}
-      <div className="p-3.5 rounded-lg bg-[#121722] border border-[#1E273A] flex items-start gap-2.5 text-xs text-slate-400 font-mono">
+      <div className="p-3.5 rounded-lg bg-panel border border-line flex items-start gap-2.5 text-xs text-slate-400 font-mono">
         <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
         <div>
           <span className="font-semibold text-slate-200">Zero-Arbitrary Execution Policy: </span>

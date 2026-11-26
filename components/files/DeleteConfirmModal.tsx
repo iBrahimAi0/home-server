@@ -36,8 +36,8 @@ export function DeleteConfirmModal({ botId, item, isOpen, onClose, onDeleted }: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-md bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
-        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+      <div className="flex flex-col w-full max-w-md bg-inset border border-line rounded-lg shadow-2xl overflow-hidden font-sans">
+        <div className="flex items-center justify-between px-4 py-3 bg-panel border-b border-line">
           <div className="flex items-center gap-2 text-rose-400">
             <div className="p-1.5 rounded bg-rose-500/10 border border-rose-500/20">
               <Trash2 className="w-4 h-4" />
@@ -48,7 +48,7 @@ export function DeleteConfirmModal({ botId, item, isOpen, onClose, onDeleted }: 
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -81,11 +81,11 @@ export function DeleteConfirmModal({ botId, item, isOpen, onClose, onDeleted }: 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

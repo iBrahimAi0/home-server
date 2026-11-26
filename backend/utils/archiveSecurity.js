@@ -74,7 +74,7 @@ async function inspectZipArchive(zipFilePath) {
  * @param {string} destinationDir - Absolute path to bot destination directory
  * @returns {Promise<{ extractedCount: number, totalBytes: number }>}
  */
-async function extractZipSafely(zipFilePath, destinationDir) {
+async function extractZipSafely(zipFilePath, destinationDir, { project = false } = {}) {
   if (!fs.existsSync(zipFilePath)) {
     const err = new Error("Archive file does not exist.");
     err.status = 404;
@@ -147,11 +147,24 @@ async function extractZipSafely(zipFilePath, destinationDir) {
     }
   }
 
-  // Safe extraction pass
-  let extractedCount = 0;
-  for (const entry of zipEntries) {
-    const targetPath = path.resolve(cleanDest, entry.entryName);
+  const entries = project ? zipEntries.filter(entry =>
+    !entry.entryName.startsWith("__MACOSX/") && path.posix.basename(entry.entryName) !== ".DS_Store"
+  ) : zipEntries;
+  const files = entries.filter(entry => !entry.isDirectory);
+  if (project && !files.length) throw Object.assign(new Error("The ZIP contains no project files."), { status: 400 });
+  const prefix = files[0]?.entryName.split("/")[0] + "/";
+  const unwrap = project && files.every(entry => entry.entryName.startsWith(prefix)) &&
+    files.some(entry => /^(?:package\.json|requirements\.txt|main\.py|bot\.py|index\.js|bot\.js)$/.test(entry.entryName.slice(prefix.length)));
 
+  let extractedCount = 0;
+  for (const entry of entries) {
+    if (unwrap && !entry.entryName.startsWith(prefix)) continue;
+    const name = unwrap ? entry.entryName.slice(prefix.length) : entry.entryName;
+    if (!name) continue;
+    const targetPath = path.resolve(cleanDest, name);
+    if (!targetPath.startsWith(cleanDest + path.sep)) {
+      throw Object.assign(new Error("Invalid ZIP destination."), { status: 400 });
+    }
     if (entry.isDirectory) {
       fs.mkdirSync(targetPath, { recursive: true });
     } else {

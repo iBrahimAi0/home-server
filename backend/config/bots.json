@@ -3,7 +3,7 @@
     "id": "bot-1",
     "name": "Role Bot",
     "description": "Discord automated role management and reaction roles handler",
-    "path": "C:\\Gomo\\home-server\\bots\\bot-1",
+    "path": "bot-1",
     "command": "node",
     "args": [
       "index.js"

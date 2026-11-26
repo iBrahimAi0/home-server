@@ -1,127 +1,63 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0d0e12;
-  --surface: #14161b;
-  --surface-raised: #1a1c23;
-  --surface-hover: #20232c;
-  --border: #22242b;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --accent: #FACC15;
-  --accent-hover: #EAB308;
-  --accent-subtle: rgba(250, 204, 21, 0.15);
-  --foreground: #f4f5f7;
-  --foreground-muted: #8c919d;
-  --foreground-subtle: #5a5f6c;
+@font-face {
+  font-family: Barlow;
+  src: url("/Barlow-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Barlow;
+  src: url("/Barlow-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme {
+  --font-sans: Barlow, "Segoe UI", sans-serif;
+  --color-canvas: #000;
+  --color-inset: #171717;
+  --color-panel: #212121;
+  --color-raised: #252525;
+  --color-line: #383838;
+  --color-gold: #edb825;
+  --color-indigo-300: #f6d776;
+  --color-indigo-400: #edb825;
+  --color-indigo-500: #edb825;
+  --color-indigo-600: #936b00;
+  --color-indigo-700: #735300;
+  --color-slate-400: #b6b6b6;
+  --color-slate-500: #a3a3a3;
+  --color-slate-600: #969696;
 }
 
-/* Forge Card & Panel Standards with Glassmorphism */
-.forge-card {
-  background-color: rgba(20, 22, 27, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+:root { color-scheme: dark; scrollbar-color: #515151 #171717; }
+body { background: #000; color: #f4f4f4; font-family: var(--font-sans); }
+::selection { color: #171717; background: #edb825; }
+:focus-visible { outline: 2px solid #edb825; outline-offset: 3px; }
+input[type=checkbox] { accent-color: #edb825; }
+.forge-card, .forge-card-inner, .forge-glass-card {
+  background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 12px;
 }
-
-.forge-card-inner {
-  background-color: rgba(15, 16, 20, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 0.5rem;
+.forge-card-inner { background: var(--color-inset); }
+.forge-btn-primary, .forge-btn-dark {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border: 1px solid transparent; border-radius: 7px; padding: .55rem 1rem;
+  font-size: .9375rem; font-weight: 600; cursor: pointer;
 }
-
-.forge-glass-card {
-  background: linear-gradient(180deg, rgba(24, 27, 34, 0.85) 0%, rgba(16, 18, 23, 0.9) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-  border-radius: 0.75rem;
+.forge-btn-primary { background: var(--color-gold); color: #171717; }
+.forge-btn-primary:hover { background: #f6ca4d; }
+.forge-btn-dark { background: var(--color-raised); color: #f4f4f4; border-color: var(--color-line); }
+.forge-btn-dark:hover { background: #303030; }
+.forge-btn-primary:disabled, .forge-btn-dark:disabled { opacity: .55; cursor: not-allowed; }
+.forge-label { display: grid; gap: .35rem; font-weight: 600; }
+.forge-input {
+  width: 100%; min-height: 44px; border: 1px solid var(--color-line); border-radius: 7px;
+  padding: .55rem .75rem; background: var(--color-inset); color: white; font-weight: 400;
 }
-
-.forge-glass-card:hover {
-  border-color: rgba(250, 204, 21, 0.3);
-}
-
-/* Forge Button Utilities */
-.forge-btn-primary {
-  background-color: #FACC15;
-  color: #0d0e12;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  transition: all 0.15s ease-in-out;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.forge-btn-primary:hover {
-  background-color: #EAB308;
-}
-
-.forge-btn-primary:active {
-  transform: scale(0.98);
-}
-
-.forge-btn-dark {
-  background-color: #1a1c23;
-  color: #e5e7eb;
-  border: 1px solid #282b35;
-  font-weight: 500;
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  transition: all 0.15s ease-in-out;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.forge-btn-dark:hover {
-  background-color: #242732;
-  color: #ffffff;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: #0d0e12;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #22242b;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #343743;
-}
-
-/* Monospace font standard class */
-.font-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-/* Focus styling */
-*:focus-visible {
-  outline: 2px solid #FACC15;
-  outline-offset: 1px;
-}
+.forge-dialog { position: fixed; margin: auto; width: min(35rem, calc(100vw - 1.5rem)); max-height: 90dvh; color: inherit; }
+.forge-dialog::backdrop { background: rgb(0 0 0 / .76); }
+@media (max-width: 767px) { #app-sidebar + div main { padding-top: 4rem; } }
+@media(prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }

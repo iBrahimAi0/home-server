@@ -105,9 +105,9 @@ export function ExtractModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-lg bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
+      <div className="flex flex-col w-full max-w-lg bg-inset border border-line rounded-lg shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+        <div className="flex items-center justify-between px-4 py-3 bg-panel border-b border-line">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <Archive className="w-4 h-4" />
@@ -116,7 +116,7 @@ export function ExtractModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -132,7 +132,7 @@ export function ExtractModal({
 
           {/* Existing or File Upload Source */}
           {existingArchive ? (
-            <div className="p-3 rounded-md bg-[#0B0E14] border border-[#1E273A] text-xs">
+            <div className="p-3 rounded-md bg-inset border border-line text-xs">
               <span className="text-slate-400 block mb-1 font-mono text-[11px]">Selected Archive:</span>
               <div className="font-mono text-indigo-300 font-semibold truncate flex items-center gap-1.5">
                 <Archive className="w-4 h-4 text-indigo-400" />
@@ -155,13 +155,13 @@ export function ExtractModal({
 
           {/* Archive Inspection Preview */}
           {isInspecting ? (
-            <div className="p-3 rounded-md bg-[#0B0E14] border border-[#1E273A] flex items-center gap-2 text-slate-400 text-xs font-mono">
+            <div className="p-3 rounded-md bg-inset border border-line flex items-center gap-2 text-slate-400 text-xs font-mono">
               <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
               <span>Inspecting archive contents...</span>
             </div>
           ) : inspection ? (
-            <div className="p-3 rounded-md bg-[#0B0E14] border border-[#1E273A] text-xs space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-1.5 border-b border-[#1A2232]">
+            <div className="p-3 rounded-md bg-inset border border-line text-xs space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-1.5 border-b border-line">
                 <span className="flex items-center gap-1 text-indigo-300 font-semibold">
                   <Eye className="w-3.5 h-3.5" />
                   Archive Preview
@@ -196,7 +196,7 @@ export function ExtractModal({
               value={targetSubdir}
               onChange={(e) => setTargetSubdir(e.target.value)}
               placeholder="e.g. commands (leave empty to extract in current folder)"
-              className="w-full px-3 py-2 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 rounded-md bg-inset border border-line text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
             />
             <p className="text-[11px] text-slate-400 mt-1 font-mono">
               Target: /{destinationPath || 'root'}{targetSubdir ? `/${targetSubdir}` : ''}
@@ -204,7 +204,7 @@ export function ExtractModal({
           </div>
 
           {/* Security & Lifecycle Notice */}
-          <div className="p-2.5 rounded-md bg-[#121824] border border-[#1E273A] text-[11px] text-slate-400 leading-relaxed font-mono flex items-start gap-2">
+          <div className="p-2.5 rounded-md bg-panel border border-line text-[11px] text-slate-400 leading-relaxed font-mono flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
               <span>Zip-Slip and Zip Bomb defenses active. Extracted files will <strong>not</strong> automatically execute or restart the bot.</span>
@@ -212,11 +212,11 @@ export function ExtractModal({
           </div>
 
           {/* Modal Footer */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

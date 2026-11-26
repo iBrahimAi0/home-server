@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import {
   Bot,
@@ -7,7 +8,6 @@ import {
   Plus,
   Play,
   Square,
-  Info,
   ArrowUpDown,
   Sparkles,
 } from "lucide-react";
@@ -24,8 +24,10 @@ type SortOption = "name" | "status" | "cpu" | "ram";
 
 export default function BotsPage() {
   const toast = useToast();
+  const router = useRouter();
   const [bots, setBots] = useState<BotData[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatusType | null>(null);
+  const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortOption>("status");
@@ -39,14 +41,14 @@ export default function BotsPage() {
     async function fetchData() {
       try {
         const [botList, sys] = await Promise.all([
-          api.getBots().catch(() => []),
+          api.getBots(),
           api.getSystemStatus().catch(() => null),
         ]);
         if (!isMounted) return;
         setBots(botList);
         if (sys) setSystemStatus(sys);
       } catch (err) {
-        console.error("Error fetching bots:", err);
+        if (isMounted) setError(err instanceof Error ? err.message : "Couldn’t load projects.");
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -96,11 +98,14 @@ export default function BotsPage() {
     setRefreshing(true);
     try {
       const [botList, sys] = await Promise.all([
-        api.getBots().catch(() => []),
+        api.getBots(),
         api.getSystemStatus().catch(() => null),
       ]);
+      setError("");
       setBots(botList);
       if (sys) setSystemStatus(sys);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn’t load projects.");
     } finally {
       setRefreshing(false);
     }
@@ -179,19 +184,19 @@ export default function BotsPage() {
   const crashedCount = bots.filter((b) => b.status === "crashed").length;
 
   return (
-    <div className="flex min-h-screen bg-[#0D0E12] text-slate-100 font-sans">
+    <div className="flex min-h-screen bg-inset text-slate-100 font-sans">
       <Sidebar
-        currentBotId={bots[0]?.id || "bot-1"}
-        activeTab="overview"
+        currentBotId={bots[0]?.id}
+        activeTab="servers"
         bots={bots}
         onRefresh={handleRefresh}
       />
 
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-200">
+      <div className="min-w-0 flex-1 flex flex-col md:pl-64 transition-all duration-200">
         <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           <Header
-            title="Server Fleet"
-            badge={<span>{bots.length} Active Containers</span>}
+            title="Your bots"
+            badge={<span>{bots.length} projects</span>}
           />
 
           {/* Quick Metrics Bar */}
@@ -205,7 +210,7 @@ export default function BotsPage() {
                   {bots.length}
                 </p>
               </div>
-              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-[#FACC15]">
+              <div className="p-2.5 rounded-lg bg-raised text-gold">
                 <Bot className="w-5 h-5" />
               </div>
             </div>
@@ -233,7 +238,7 @@ export default function BotsPage() {
                   {offlineCount}
                 </p>
               </div>
-              <div className="p-2.5 rounded-lg bg-[#1C1E24] text-slate-400">
+              <div className="p-2.5 rounded-lg bg-raised text-slate-400">
                 <Square className="w-5 h-5 fill-current" />
               </div>
             </div>
@@ -265,12 +270,12 @@ export default function BotsPage() {
                   placeholder="Search servers by name or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0D0E12] text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-lg border border-[#1C1E24] focus:outline-none focus:border-[#FACC15] transition-colors"
+                  className="w-full bg-inset text-white placeholder-slate-500 pl-8 pr-3 py-1.5 text-xs font-mono rounded-lg border border-line focus:outline-none focus:border-gold transition-colors"
                 />
               </div>
 
               {/* Status Filter Tabs */}
-              <div className="flex items-center gap-1 bg-[#0D0E12] p-1 rounded-lg border border-[#1C1E24] text-xs font-mono">
+              <div className="flex items-center gap-1 bg-inset p-1 rounded-lg border border-line text-xs font-mono">
                 {(["all", "online", "offline", "crashed"] as const).map(
                   (st) => (
                     <button
@@ -278,7 +283,7 @@ export default function BotsPage() {
                       onClick={() => setStatusFilter(st)}
                       className={`px-2.5 py-1 rounded capitalize font-medium transition-colors text-xs cursor-pointer ${
                         statusFilter === st
-                          ? "bg-[#1C1E24] text-[#FACC15] font-semibold"
+                          ? "bg-raised text-gold font-semibold"
                           : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
@@ -289,17 +294,17 @@ export default function BotsPage() {
               </div>
 
               {/* Sort By Dropdown */}
-              <div className="flex items-center gap-2 bg-[#0D0E12] px-3 py-1.5 rounded-lg border border-[#1C1E24] text-xs font-mono">
+              <div className="flex items-center gap-2 bg-inset px-3 py-1.5 rounded-lg border border-line text-xs font-mono">
                 <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="bg-transparent text-slate-200 text-xs font-mono focus:outline-none cursor-pointer"
                 >
-                  <option value="status" className="bg-[#14161B] text-white">Sort: Status</option>
-                  <option value="name" className="bg-[#14161B] text-white">Sort: Name</option>
-                  <option value="cpu" className="bg-[#14161B] text-white">Sort: CPU</option>
-                  <option value="ram" className="bg-[#14161B] text-white">Sort: RAM</option>
+                  <option value="status" className="bg-panel text-white">Sort: Status</option>
+                  <option value="name" className="bg-panel text-white">Sort: Name</option>
+                  <option value="cpu" className="bg-panel text-white">Sort: CPU</option>
+                  <option value="ram" className="bg-panel text-white">Sort: RAM</option>
                 </select>
               </div>
             </div>
@@ -332,24 +337,24 @@ export default function BotsPage() {
                 className="forge-btn-primary"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>Deploy Server</span>
+                <span>Deploy a bot</span>
               </button>
             </div>
           </div>
 
           {/* Bots Grid */}
-          {loading ? (
+          {error ? <div role="alert" className="forge-card p-5 space-y-3"><p>{error}</p><button className="forge-btn-dark" disabled={refreshing} onClick={handleRefresh}>Retry</button></div> : loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-56 rounded-xl bg-[#14161B] border border-[#1C1E24] animate-pulse"
+                  className="h-56 rounded-xl bg-panel border border-line animate-pulse"
                 />
               ))}
             </div>
           ) : filteredBots.length === 0 ? (
             <div className="forge-card p-12 text-center font-mono">
-              <div className="p-3.5 rounded-full bg-[#FACC15]/10 text-[#FACC15] w-12 h-12 mx-auto flex items-center justify-center mb-3.5">
+              <div className="p-3.5 rounded-full bg-gold/10 text-gold w-12 h-12 mx-auto flex items-center justify-center mb-3.5">
                 <Bot className="w-6 h-6" />
               </div>
               <h3 className="text-sm font-bold text-white font-sans">
@@ -366,7 +371,7 @@ export default function BotsPage() {
                   className="mt-4 forge-btn-primary"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Deploy First Server</span>
+                  <span>Deploy your first bot</span>
                 </button>
               )}
             </div>
@@ -378,18 +383,6 @@ export default function BotsPage() {
             </div>
           )}
 
-          {/* Guide Banner */}
-          <div className="forge-card p-4 flex items-start gap-3 text-xs text-slate-400 font-mono">
-            <Info className="w-4 h-4 text-[#FACC15] shrink-0 mt-0.5" />
-            <div>
-              <p className="text-slate-200 font-semibold mb-0.5">
-                Isolated Process Security & Quotas
-              </p>
-              <p>
-                Each server container runs inside its own isolated process group with automatic crash recovery, in-memory log stream, RAM and disk storage quota limits, and zero-setup SQLite database management.
-              </p>
-            </div>
-          </div>
         </main>
       </div>
 
@@ -397,9 +390,7 @@ export default function BotsPage() {
       <CreateBotModal
         isOpen={isCreateBotOpen}
         onClose={() => setIsCreateBotOpen(false)}
-        onCreated={() => {
-          handleRefresh();
-        }}
+        onCreated={(id) => router.push(`/bots/${id}?tab=console`)}
       />
     </div>
   );

@@ -58,7 +58,7 @@ export function StatCard({
   return (
     <div
       id={id}
-      className={`group relative overflow-hidden rounded-xl bg-[#0E131F]/90 border border-white/[0.07] p-4.5 transition-all duration-200 hover:border-white/[0.15] hover:bg-[#121827] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-transparent ${theme.topGlow} before:to-transparent before:opacity-75 hover:before:opacity-100`}
+      className={`group relative overflow-hidden rounded-xl bg-inset/90 border border-white/[0.07] p-4.5 transition-all duration-200 hover:border-white/[0.15] hover:bg-panel shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] before:absolute before:top-0 before:left-0 before:right-0 before:h-[2px] before:bg-gradient-to-r before:from-transparent ${theme.topGlow} before:to-transparent before:opacity-75 hover:before:opacity-100`}
     >
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -94,7 +94,7 @@ export function StatCard({
       {/* Visual Percentage Progress Bar */}
       {percentage !== undefined && (
         <div className="mt-3">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#161C2C] p-[1px]">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-panel p-[1px]">
             <div
               className={`h-full rounded-full transition-all duration-500 shadow-sm ${theme.progressFill}`}
               style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}

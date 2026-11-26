@@ -1,3 +1,4 @@
+const dotenv = require("dotenv");
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -60,6 +61,7 @@ module.exports = function createBotsRouter(botManager) {
    */
   router.post("/", upload.single("projectArchive"), async (req, res, next) => {
     const uploadedFile = req.file;
+    let registeredId;
     try {
       let {
         id,
@@ -72,6 +74,7 @@ module.exports = function createBotsRouter(botManager) {
         ramLimitMB,
         storageLimitMB,
         env,
+        envText,
         template,
         installDependencies,
       } = req.body || {};
@@ -87,6 +90,11 @@ module.exports = function createBotsRouter(botManager) {
       }
 
       const cleanId = validateBotId(id);
+      if (typeof envText === "string" && envText.trim()) {
+        const parsed = dotenv.parse(envText);
+        if (!Object.keys(parsed).length) throw Object.assign(new Error("Enter environment variables as NAME=value pairs."), { status: 400 });
+        env = parsed;
+      }
 
       // Parse JSON fields if coming from FormData
       if (typeof args === "string") {
@@ -113,7 +121,7 @@ module.exports = function createBotsRouter(botManager) {
       // Default command/args if not set
       let chosenCommand = command || "npm";
       let chosenArgs =
-        Array.isArray(args) && args.length > 0 ? args : ["start"];
+        Array.isArray(args) ? args : command ? [] : ["start"];
 
       // 1. Create the bot in BotManager
       const created = botManager.addBot({
@@ -123,12 +131,13 @@ module.exports = function createBotsRouter(botManager) {
         path: botPath,
         command: chosenCommand,
         args: chosenArgs,
-        autoStart: autoStart,
+        autoStart: false,
         ramLimitMB: ramLimitMB ? parseInt(ramLimitMB, 10) : 0,
         storageLimitMB: storageLimitMB ? parseInt(storageLimitMB, 10) : 0,
         env: env || {},
       });
 
+      registeredId = cleanId;
       const targetDir = created.path;
 
       // 2. If a starter template was chosen, scaffold it
@@ -140,7 +149,7 @@ module.exports = function createBotsRouter(botManager) {
             env || {},
           );
           // If user didn't customize command/args, adopt template defaults
-          if (!command || command === "npm") {
+          if (!command) {
             chosenCommand = tplResult.command;
             chosenArgs = tplResult.args;
             botManager.updateBot(cleanId, {
@@ -154,17 +163,14 @@ module.exports = function createBotsRouter(botManager) {
             `Scaffolded starter template: ${tplResult.name}`,
           );
         } catch (tplErr) {
-          console.warn(
-            `[BotRouter] Failed to scaffold template ${template}:`,
-            tplErr.message,
-          );
+          throw tplErr;
         }
       }
 
       // 3. If an archive was uploaded, extract it safely
       if (uploadedFile) {
         try {
-          await extractZipSafely(uploadedFile.path, targetDir);
+          await extractZipSafely(uploadedFile.path, targetDir, { project: true });
           botManager.appendLog(
             cleanId,
             "SYSTEM",
@@ -173,8 +179,8 @@ module.exports = function createBotsRouter(botManager) {
 
           // Inspect extracted project to auto-detect command and args if not specified
           const detected = inspectProjectContents(targetDir);
-          if (!command || command.trim() === "npm") {
-            if (detected.command && detected.command !== chosenCommand) {
+          if (!command) {
+            if (detected.detectedEntry) {
               chosenCommand = detected.command;
               chosenArgs = detected.args;
               botManager.updateBot(cleanId, {
@@ -201,18 +207,18 @@ module.exports = function createBotsRouter(botManager) {
 
       // 4. Save any initial environment variables to .env
       if (env && Object.keys(env).length > 0) {
-        botManager.setBotEnv(cleanId, env);
+        botManager.setBotEnv(cleanId, { ...botManager.getBotEnv(cleanId), ...env });
       }
 
-      // 5. If installDependencies requested, trigger in background
-      if (installDependencies) {
-        botManager.installDependencies(cleanId).catch((err) => {
-          console.warn(
-            `[BotRouter] Post-create dependency install error for ${cleanId}:`,
-            err.message,
-          );
-        });
-      }
+      if (autoStart) botManager.updateBot(cleanId, { autoStart: true });
+      const finishSetup = async () => {
+        const project = inspectProjectContents(targetDir);
+        if (installDependencies && (project.hasPackageJson || project.hasRequirements)) {
+          await botManager.installDependencies(cleanId);
+        }
+        if (autoStart) await botManager.startBot(cleanId);
+      };
+      finishSetup().catch(err => botManager.appendLog(cleanId, "ERROR", "Project setup failed: " + err.message));
 
       res.status(201).json({
         success: true,
@@ -220,6 +226,9 @@ module.exports = function createBotsRouter(botManager) {
         data: botManager.getBotData(cleanId),
       });
     } catch (err) {
+      if (registeredId) {
+        try { await botManager.removeBot(registeredId); } catch (rollbackError) { console.error(rollbackError); }
+      }
       if (uploadedFile && fs.existsSync(uploadedFile.path)) {
         try {
           fs.unlinkSync(uploadedFile.path);
@@ -375,7 +384,7 @@ module.exports = function createBotsRouter(botManager) {
         }
 
         const botDir = bot.path;
-        const extractResult = await extractZipSafely(uploadedFile.path, botDir);
+        const extractResult = await extractZipSafely(uploadedFile.path, botDir, { project: true });
         botManager.appendLog(
           cleanId,
           "SYSTEM",
@@ -507,8 +516,17 @@ module.exports = function createBotsRouter(botManager) {
   router.put("/:id/env", async (req, res, next) => {
     try {
       const cleanId = validateBotId(req.params.id);
-      const { env, restart } = req.body || {};
-      const result = botManager.setBotEnv(cleanId, env || {});
+      const { env, envText, restart } = req.body || {};
+      let values = env;
+      if (typeof envText === "string") {
+        const parsed = dotenv.parse(envText);
+        if (!Object.keys(parsed).length) throw Object.assign(new Error("Enter environment variables as NAME=value pairs."), { status: 400 });
+        values = { ...botManager.getBotEnv(cleanId), ...parsed };
+      }
+      if (!values || typeof values !== "object" || Array.isArray(values)) {
+        throw Object.assign(new Error("Environment variables are required."), { status: 400 });
+      }
+      const result = botManager.setBotEnv(cleanId, values);
 
       const bot = botManager.getBotData(cleanId);
       if (restart && bot && bot.status === "online") {

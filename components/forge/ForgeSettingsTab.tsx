@@ -71,7 +71,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+                className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -82,7 +82,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Server notes and description..."
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] resize-none"
+                className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2 rounded-lg border border-line focus:outline-none focus:border-gold resize-none"
               />
             </div>
 
@@ -108,7 +108,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 type="text"
                 readOnly
                 value={serverIp}
-                className="w-full bg-[#0D0E12] text-slate-300 text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none"
+                className="w-full bg-inset text-slate-300 text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none"
               />
             </div>
 
@@ -118,7 +118,7 @@ export function ForgeSettingsTab({ bot, systemStatus, onRefresh }: ForgeSettings
                 type="text"
                 readOnly
                 value={`[username].${bot.id.slice(0, 8)}`}
-                className="w-full bg-[#0D0E12] text-slate-300 text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none"
+                className="w-full bg-inset text-slate-300 text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none"
               />
             </div>
 

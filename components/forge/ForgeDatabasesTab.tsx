@@ -107,18 +107,18 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
               <thead>
-                <tr className="border-b border-[#1E2027] text-slate-500">
+                <tr className="border-b border-line text-slate-500">
                   <th className="pb-3 font-semibold">Name</th>
                   <th className="pb-3 font-semibold">Username</th>
                   <th className="pb-3 font-semibold">Endpoint</th>
                   <th className="pb-3 font-semibold text-right">Size</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1C1E24]">
+              <tbody className="divide-y divide-line">
                 {databases.map((d) => (
-                  <tr key={d.relativePath} className="hover:bg-[#181A20] transition-colors">
+                  <tr key={d.relativePath} className="hover:bg-raised transition-colors">
                     <td className="py-3 text-white font-bold flex items-center gap-2">
-                      <Database className="w-3.5 h-3.5 text-[#FACC15]" />
+                      <Database className="w-3.5 h-3.5 text-gold" />
                       <span>{d.name}</span>
                     </td>
                     <td className="py-3 text-slate-400">sqlite_root</td>
@@ -145,7 +145,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
               value={newDbName}
               onChange={(e) => setNewDbName(e.target.value)}
               placeholder="database.sqlite"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
 
@@ -156,7 +156,7 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
               value={connectionsFrom}
               onChange={(e) => setConnectionsFrom(e.target.value)}
               placeholder="%"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
 
@@ -189,11 +189,11 @@ export function ForgeDatabasesTab({ bot }: ForgeDatabasesTabProps) {
           rows={3}
           value={sqlQuery}
           onChange={(e) => setSqlQuery(e.target.value)}
-          className="w-full bg-[#0D0E12] text-emerald-400 font-mono text-xs px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] resize-none"
+          className="w-full bg-inset text-emerald-400 font-mono text-xs px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold resize-none"
         />
 
         {queryResult && (
-          <div className="rounded-lg bg-[#0D0E12] border border-[#1E2027] p-3 text-xs font-mono max-h-48 overflow-auto">
+          <div className="rounded-lg bg-inset border border-line p-3 text-xs font-mono max-h-48 overflow-auto">
             <div className="text-slate-400 mb-2">
               Result ({queryResult.rows ? queryResult.rows.length : 0} rows, {queryResult.durationMs}ms):
             </div>

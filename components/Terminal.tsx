@@ -489,10 +489,10 @@ export function Terminal({
   return (
     <div
       id="terminal-console"
-      className="flex flex-col rounded-lg bg-[#0A0D14] border border-[#1C2434] shadow-xl overflow-hidden font-mono"
+      className="flex flex-col rounded-lg bg-canvas border border-line shadow-xl overflow-hidden font-mono"
     >
       {/* Terminal Top Control Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-2.5 bg-[#0E131E] border-b border-[#1C2434] select-none text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 px-4 py-2.5 bg-inset border-b border-line select-none text-xs">
         {/* Left: Window Controls & Bot Picker */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
@@ -501,7 +501,7 @@ export function Terminal({
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70 inline-block" />
           </div>
 
-          <div className="flex items-center gap-1.5 pl-2 border-l border-[#20293C]">
+          <div className="flex items-center gap-1.5 pl-2 border-l border-line">
             <TerminalIcon className="w-3.5 h-3.5 text-indigo-400" />
             <span className="font-semibold text-slate-200">Terminal</span>
           </div>
@@ -512,7 +512,7 @@ export function Terminal({
                 id="select-terminal-bot"
                 value={selectedBotId}
                 onChange={(e) => setSelectedBotId(e.target.value)}
-                className="bg-[#151C2A] text-slate-200 text-xs font-mono rounded-md px-2.5 py-1 border border-[#232E44] focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                className="bg-panel text-slate-200 text-xs font-mono rounded-md px-2.5 py-1 border border-line focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
               >
                 <option value="all">All Managed Bots</option>
                 {bots.map((b) => (
@@ -536,12 +536,12 @@ export function Terminal({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#151C2A] text-slate-200 placeholder-slate-500 pl-7 pr-2.5 py-1 text-xs font-mono rounded-md border border-[#232E44] focus:outline-none focus:border-indigo-500 w-28 sm:w-36 transition-all"
+              className="bg-panel text-slate-200 placeholder-slate-500 pl-7 pr-2.5 py-1 text-xs font-mono rounded-md border border-line focus:outline-none focus:border-indigo-500 w-28 sm:w-36 transition-all"
             />
           </div>
 
           {/* Level Filter */}
-          <div className="flex items-center gap-0.5 bg-[#151C2A] p-0.5 rounded-md border border-[#232E44] text-xs font-mono">
+          <div className="flex items-center gap-0.5 bg-panel p-0.5 rounded-md border border-line text-xs font-mono">
             {(["ALL", "INFO", "WARN", "ERROR", "SYSTEM"] as const).map(
               (lvl) => (
                 <button
@@ -567,7 +567,7 @@ export function Terminal({
             className={`p-1.5 rounded-md border text-xs transition-colors flex items-center cursor-pointer ${
               autoScroll
                 ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20"
-                : "bg-[#151C2A] border-[#232E44] text-slate-400 hover:text-slate-200"
+                : "bg-panel border-line text-slate-400 hover:text-slate-200"
             }`}
           >
             {autoScroll ? (
@@ -582,7 +582,7 @@ export function Terminal({
             id="btn-terminal-clear"
             onClick={handleClear}
             title="Clear display"
-            className="p-1.5 rounded-md bg-[#151C2A] hover:bg-[#1E273A] border border-[#232E44] text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+            className="p-1.5 rounded-md bg-panel hover:bg-raised border border-line text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
           >
             <Trash2 className="w-3 h-3" />
           </button>
@@ -592,7 +592,7 @@ export function Terminal({
             id="btn-terminal-copy"
             onClick={handleCopy}
             title="Copy logs"
-            className="p-1.5 rounded-md bg-[#151C2A] hover:bg-[#1E273A] border border-[#232E44] text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-md bg-panel hover:bg-raised border border-line text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             {copied ? (
               <Check className="w-3 h-3 text-emerald-400" />
@@ -606,7 +606,7 @@ export function Terminal({
             id="btn-terminal-download"
             onClick={handleDownload}
             title="Download log file"
-            className="p-1.5 rounded-md bg-[#151C2A] hover:bg-[#1E273A] border border-[#232E44] text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-md bg-panel hover:bg-raised border border-line text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <Download className="w-3 h-3" />
           </button>
@@ -649,7 +649,7 @@ export function Terminal({
             {filteredLogs.map((log) => (
               <div
                 key={log.id}
-                className="flex items-start gap-2 hover:bg-[#131A26] px-1.5 py-0.5 rounded transition-colors"
+                className="flex items-start gap-2 hover:bg-panel px-1.5 py-0.5 rounded transition-colors"
               >
                 {/* Timestamp */}
                 <span className="text-slate-400 shrink-0 select-none text-[11px]">
@@ -665,7 +665,7 @@ export function Terminal({
 
                 {/* Bot Name Tag (if viewing all bots) */}
                 {selectedBotId === "all" && (
-                  <span className="text-slate-400 shrink-0 text-[10px] px-1 rounded bg-[#151C2A] border border-[#232E44]">
+                  <span className="text-slate-400 shrink-0 text-[10px] px-1 rounded bg-panel border border-line">
                     {log.botName}
                   </span>
                 )}
@@ -692,11 +692,11 @@ export function Terminal({
       </div>
 
       {/* Interactive Console Command Input Bar */}
-      <div className="bg-[#0B0F19] border-t border-[#1C2434] p-3 space-y-2 select-none">
+      <div className="bg-inset border-t border-line p-3 space-y-2 select-none">
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Left: Mode Switcher Pill */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center rounded-lg bg-[#141A27] p-0.5 border border-[#232E44] text-[11px] font-mono">
+            <div className="flex items-center rounded-lg bg-panel p-0.5 border border-line text-[11px] font-mono">
               <button
                 type="button"
                 id="btn-mode-exec"
@@ -737,7 +737,7 @@ export function Terminal({
                   id="select-target-bot"
                   value={effectiveBotId}
                   onChange={(e) => setActiveTargetId(e.target.value)}
-                  className="bg-[#141A27] text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 border border-[#232E44] focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="bg-panel text-slate-200 text-xs font-mono rounded-lg px-2.5 py-1 border border-line focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   {bots.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -775,7 +775,7 @@ export function Terminal({
         {/* Command Input Row */}
         <div className="flex items-center gap-2">
           {/* Prompt prefix display */}
-          <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#141A27] border border-[#232E44] text-xs font-mono select-none shrink-0">
+          <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-panel border border-line text-xs font-mono select-none shrink-0">
             <span className="text-slate-400 max-w-[130px] truncate">
               {targetBot ? targetBot.name : "bot"}
             </span>
@@ -809,7 +809,7 @@ export function Terminal({
                       ? "Enter input to send to process standard input (help)..."
                       : "Target bot is offline. Start bot to send stdin or switch to Exec ($)..."
               }
-              className="w-full bg-[#06080E] text-slate-100 placeholder-slate-500 border border-[#232E44] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 rounded-lg px-3 py-1.5 font-mono text-xs outline-none transition-all disabled:opacity-50"
+              className="w-full bg-canvas text-slate-100 placeholder-slate-500 border border-line focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 rounded-lg px-3 py-1.5 font-mono text-xs outline-none transition-all disabled:opacity-50"
             />
           </div>
 
@@ -842,14 +842,14 @@ export function Terminal({
             <button
               type="button"
               onClick={() => handleSendCommand("help")}
-              className="px-1.5 py-0.5 rounded bg-[#141A27] hover:bg-[#1E273A] border border-[#232E44] text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="px-1.5 py-0.5 rounded bg-panel hover:bg-raised border border-line text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
               help
             </button>
             <button
               type="button"
               onClick={() => handleSendCommand("clear")}
-              className="px-1.5 py-0.5 rounded bg-[#141A27] hover:bg-[#1E273A] border border-[#232E44] text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="px-1.5 py-0.5 rounded bg-panel hover:bg-raised border border-line text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
               clear
             </button>
@@ -888,19 +888,19 @@ export function Terminal({
           <div className="flex items-center gap-3 text-slate-400 hidden sm:flex">
             <span>
               Press{" "}
-              <kbd className="px-1 py-0.2 rounded bg-[#141A27] border border-[#232E44] text-slate-300">
+              <kbd className="px-1 py-0.2 rounded bg-panel border border-line text-slate-300">
                 ↵
               </kbd>{" "}
               to execute
             </span>
             <span>
-              <kbd className="px-1 py-0.2 rounded bg-[#141A27] border border-[#232E44] text-slate-300">
+              <kbd className="px-1 py-0.2 rounded bg-panel border border-line text-slate-300">
                 ↑↓
               </kbd>{" "}
               history
             </span>
             <span>
-              <kbd className="px-1 py-0.2 rounded bg-[#141A27] border border-[#232E44] text-slate-300">
+              <kbd className="px-1 py-0.2 rounded bg-panel border border-line text-slate-300">
                 Esc
               </kbd>{" "}
               clear
@@ -910,7 +910,7 @@ export function Terminal({
       </div>
 
       {/* Terminal Footer */}
-      <div className="flex items-center justify-between px-3 py-1.5 bg-[#090C12] border-t border-[#1C2434] text-[10px] text-slate-400 select-none">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-canvas border-t border-line text-[10px] text-slate-400 select-none">
         <div className="flex items-center gap-2">
           <span>
             Entries:{" "}

@@ -48,8 +48,8 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-md bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
-        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+      <div className="flex flex-col w-full max-w-md bg-inset border border-line rounded-lg shadow-2xl overflow-hidden font-sans">
+        <div className="flex items-center justify-between px-4 py-3 bg-panel border-b border-line">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               {type === 'file' ? <FilePlus className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />}
@@ -60,7 +60,7 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -86,7 +86,7 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={type === 'file' ? 'e.g. index.js or config.json' : 'e.g. commands or services'}
-              className="w-full px-3 py-2 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
+              className="w-full px-3 py-2 rounded-md bg-inset border border-line text-white text-xs font-mono focus:outline-none focus:border-indigo-500 placeholder:text-slate-500"
             />
             <p className="text-[11px] text-slate-400 mt-1 font-mono">
               Location: /{parentPath || 'root'}
@@ -104,16 +104,16 @@ export function CreateModal({ botId, parentPath, type, isOpen, onClose, onCreate
                 value={initialContent}
                 onChange={(e) => setInitialContent(e.target.value)}
                 placeholder="// Initial content..."
-                className="w-full p-2.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white font-mono text-xs focus:outline-none focus:border-indigo-500 placeholder:text-slate-500 resize-none"
+                className="w-full p-2.5 rounded-md bg-inset border border-line text-white font-mono text-xs focus:outline-none focus:border-indigo-500 placeholder:text-slate-500 resize-none"
               />
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

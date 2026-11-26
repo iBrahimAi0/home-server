@@ -1,1099 +1,143 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import {
-  X,
-  Bot,
-  Loader2,
-  AlertCircle,
-  Plus,
-  Trash2,
-  UploadCloud,
-  Layers,
-  Code,
-  Sparkles,
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  FileCode2,
-  Eye,
-  EyeOff,
-  FolderCode,
-  GitBranch,
-} from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { FileArchive, Upload, X } from "lucide-react";
 import { api } from "@/lib/api";
-import { useToast } from "@/components/ui/Toast";
+import { useToast } from "../ui/Toast";
 
-interface CreateBotModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreated: () => void;
+type Props = { isOpen: boolean; onClose: () => void; onCreated: (id: string) => void };
+
+export function CreateBotModal({ isOpen, ...props }: Props) {
+  return isOpen ? <CreateProject {...props}/> : null;
 }
 
-interface EnvRow {
-  key: string;
-  value: string;
-  isSecret?: boolean;
-}
-
-function slugify(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-type SourceType = "github" | "upload" | "template" | "empty";
-
-const STARTER_TEMPLATES = [
-  {
-    id: "discordjs",
-    name: "Discord.js (v14)",
-    tag: "Node.js",
-    tagColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    description:
-      "Modern Discord.js v14 client with slash commands, ping latency, and event handlers.",
-    command: "node",
-    args: "index.js",
-    defaultEnv: [
-      { key: "DISCORD_TOKEN", value: "", isSecret: true },
-      { key: "CLIENT_ID", value: "", isSecret: false },
-      { key: "PREFIX", value: "!", isSecret: false },
-    ],
-  },
-  {
-    id: "discordpy",
-    name: "Discord.py (v2)",
-    tag: "Python 3",
-    tagColor: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-    description:
-      "Python 3 bot using discord.py with hybrid command tree and prefix commands.",
-    command: "python3",
-    args: "bot.py",
-    defaultEnv: [
-      { key: "DISCORD_TOKEN", value: "", isSecret: true },
-      { key: "PREFIX", value: "!", isSecret: false },
-    ],
-  },
-  {
-    id: "typescript",
-    name: "TypeScript Bot",
-    tag: "TypeScript",
-    tagColor: "bg-[#FACC15]/10 text-[#FACC15] border-[#FACC15]/20",
-    description:
-      "Discord.js v14 configured with TypeScript compilation and ts-node dev server.",
-    command: "npm",
-    args: "start",
-    defaultEnv: [
-      { key: "DISCORD_TOKEN", value: "", isSecret: true },
-      { key: "PREFIX", value: "!", isSecret: false },
-    ],
-  },
-  {
-    id: "minimal",
-    name: "Minimal Daemon",
-    tag: "JavaScript",
-    tagColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    description:
-      "Lightweight standalone Node.js heartbeat service for custom bot routines.",
-    command: "node",
-    args: "index.js",
-    defaultEnv: [
-      { key: "SERVICE_NAME", value: "NexusWorker", isSecret: false },
-    ],
-  },
-];
-
-export function CreateBotModal({
-  isOpen,
-  onClose,
-  onCreated,
-}: CreateBotModalProps) {
+function CreateProject({ onClose, onCreated }: Omit<Props, "isOpen">) {
   const toast = useToast();
-
-  // Wizard Step: 1 = Identity, 2 = Source, 3 = Runtime & Secrets
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-
-  // Step 1: Identity
+  const dialog = useRef<HTMLDialogElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
-  const [id, setId] = useState("");
-  const [idTouched, setIdTouched] = useState(false);
-  const [description, setDescription] = useState("");
-  const [botPath, setBotPath] = useState("");
-  const [autoStart, setAutoStart] = useState(false);
+  const [zip, setZip] = useState<File | null>(null);
+  const [source, setSource] = useState("zip");
+  const [env, setEnv] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  // Step 2: Source
-  const [sourceType, setSourceType] = useState<SourceType>("github");
-  const [gitRepoUrl, setGitRepoUrl] = useState("");
-  const [gitBranch, setGitBranch] = useState("main");
-  const [selectedTemplate, setSelectedTemplate] = useState("discordjs");
-  const [uploadedZip, setUploadedZip] = useState<File | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const element = dialog.current!;
+    element.showModal();
+    return () => element.close();
+  }, []);
 
-  // Step 3: Runtime & Environment
-  const [command, setCommand] = useState("node");
-  const [argsText, setArgsText] = useState("index.js");
-  const [installDependencies, setInstallDependencies] = useState(true);
-  const [ramLimitMB, setRamLimitMB] = useState<number>(512);
-  const [storageLimitMB, setStorageLimitMB] = useState<number>(1024);
-  const [envRows, setEnvRows] = useState<EnvRow[]>([
-    { key: "DISCORD_TOKEN", value: "", isSecret: true },
-    { key: "CLIENT_ID", value: "", isSecret: false },
-    { key: "PREFIX", value: "!", isSecret: false },
-  ]);
-  const [visibleSecrets, setVisibleSecrets] = useState<Record<number, boolean>>(
-    {},
-  );
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  if (!isOpen) return null;
-
-  const handleNameChange = (val: string) => {
-    setName(val);
-    if (!idTouched) {
-      const generatedId = slugify(val);
-      setId(generatedId);
-      if (!botPath || botPath.startsWith("bots/")) {
-        setBotPath(`bots/${generatedId}`);
-      }
+  function selectArchive(files: FileList | null) {
+    if (!files?.length) return;
+    const file = files[0];
+    if (files.length !== 1 || !/\.zip$/i.test(file.name) || file.size === 0 || file.size > 80 * 1024 * 1024) {
+      setError("Choose one ZIP file up to 80 MiB.");
+      return;
     }
-  };
+    setZip(file);
+    setError("");
+    if (!name.trim() || name === zip?.name.replace(/\.zip$/i, "")) setName(file.name.replace(/\.zip$/i, ""));
+  }
 
-  const handleTemplateSelect = (tplId: string) => {
-    setSelectedTemplate(tplId);
-    const tpl = STARTER_TEMPLATES.find((t) => t.id === tplId);
-    if (tpl) {
-      setCommand(tpl.command);
-      setArgsText(tpl.args);
-      setEnvRows(tpl.defaultEnv);
-    }
-  };
+  async function deploy(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
 
-  const handleZipChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setUploadedZip(file);
-      // Auto-detect Python vs Node by archive filename
-      if (file.name.toLowerCase().includes("py")) {
-        setCommand("python3");
-        setArgsText("bot.py");
-      } else {
-        setCommand("npm");
-        setArgsText("start");
-      }
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      if (file.name.endsWith(".zip")) {
-        setUploadedZip(file);
-        if (file.name.toLowerCase().includes("py")) {
-          setCommand("python3");
-          setArgsText("bot.py");
-        } else {
-          setCommand("npm");
-          setArgsText("start");
-        }
-      } else {
-        setError("Please drop a valid .zip archive file.");
-      }
-    }
-  };
-
-  const handleEnvRowChange = (
-    index: number,
-    field: "key" | "value",
-    value: string,
-  ) => {
-    setEnvRows((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
-    );
-  };
-
-  const addEnvRow = () =>
-    setEnvRows((prev) => [...prev, { key: "", value: "", isSecret: false }]);
-  const removeEnvRow = (index: number) =>
-    setEnvRows((prev) => prev.filter((_, i) => i !== index));
-  const toggleSecretVisibility = (index: number) => {
-    setVisibleSecrets((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const reset = () => {
-    setStep(1);
-    setName("");
-    setId("");
-    setIdTouched(false);
-    setDescription("");
-    setBotPath("");
-    setAutoStart(false);
-    setSourceType("github");
-    setGitRepoUrl("");
-    setGitBranch("main");
-    setSelectedTemplate("discordjs");
-    setUploadedZip(null);
-    setCommand("node");
-    setArgsText("index.js");
-    setInstallDependencies(true);
-    setRamLimitMB(512);
-    setStorageLimitMB(1024);
-    setEnvRows([
-      { key: "DISCORD_TOKEN", value: "", isSecret: true },
-      { key: "CLIENT_ID", value: "", isSecret: false },
-      { key: "PREFIX", value: "!", isSecret: false },
-    ]);
-    setVisibleSecrets({});
-    setError(null);
-  };
-
-  const handleClose = () => {
-    if (!isLoading) {
-      reset();
-      onClose();
-    }
-  };
-
-  const handleNextStep = () => {
-    setError(null);
-    if (step === 1) {
-      if (!name.trim()) {
-        setError("Display name is required.");
-        return;
-      }
-      // The Bot ID is just a URL-safe slug derived from the name. Auto-fill
-      // it silently if it's blank or was never touched, instead of blocking
-      // the user on a field they didn't realize they needed to set.
-      const cleanId = slugify(id) || slugify(name);
-      if (!cleanId) {
-        setError(
-          "Display name must contain at least one letter or number.",
-        );
-        return;
-      }
-      if (cleanId !== id) setId(cleanId);
-      setStep(2);
-    } else if (step === 2) {
-      if (sourceType === "github" && !gitRepoUrl.trim()) {
-        setError("Please enter a valid GitHub repository clone URL.");
-        return;
-      }
-      if (sourceType === "upload" && !uploadedZip) {
-        setError("Please select a project .zip archive to upload.");
-        return;
-      }
-      setStep(3);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Always send a valid bot ID. If the ID field was cleared or lost
-    // while moving through the wizard, derive it safely from the bot name.
-    const cleanId = slugify(id || name);
-    if (!cleanId || !name.trim()) {
-      setError("Bot name and ID are required.");
+    const fields = new FormData(event.currentTarget);
+    const id = name.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
+    if (!id || (source === "zip" && !zip)) {
+      setError("Enter a project name and select the required ZIP.");
       return;
     }
 
-    // Keep the UI state in sync with the value that will actually be sent.
-    if (id !== cleanId) {
-      setId(cleanId);
-    }
-
-    setIsLoading(true);
-    setError(null);
-
+    setBusy(true);
+    setError("");
+    let created = false;
     try {
-      const envObj: Record<string, string> = {};
-      for (const row of envRows) {
-        if (row.key.trim()) {
-          envObj[row.key.trim()] = row.value;
-        }
-      }
-
-      const args = argsText
-        .split(/\s+/)
-        .map((a) => a.trim())
-        .filter(Boolean);
-
+      const command = String(fields.get("command") || "").trim().split(/\s+/).filter(Boolean);
+      const autoStart = fields.has("start") && source !== "empty";
       await api.createBot({
-        id: cleanId,
-        name: name.trim(),
-        description: description.trim() || undefined,
-        path: botPath.trim() || undefined,
-        command: command.trim() || "npm",
-        args: args.length > 0 ? args : ["start"],
-        autoStart,
-        ramLimitMB,
-        storageLimitMB,
-        env: envObj,
-        template: sourceType === "template" ? selectedTemplate : undefined,
-        installDependencies: installDependencies,
-        projectArchive:
-          sourceType === "upload" && uploadedZip ? uploadedZip : undefined,
+        id, name: name.trim(), description: String(fields.get("description") || ""),
+        command: command[0], args: command.length ? command.slice(1) : undefined,
+        projectArchive: source === "zip" ? zip! : undefined,
+        template: source === "template" ? String(fields.get("template")) : undefined,
+        envText: source !== "git" ? env : undefined,
+        installDependencies: source !== "git" && source !== "empty",
+        autoStart: source !== "git" && autoStart,
       });
-
-      if (sourceType === "github" && gitRepoUrl.trim()) {
-        try {
-          await api.configureGitRepo(cleanId, gitRepoUrl.trim(), gitBranch.trim() || "main");
-          await api.pullGit(cleanId, gitBranch.trim() || "main");
-        } catch (gitErr) {
-          console.warn("Initial git pull deferred:", gitErr);
+      created = true;
+      if (source === "git") {
+        const branch = String(fields.get("branch") || "main").trim() || "main";
+        await api.configureGitRepo(id, String(fields.get("repo")).trim(), branch);
+        await api.pullGit(id, branch);
+        if (env.trim()) await api.updateBotEnvText(id, env);
+        if (autoStart) {
+          await api.installDependencies(id);
+          await api.updateBot(id, { autoStart: true });
+          await api.startBot(id);
         }
       }
-
-      toast.success(
-        `Bot "${name.trim()}" created successfully!`,
-        "Bot Created",
-      );
-      reset();
-      onCreated();
-      onClose();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to create bot.";
-      setError(msg);
-      toast.error(msg, "Creation Failed");
+      onCreated(id);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Deployment failed.";
+      if (created) {
+        toast.error("Project created. Finish Git setup from the project page. " + message);
+        onCreated(id);
+      } else setError(message);
     } finally {
-      setIsLoading(false);
+      setBusy(false);
     }
-  };
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="flex flex-col w-full max-w-2xl max-h-[92vh] forge-glass-card overflow-hidden font-sans">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#14161B] border-b border-[#22242B] shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/20 shadow-sm">
-              <Bot className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="font-bold text-white text-sm">
-                Deploy Server Container
-              </h3>
-              <p className="text-[11px] text-slate-400 font-mono">
-                Step {step} of 3:{" "}
-                {step === 1
-                  ? "Server Identity"
-                  : step === 2
-                    ? "GitHub Repo / Project Archive"
-                    : "Runtime & Secrets"}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Step Progress Bar */}
-        <div className="grid grid-cols-3 bg-[#0B0E14] border-b border-[#22242B] text-xs font-mono select-none">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-              step === 1
-                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
-              1
-            </span>
-            <span>Identity</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (name.trim()) {
-                if (!id.trim()) setId(slugify(name));
-                setStep(2);
-              }
-            }}
-            disabled={!name.trim()}
-            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-              step === 2
-                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
-              2
-            </span>
-            <span>Project Source</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (name.trim()) {
-                if (!id.trim()) setId(slugify(name));
-                setStep(3);
-              }
-            }}
-            disabled={!name.trim()}
-            className={`py-2.5 px-3 flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-              step === 3
-                ? "text-[#FACC15] font-bold bg-[#14161B] border-b-2 border-[#FACC15]"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1C1E24] text-[10px]">
-              3
-            </span>
-            <span>Runtime & Secrets</span>
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <form
-          onSubmit={handleSubmit}
-          className="p-5 space-y-4 overflow-y-auto flex-1"
-        >
-          {error && (
-            <div className="flex items-start gap-2.5 p-3 bg-rose-500/10 border border-rose-500/25 rounded-lg text-rose-300 text-xs font-mono">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* STEP 1: IDENTITY */}
-          {step === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Bot Display Name <span className="text-[#FACC15]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    autoFocus
-                    value={name}
-                    onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="e.g. Moderation Bot"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Bot ID (Slug){" "}
-                    <span className="text-slate-500 normal-case font-normal">
-                      — auto-generated
-                    </span>
-                  </label>
-                  <input
-                    type="text"
-                    value={id || slugify(name)}
-                    onChange={(e) => {
-                      setIdTouched(true);
-                      setId(slugify(e.target.value));
-                    }}
-                    placeholder="e.g. mod-bot"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
-                  />
-                  <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                    Filled in automatically from the display name. Only
-                    change it if you want a different folder/slug.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                  Description (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Primary role: Discord moderation, auto-warn, audit logs"
-                  className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                  Server Directory Path
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={botPath}
-                    onChange={(e) => setBotPath(e.target.value)}
-                    placeholder="bots/<bot-id> (default auto-placed)"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] placeholder:text-slate-500"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                  Defaults to{" "}
-                  <code className="text-[#FACC15]">
-                    bots/{id || "&lt;bot-id&gt;"}
-                  </code>{" "}
-                  on the server. Created automatically if it does not exist.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-lg bg-[#121724] border border-[#1E273A]">
-                <label className="flex items-center gap-2.5 text-xs text-slate-300 font-mono cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={autoStart}
-                    onChange={(e) => setAutoStart(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-[#FACC15] cursor-pointer"
-                  />
-                  <div>
-                    <span className="font-semibold text-white block">
-                      Auto-start on host boot
-                    </span>
-                    <span className="text-[11px] text-slate-400">
-                      Launch this bot automatically when systemd starts
-                      NexusPanel.
-                    </span>
-                  </div>
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: PROJECT SOURCE */}
-          {step === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Source Tab Selector */}
-              <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[#0B0E14] border border-[#1E273A] overflow-x-auto">
-                <button
-                  type="button"
-                  onClick={() => setSourceType("github")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                    sourceType === "github"
-                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  <span>GitHub Repo</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSourceType("upload")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                    sourceType === "upload"
-                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <UploadCloud className="w-3.5 h-3.5" />
-                  <span>Upload ZIP</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSourceType("template")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                    sourceType === "template"
-                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Templates</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSourceType("empty")}
-                  className={`flex-1 py-1.5 px-3 rounded-md text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
-                    sourceType === "empty"
-                      ? "bg-[#FACC15] text-[#0D0E12] font-bold shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <FolderCode className="w-3.5 h-3.5" />
-                  <span>Empty Folder</span>
-                </button>
-              </div>
-
-              {/* Sub-view: GitHub Repository */}
-              {sourceType === "github" && (
-                <div className="space-y-3 p-4 rounded-xl bg-[#0B0E14] border border-[#1E273A]">
-                  <div className="flex items-center gap-2 text-xs font-bold text-white">
-                    <GitBranch className="w-4 h-4 text-[#FACC15]" />
-                    <span>Clone & Track Remote GitHub Repository</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 font-mono">
-                    NexusPanel will automatically clone your repository, track commits, and sync updates into this server container.
-                  </p>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                      Git Repository URL <span className="text-[#FACC15]">*</span>
-                    </label>
-                    <input
-                      type="url"
-                      value={gitRepoUrl}
-                      onChange={(e) => setGitRepoUrl(e.target.value)}
-                      placeholder="https://github.com/username/discord-bot.git"
-                      className="w-full px-3 py-2 rounded-lg bg-[#14161B] border border-[#22242B] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                      Target Branch
-                    </label>
-                    <input
-                      type="text"
-                      value={gitBranch}
-                      onChange={(e) => setGitBranch(e.target.value)}
-                      placeholder="main"
-                      className="w-full px-3 py-2 rounded-lg bg-[#14161B] border border-[#22242B] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Sub-view: Starter Templates */}
-              {sourceType === "template" && (
-                <div className="space-y-2.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {STARTER_TEMPLATES.map((tpl) => {
-                      const isSelected = selectedTemplate === tpl.id;
-                      return (
-                        <div
-                          key={tpl.id}
-                          onClick={() => handleTemplateSelect(tpl.id)}
-                          className={`p-3.5 rounded-lg border transition-all cursor-pointer flex flex-col justify-between ${
-                            isSelected
-                              ? "bg-[#FACC15]/10 border-[#FACC15] shadow-md"
-                              : "bg-[#0B0E14] border-[#1E273A] hover:border-slate-700 hover:bg-[#111622]"
-                          }`}
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-2 mb-1.5">
-                              <span className="font-bold text-xs text-white flex items-center gap-1.5">
-                                <Code className="w-3.5 h-3.5 text-[#FACC15]" />
-                                {tpl.name}
-                              </span>
-                              <span
-                                className={`text-[10px] font-mono font-semibold px-1.5 py-0.2 rounded border ${tpl.tagColor}`}
-                              >
-                                {tpl.tag}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                              {tpl.description}
-                            </p>
-                          </div>
-
-                          <div className="mt-3 pt-2 border-t border-[#1E273A]/60 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                            <span>
-                              Command:{" "}
-                              <strong className="text-slate-300">
-                                {tpl.command} {tpl.args}
-                              </strong>
-                            </span>
-                            {isSelected && (
-                              <span className="flex items-center gap-1 text-emerald-400 font-bold">
-                                <Check className="w-3 h-3" />
-                                Selected
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Sub-view: Upload Project (.ZIP) */}
-              {sourceType === "upload" && (
-                <div className="space-y-3">
-                  <div
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setIsDragOver(true);
-                    }}
-                    onDragLeave={() => setIsDragOver(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-                      isDragOver
-                        ? "border-[#FACC15] bg-[#FACC15]/10"
-                        : "border-[#222D40] hover:border-[#FACC15]/50 bg-[#0B0E14]"
-                    }`}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".zip"
-                      onChange={handleZipChange}
-                      className="hidden"
-                    />
-                    <div className="p-3 rounded-full bg-[#FACC15]/10 text-[#FACC15] mb-2">
-                      <UploadCloud className="w-6 h-6" />
-                    </div>
-                    <p className="text-xs font-semibold text-white">
-                      Click or drag & drop your bot project archive (.zip)
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-1 font-mono">
-                      ZIP contents will be safely unpacked into the bot
-                      directory
-                    </p>
-                  </div>
-
-                  {uploadedZip && (
-                    <div className="p-3 rounded-lg bg-[#121724] border border-[#1E273A] flex items-center justify-between text-xs font-mono">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        <FileCode2 className="w-4 h-4 text-[#FACC15] shrink-0" />
-                        <span className="text-white font-semibold truncate">
-                          {uploadedZip.name}
-                        </span>
-                        <span className="text-slate-400 text-[11px] shrink-0">
-                          ({(uploadedZip.size / 1024 / 1024).toFixed(2)} MB)
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setUploadedZip(null)}
-                        className="p-1 rounded text-slate-400 hover:text-rose-400 cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Sub-view: Empty */}
-              {sourceType === "empty" && (
-                <div className="p-6 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-center space-y-2">
-                  <FolderCode className="w-8 h-8 text-slate-500 mx-auto" />
-                  <h4 className="text-xs font-bold text-white">
-                    Clean Working Directory
-                  </h4>
-                  <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
-                    Creates an empty directory on the server. You can write
-                    files in the File Manager, clone via Git, or upload code at
-                    any time.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* STEP 3: RUNTIME & SECRETS */}
-          {step === 3 && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Command & Args */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Spawn Command
-                  </label>
-                  <input
-                    type="text"
-                    value={command}
-                    onChange={(e) => setCommand(e.target.value)}
-                    placeholder="node / python3 / npm"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1 font-mono">
-                    Arguments
-                  </label>
-                  <input
-                    type="text"
-                    value={argsText}
-                    onChange={(e) => setArgsText(e.target.value)}
-                    placeholder="index.js / bot.py / start"
-                    className="w-full px-3 py-2 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                  />
-                </div>
-              </div>
-
-              {/* Auto Dependency Install Toggle */}
-              <div className="p-3 rounded-lg bg-[#121724] border border-[#1E273A]">
-                <label className="flex items-center gap-2.5 text-xs text-slate-300 font-mono cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={installDependencies}
-                    onChange={(e) => setInstallDependencies(e.target.checked)}
-                    className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-[#FACC15] cursor-pointer"
-                  />
-                  <div>
-                    <span className="font-semibold text-white block">
-                      Auto-install dependencies
-                    </span>
-                    <span className="text-[11px] text-slate-400">
-                      Run <code className="text-[#FACC15]">npm install</code>{" "}
-                      or <code className="text-[#FACC15]">pip install</code>{" "}
-                      immediately after project setup.
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              {/* Resource Allocation Limits (RAM & Storage) */}
-              <div className="p-3.5 rounded-lg bg-[#121724] border border-[#1E273A] space-y-3">
-                <span className="block text-xs font-bold text-white font-mono">
-                  Resource Allocation & Limits
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* RAM Limit */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
-                        RAM Limit (MB)
-                      </label>
-                      <span className="text-[10px] font-mono text-[#FACC15] font-semibold">
-                        {ramLimitMB === 0 ? "Unlimited" : `${ramLimitMB} MB`}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      min={0}
-                      step={64}
-                      value={ramLimitMB}
-                      onChange={(e) =>
-                        setRamLimitMB(Math.max(0, parseInt(e.target.value, 10) || 0))
-                      }
-                      placeholder="512"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                    />
-                    <div className="mt-1.5 flex items-center gap-1.5">
-                      {[256, 512, 1024, 2048].map((mb) => (
-                        <button
-                          key={mb}
-                          type="button"
-                          onClick={() => setRamLimitMB(mb)}
-                          className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
-                            ramLimitMB === mb
-                              ? "bg-[#FACC15] text-[#0D0E12] font-bold"
-                              : "bg-[#182030] text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          {mb >= 1024 ? `${mb / 1024}G` : `${mb}M`}
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => setRamLimitMB(0)}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
-                          ramLimitMB === 0
-                            ? "bg-[#FACC15] text-[#0D0E12] font-bold"
-                            : "bg-[#182030] text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        ∞</button>
-                    </div>
-                  </div>
-
-                  {/* Storage Limit */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
-                        Storage Limit (MB)
-                      </label>
-                      <span className="text-[10px] font-mono text-emerald-400 font-semibold">
-                        {storageLimitMB === 0 ? "Unlimited" : `${storageLimitMB} MB`}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      min={0}
-                      step={256}
-                      value={storageLimitMB}
-                      onChange={(e) =>
-                        setStorageLimitMB(
-                          Math.max(0, parseInt(e.target.value, 10) || 0),
-                        )
-                      }
-                      placeholder="1024"
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                    />
-                    <div className="mt-1.5 flex items-center gap-1.5">
-                      {[500, 1000, 2000, 5000].map((mb) => (
-                        <button
-                          key={mb}
-                          type="button"
-                          onClick={() => setStorageLimitMB(mb)}
-                          className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
-                            storageLimitMB === mb
-                              ? "bg-emerald-600 text-white font-bold"
-                              : "bg-[#182030] text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          {mb >= 1000 ? `${mb / 1000}G` : `${mb}M`}
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={() => setStorageLimitMB(0)}
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
-                          storageLimitMB === 0
-                            ? "bg-emerald-600 text-white font-bold"
-                            : "bg-[#182030] text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        ∞</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Environment Variables & Secrets Vault */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider font-mono">
-                      Environment Variables (.env)
-                    </label>
-                    <p className="text-[10px] text-slate-500 font-mono">
-                      Stored securely in the bot&apos;s runtime environment and
-                      .env file
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addEnvRow}
-                    className="inline-flex items-center gap-1 text-[11px] text-[#FACC15] hover:text-[#FACC15] font-mono cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    Add Variable
-                  </button>
-                </div>
-
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {envRows.map((row, index) => {
-                    const isVisible = !!visibleSecrets[index];
-                    return (
-                      <div key={index} className="flex items-center gap-1.5">
-                        <input
-                          type="text"
-                          value={row.key}
-                          onChange={(e) =>
-                            handleEnvRowChange(index, "key", e.target.value)
-                          }
-                          placeholder="KEY_NAME"
-                          className="w-1/3 px-2.5 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15] uppercase"
-                        />
-                        <div className="relative flex-1">
-                          <input
-                            type={
-                              row.isSecret && !isVisible ? "password" : "text"
-                            }
-                            value={row.value}
-                            onChange={(e) =>
-                              handleEnvRowChange(index, "value", e.target.value)
-                            }
-                            placeholder={
-                              row.key === "DISCORD_TOKEN"
-                                ? "Paste Discord Bot Token"
-                                : "Value"
-                            }
-                            className="w-full pl-2.5 pr-8 py-1.5 rounded-md bg-[#0B0E14] border border-[#1E273A] text-white text-xs font-mono focus:outline-none focus:border-[#FACC15]"
-                          />
-                          {row.isSecret && (
-                            <button
-                              type="button"
-                              onClick={() => toggleSecretVisibility(index)}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
-                            >
-                              {isVisible ? (
-                                <EyeOff className="w-3.5 h-3.5" />
-                              ) : (
-                                <Eye className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeEnvRow(index)}
-                          className="p-1.5 rounded text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer shrink-0"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal Footer Controls */}
-          <div className="flex items-center justify-between pt-3 border-t border-[#1E273A] shrink-0 font-sans">
-            <div>
-              {step > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep((s) => (s - 1) as 1 | 2 | 3)}
-                  disabled={isLoading}
-                  className="forge-btn-dark text-xs py-1.5 px-3"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="forge-btn-dark text-xs py-1.5 px-3 text-slate-400"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={handleNextStep}
-                  className="forge-btn-primary text-xs py-2 px-4 font-bold"
-                >
-                  <span>Continue</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              ) : (
-                <button
-                  id="btn-create-bot-submit"
-                  type="submit"
-                  disabled={isLoading}
-                  className="forge-btn-primary text-xs py-2 px-4 font-bold disabled:opacity-50"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Bot className="w-3.5 h-3.5" />
-                  )}
-                  <span>
-                    {isLoading
-                      ? "Deploying Container..."
-                      : "Finish & Deploy Server"}
-                  </span>
-                </button>
-              )}
-            </div>
-          </div>
-        </form>
+    <dialog ref={dialog} aria-labelledby="deploy-title" className="forge-card forge-dialog" onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}>
+      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <h2 id="deploy-title" className="text-2xl font-semibold">Deploy a bot</h2>
+        <button type="button" className="forge-btn-dark" disabled={busy} onClick={onClose} aria-label="Close"><X size={17}/></button>
       </div>
-    </div>
+      <form onSubmit={deploy}>
+        <fieldset className="space-y-4 p-5" disabled={busy}>
+          <label className="forge-label">Project source<select className="forge-input" value={source} onChange={event => { setSource(event.target.value); setError(""); }}>
+            <option value="zip">Upload a ZIP</option><option value="git">Git repository</option><option value="template">Starter template</option><option value="empty">Empty project</option>
+          </select></label>
+          {source === "zip" && <>
+            <input ref={picker} type="file" accept=".zip" hidden onChange={event => { selectArchive(event.target.files); event.target.value = ""; }}/>
+            <button type="button" className="grid w-full cursor-pointer justify-items-center gap-2 rounded-lg border border-dashed border-neutral-500 bg-inset p-5 hover:border-gold"
+              onClick={() => picker.current?.click()} onDragOver={event => event.preventDefault()}
+              onDrop={event => { event.preventDefault(); selectArchive(event.dataTransfer.files); }}>
+              {zip ? <FileArchive className="text-gold" size={22}/> : <Upload className="text-gold" size={22}/>}
+              <strong className="break-all">{zip?.name || "Choose or drop a ZIP"}</strong>
+              <span className="text-sm text-neutral-400">{zip ? "Click to replace" : "Node.js or Python · up to 80 MiB"}</span>
+            </button>
+          </>}
+          {source === "git" && <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
+            <label className="forge-label">Repository URL<input className="forge-input" name="repo" type="url" required/></label>
+            <label className="forge-label">Branch<input className="forge-input" name="branch" defaultValue="main"/></label>
+          </div>}
+          {source === "template" && <label className="forge-label">Template<select className="forge-input" name="template">
+            <option value="discordjs">Discord.js</option><option value="discordpy">Discord.py</option><option value="typescript">TypeScript</option><option value="minimal">Minimal Node.js service</option>
+          </select></label>}
+          <label className="forge-label">Project name<input className="forge-input" required value={name} maxLength={80} onChange={event => setName(event.target.value)}/></label>
+          <details className="rounded-lg border border-line p-3">
+            <summary className="cursor-pointer font-semibold">Environment variables <span className="text-sm text-neutral-400">(optional)</span></summary>
+            <label className="forge-label mt-3">Paste .env values<textarea className="forge-input font-mono text-sm" rows={3} value={env} spellCheck={false} placeholder="DISCORD_TOKEN=…" onChange={event => setEnv(event.target.value)}/></label>
+            <label className="mt-2 block text-sm">Import .env <input type="file" onChange={async event => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+              if (file.size > 1024 * 1024) { setError("Choose an environment file under 1 MiB."); return; }
+              try { setEnv(await file.text()); setError(""); } catch { setError("Couldn’t read the environment file."); }
+            }}/></label>
+          </details>
+          <details><summary className="cursor-pointer text-sm">Startup command and description</summary>
+            <label className="forge-label mt-3">Startup command<input className="forge-input" name="command" placeholder="Detect from project"/></label>
+            <label className="forge-label mt-2">Description<input className="forge-input" name="description"/></label>
+          </details>
+          {source !== "empty" && <label className="flex items-center gap-2"><input key={source} name="start" type="checkbox" defaultChecked={source === "zip"}/> Start when ready and on host boot</label>}
+          {error && <p role="alert" className="text-rose-300">{error}</p>}
+          <button className="forge-btn-primary min-h-11 w-full" disabled={busy || (source === "zip" && !zip)}>{busy ? "Creating project…" : "Create project"}</button>
+        </fieldset>
+      </form>
+    </dialog>
   );
 }

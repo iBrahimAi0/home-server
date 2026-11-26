@@ -199,14 +199,14 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
   return (
     <div className="flex flex-col h-full space-y-3.5">
       {/* File Manager Toolbar & Breadcrumbs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#121722] p-3 rounded-lg border border-[#1E273A]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-panel p-3 rounded-lg border border-line">
         {/* Breadcrumb Path & Up Button */}
         <div className="flex items-center gap-1.5 overflow-x-auto text-xs text-slate-300 py-0.5">
           {currentPath && (
             <button
               onClick={handleGoUp}
               title="Go up one folder level"
-              className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-300 border border-[#232E44] transition-colors cursor-pointer mr-1"
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-raised hover:bg-raised text-slate-300 border border-line transition-colors cursor-pointer mr-1"
             >
               <CornerLeftUp className="w-3.5 h-3.5 text-indigo-400" />
               <span className="text-[11px] font-mono">Up</span>
@@ -215,7 +215,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
 
           <button
             onClick={() => handleNavigate('')}
-            className="flex items-center gap-1 hover:text-white px-2 py-1 rounded-md hover:bg-[#182030] transition-colors cursor-pointer"
+            className="flex items-center gap-1 hover:text-white px-2 py-1 rounded-md hover:bg-raised transition-colors cursor-pointer"
             title="Root Directory"
           >
             <Home className="w-3.5 h-3.5 text-indigo-400" />
@@ -234,7 +234,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                   className={`px-2 py-1 rounded-md transition-colors truncate max-w-[140px] font-mono cursor-pointer ${
                     isLast
                       ? 'text-indigo-300 font-semibold bg-indigo-500/10 border border-indigo-500/20'
-                      : 'text-slate-300 hover:text-white hover:bg-[#182030]'
+                      : 'text-slate-300 hover:text-white hover:bg-raised'
                   }`}
                 >
                   {segment}
@@ -260,7 +260,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           <button
             id="btn-file-new-file"
             onClick={() => setCreateType('file')}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-raised hover:bg-raised text-slate-200 hover:text-white border border-line text-xs font-medium transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-indigo-400" />
             <span>New File</span>
@@ -269,7 +269,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           <button
             id="btn-file-new-folder"
             onClick={() => setCreateType('folder')}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-raised hover:bg-raised text-slate-200 hover:text-white border border-line text-xs font-medium transition-colors cursor-pointer"
           >
             <FolderPlus className="w-3.5 h-3.5 text-amber-400" />
             <span>New Folder</span>
@@ -287,7 +287,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           <button
             id="btn-file-extract-direct"
             onClick={() => setIsDirectExtractOpen(true)}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-200 hover:text-white border border-[#232E44] text-xs font-medium transition-colors cursor-pointer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-raised hover:bg-raised text-slate-200 hover:text-white border border-line text-xs font-medium transition-colors cursor-pointer"
           >
             <Archive className="w-3.5 h-3.5 text-indigo-400" />
             <span>Extract ZIP</span>
@@ -297,7 +297,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
             id="btn-file-refresh"
             onClick={() => fetchFiles(currentPath)}
             disabled={isLoading}
-            className="p-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-slate-300 hover:text-white border border-[#232E44] transition-colors cursor-pointer"
+            className="p-1.5 rounded-md bg-raised hover:bg-raised text-slate-300 hover:text-white border border-line transition-colors cursor-pointer"
             title="Refresh folder contents"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-indigo-400' : ''}`} />
@@ -330,7 +330,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
             placeholder="Filter files in current folder..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 rounded-md bg-[#121722] border border-[#1E273A] text-xs text-slate-200 placeholder:text-slate-500 font-mono focus:outline-none focus:border-indigo-500"
+            className="w-full pl-8 pr-3 py-1.5 rounded-md bg-panel border border-line text-xs text-slate-200 placeholder:text-slate-500 font-mono focus:outline-none focus:border-indigo-500"
           />
         </div>
 
@@ -341,7 +341,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
       </div>
 
       {/* Files List Table */}
-      <div className="flex-1 bg-[#121722] rounded-lg border border-[#1E273A] overflow-hidden flex flex-col min-h-[380px]">
+      <div className="flex-1 bg-panel rounded-lg border border-line overflow-hidden flex flex-col min-h-[380px]">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center flex-1 py-16 gap-2 text-slate-400 font-mono">
             <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
@@ -349,7 +349,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           </div>
         ) : filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 py-16 gap-3 text-slate-400">
-            <div className="p-3.5 rounded-lg bg-[#182030] border border-[#232E44] text-slate-400">
+            <div className="p-3.5 rounded-lg bg-raised border border-line text-slate-400">
               <Folder className="w-7 h-7" />
             </div>
             <p className="text-sm font-semibold text-slate-300">
@@ -370,7 +370,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                 </button>
                 <button
                   onClick={() => setCreateType('file')}
-                  className="px-3 py-1.5 rounded-md bg-[#182030] hover:bg-[#202B40] text-white text-xs font-medium border border-[#232E44] cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-raised hover:bg-raised text-white text-xs font-medium border border-line cursor-pointer"
                 >
                   Create File
                 </button>
@@ -381,14 +381,14 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#1E273A] bg-[#0E131E] text-slate-400 font-semibold font-mono select-none">
+                <tr className="border-b border-line bg-inset text-slate-400 font-semibold font-mono select-none">
                   <th className="py-2.5 pl-3.5 pr-1.5 w-8">
                     <input
                       id="checkbox-select-all"
                       type="checkbox"
                       checked={filteredItems.length > 0 && selectedPaths.size === filteredItems.length}
                       onChange={toggleSelectAll}
-                      className="w-3.5 h-3.5 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-line bg-raised accent-indigo-500 cursor-pointer"
                     />
                   </th>
                   <th className="py-2.5 px-3.5">Name</th>
@@ -397,12 +397,12 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                   <th className="py-2.5 px-3.5 w-28 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#182030]">
+              <tbody className="divide-y divide-line">
                 {filteredItems.map((item) => (
                   <tr
                     key={item.path}
                     onClick={() => handleItemClick(item)}
-                    className={`group hover:bg-[#161D2B] transition-colors cursor-pointer ${
+                    className={`group hover:bg-panel transition-colors cursor-pointer ${
                       item.isSensitive ? 'bg-rose-950/10' : ''
                     } ${selectedPaths.has(item.path) ? 'bg-indigo-500/5' : ''}`}
                   >
@@ -412,7 +412,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                         type="checkbox"
                         checked={selectedPaths.has(item.path)}
                         onChange={() => toggleSelected(item.path)}
-                        className="w-3.5 h-3.5 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                        className="w-3.5 h-3.5 rounded border-line bg-raised accent-indigo-500 cursor-pointer"
                       />
                     </td>
                     {/* Name Column */}
@@ -467,7 +467,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                           <button
                             onClick={() => setEditorFile({ path: item.path, name: item.name, isSensitive: item.isSensitive })}
                             title="Edit file"
-                            className="p-1 rounded hover:bg-[#1E273A] text-slate-400 hover:text-white transition-colors cursor-pointer"
+                            className="p-1 rounded hover:bg-raised text-slate-400 hover:text-white transition-colors cursor-pointer"
                           >
                             <FileCode className="w-3.5 h-3.5" />
                           </button>
@@ -476,7 +476,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
                         <button
                           onClick={() => setRenameTarget(item)}
                           title="Rename"
-                          className="p-1 rounded hover:bg-[#1E273A] text-slate-400 hover:text-white transition-colors cursor-pointer"
+                          className="p-1 rounded hover:bg-raised text-slate-400 hover:text-white transition-colors cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
@@ -498,7 +498,7 @@ export function FileManager({ botId, botName, botPath }: FileManagerProps) {
         )}
 
         {/* Footer Item Count */}
-        <div className="px-3.5 py-2 bg-[#0E131E] border-t border-[#1E273A] text-[11px] text-slate-400 font-mono flex items-center justify-between">
+        <div className="px-3.5 py-2 bg-inset border-t border-line text-[11px] text-slate-400 font-mono flex items-center justify-between">
           <span>{filteredItems.length} item(s)</span>
           <span className="text-slate-500 truncate max-w-sm">{botPath}</span>
         </div>

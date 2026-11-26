@@ -47,9 +47,9 @@ export function PullConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-lg bg-[#0E121A] border border-[#1E273A] rounded-lg shadow-2xl overflow-hidden font-sans">
+      <div className="flex flex-col w-full max-w-lg bg-inset border border-line rounded-lg shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-[#131926] border-b border-[#1E273A]">
+        <div className="flex items-center justify-between px-4 py-3 bg-panel border-b border-line">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <GitPullRequest className="w-4 h-4" />
@@ -60,7 +60,7 @@ export function PullConfirmModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1 rounded text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -74,7 +74,7 @@ export function PullConfirmModal({
             </div>
           )}
 
-          <div className="p-3 rounded-md bg-[#0B0E14] border border-[#1E273A] text-xs space-y-2 font-mono">
+          <div className="p-3 rounded-md bg-inset border border-line text-xs space-y-2 font-mono">
             <div className="flex items-center justify-between text-slate-400">
               <span>Target Bot:</span>
               <strong className="text-white">{botName}</strong>
@@ -97,7 +97,7 @@ export function PullConfirmModal({
               <span className="text-[11px] font-mono text-slate-400 font-semibold block">
                 Incoming Commits to Apply:
               </span>
-              <div className="max-h-28 overflow-y-auto space-y-1 bg-[#0B0E14] p-2.5 rounded-md border border-[#1E273A] font-mono text-[11px]">
+              <div className="max-h-28 overflow-y-auto space-y-1 bg-inset p-2.5 rounded-md border border-line font-mono text-[11px]">
                 {updateInfo.incomingCommits.slice(0, 5).map((c, i) => (
                   <div key={i} className="flex items-start gap-2">
                     <span className="text-indigo-400 font-bold shrink-0">{c.shortHash}</span>
@@ -118,11 +118,11 @@ export function PullConfirmModal({
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

@@ -116,7 +116,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
     <div className="space-y-4 font-sans">
       {/* Informative Security Banner */}
       <div className="forge-card p-4 flex items-start gap-3 text-xs font-mono text-slate-300">
-        <Shield className="w-4 h-4 text-[#FACC15] shrink-0 mt-0.5" />
+        <Shield className="w-4 h-4 text-gold shrink-0 mt-0.5" />
         <div>
           <span className="font-bold text-white">Role-Based Access Control (RBAC): </span>
           <span>
@@ -149,19 +149,19 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500 uppercase text-[10px]">
+              <tr className="border-b border-line text-slate-500 uppercase text-[10px]">
                 <th className="pb-3 font-semibold">User / Email</th>
                 <th className="pb-3 font-semibold">Authorized Modules</th>
                 <th className="pb-3 font-semibold">2FA Security</th>
                 <th className="pb-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24]">
+            <tbody className="divide-y divide-line">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-[#181A20]/80 transition-colors">
+                <tr key={u.id} className="hover:bg-raised/80 transition-colors">
                   <td className="py-3.5 text-white font-medium">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[#1C1E24] border border-[#2A2E38] flex items-center justify-center text-[10px] text-[#FACC15] font-bold">
+                      <div className="w-6 h-6 rounded-full bg-raised border border-line flex items-center justify-center text-[10px] text-gold font-bold">
                         {u.email.charAt(0).toUpperCase()}
                       </div>
                       <span>{u.email}</span>
@@ -169,7 +169,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                   </td>
                   <td className="py-3.5">
                     {u.isOwner ? (
-                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FACC15]/15 text-[#FACC15] border border-[#FACC15]/30">
+                      <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-gold/15 text-gold border border-gold/30">
                         Owner (Full Access)
                       </span>
                     ) : (
@@ -201,7 +201,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setEditingUser(u)}
-                          className="p-1 rounded text-slate-400 hover:text-[#FACC15] hover:bg-white/[0.04] transition-colors cursor-pointer"
+                          className="p-1 rounded text-slate-400 hover:text-gold hover:bg-white/[0.04] transition-colors cursor-pointer"
                           title="Edit Permissions"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -244,79 +244,79 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="operator@company.com"
-              className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+              className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-xs text-slate-400 font-medium">Assign Permissions</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 text-xs text-slate-300">
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permConsole}
                   onChange={(e) => setPermConsole(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Console</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permFiles}
                   onChange={(e) => setPermFiles(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Files</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permDatabases}
                   onChange={(e) => setPermDatabases(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Databases</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permBackups}
                   onChange={(e) => setPermBackups(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Backups</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permGithub}
                   onChange={(e) => setPermGithub(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>GitHub</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permStartup}
                   onChange={(e) => setPermStartup(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Startup</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-[#0D0E12]/80 border border-[#1E2027] hover:border-slate-700">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-inset/80 border border-line hover:border-slate-700">
                 <input
                   type="checkbox"
                   checked={permSchedules}
                   onChange={(e) => setPermSchedules(e.target.checked)}
-                  className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                  className="w-4 h-4 rounded bg-inset border-line accent-gold"
                 />
                 <span>Schedules</span>
               </label>
@@ -355,7 +355,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                 {['Console', 'Files', 'Databases', 'Backups', 'GitHub', 'Startup', 'Schedules'].map((m) => {
                   const isChecked = editingUser.permissions.includes(m);
                   return (
-                    <label key={m} className="flex items-center gap-2 p-2 rounded bg-[#0D0E12] border border-[#1E2027] cursor-pointer">
+                    <label key={m} className="flex items-center gap-2 p-2 rounded bg-inset border border-line cursor-pointer">
                       <input
                         type="checkbox"
                         checked={isChecked}
@@ -373,7 +373,7 @@ export function ForgeUsersTab({ bot }: ForgeUsersTabProps) {
                             });
                           }
                         }}
-                        className="w-4 h-4 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15]"
+                        className="w-4 h-4 rounded bg-inset border-line accent-gold"
                       />
                       <span>{m}</span>
                     </label>

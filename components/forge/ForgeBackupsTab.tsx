@@ -83,9 +83,9 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
           <div className="text-xs font-mono text-slate-400">
             {used} of {max} backups used
           </div>
-          <div className="h-1 w-full bg-[#1E2027] rounded-full overflow-hidden">
+          <div className="h-1 w-full bg-raised rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
+              className="h-full bg-gold rounded-full transition-all duration-300"
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -95,7 +95,7 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
         <div className="overflow-x-auto pt-2">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500">
+              <tr className="border-b border-line text-slate-500">
                 <th className="pb-3 font-semibold">Name</th>
                 <th className="pb-3 font-semibold">Size</th>
                 <th className="pb-3 font-semibold">Created</th>
@@ -103,13 +103,13 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
                 <th className="pb-3 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24]">
+            <tbody className="divide-y divide-line">
               {backups.map((bk) => (
-                <tr key={bk.id} className="hover:bg-[#181A20] transition-colors">
+                <tr key={bk.id} className="hover:bg-raised transition-colors">
                   <td className="py-3 text-white font-medium flex items-center gap-2">
                     <span>{bk.name}</span>
                     {bk.isLocked && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#1E2027] text-slate-400 border border-[#282B34]">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-raised text-slate-400 border border-line">
                         Locked
                       </span>
                     )}
@@ -120,13 +120,13 @@ export function ForgeBackupsTab({ bot }: ForgeBackupsTabProps) {
                   <td className="py-3 text-right space-x-3">
                     <button
                       onClick={() => handleDownload(bk.name)}
-                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
+                      className="text-gold hover:underline font-medium cursor-pointer"
                     >
                       Download
                     </button>
                     <button
                       onClick={() => handleRestore(bk.name)}
-                      className="text-[#FACC15] hover:underline font-medium cursor-pointer"
+                      className="text-gold hover:underline font-medium cursor-pointer"
                     >
                       Restore
                     </button>

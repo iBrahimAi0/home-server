@@ -134,9 +134,9 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           <div className="text-lg font-bold font-mono text-white mt-1">
             {bot.status === 'online' ? `${bot.cpuUsage || '0.47'}%` : '0.00%'} <span className="text-slate-500 text-sm font-normal">/ 150%</span>
           </div>
-          <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
+          <div className="mt-3 h-1 w-full bg-raised rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
+              className="h-full bg-gold rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, (bot.cpuUsage || 0.47) * 2)}%` }}
             />
           </div>
@@ -148,9 +148,9 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           <div className="text-lg font-bold font-mono text-white mt-1">
             {bot.status === 'online' ? `${ramUsedMB.toFixed(2)} MiB` : '0 MiB'} <span className="text-slate-500 text-sm font-normal">/ {(ramLimitMB / 1024).toFixed(2)} GiB</span>
           </div>
-          <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
+          <div className="mt-3 h-1 w-full bg-raised rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
+              className="h-full bg-gold rounded-full transition-all duration-300"
               style={{ width: `${Math.max(5, ramPercent)}%` }}
             />
           </div>
@@ -162,9 +162,9 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
           <div className="text-lg font-bold font-mono text-white mt-1">
             {storageUsedMB.toFixed(2)} MiB <span className="text-slate-500 text-sm font-normal">/ {(storageLimitMB / 1024).toFixed(0)} GiB</span>
           </div>
-          <div className="mt-3 h-1 w-full bg-[#1F2128] rounded-full overflow-hidden">
+          <div className="mt-3 h-1 w-full bg-raised rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#FACC15] rounded-full transition-all duration-300"
+              className="h-full bg-gold rounded-full transition-all duration-300"
               style={{ width: `${Math.max(8, storagePercent)}%` }}
             />
           </div>
@@ -244,7 +244,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
               id="dashboard-auto-deploy"
               checked={autoDeploy}
               onChange={(e) => setAutoDeploy(e.target.checked)}
-              className="w-3.5 h-3.5 rounded bg-[#0D0E12] border-[#22242B] accent-[#FACC15] cursor-pointer"
+              className="w-3.5 h-3.5 rounded bg-inset border-line accent-gold cursor-pointer"
             />
             <label htmlFor="dashboard-auto-deploy" className="text-xs text-slate-300 select-none cursor-pointer">
               Auto-deploy on push
@@ -276,7 +276,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
         <h3 className="text-sm font-bold text-white tracking-tight">Console</h3>
 
         {/* Terminal Window */}
-        <div className="rounded-lg bg-[#0D0E12] border border-[#1E2027] p-3.5 font-mono text-xs h-48 overflow-y-auto space-y-1">
+        <div className="rounded-lg bg-inset border border-line p-3.5 font-mono text-xs h-48 overflow-y-auto space-y-1">
           {logs.length === 0 ? (
             <div className="text-slate-500">Waiting for live process events...</div>
           ) : (
@@ -298,7 +298,7 @@ export function ForgeDashboardTab({ bot, systemStatus, onRefresh, onTabChange }:
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
             placeholder="Type a command..."
-            className="w-full bg-[#0D0E12] text-white placeholder-slate-500 px-3.5 py-2 text-xs font-mono rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] transition-colors"
+            className="w-full bg-inset text-white placeholder-slate-500 px-3.5 py-2 text-xs font-mono rounded-lg border border-line focus:outline-none focus:border-gold transition-colors"
           />
         </form>
       </div>

@@ -75,7 +75,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500">
+              <tr className="border-b border-line text-slate-500">
                 <th className="pb-3 font-semibold">Name</th>
                 <th className="pb-3 font-semibold">Cron</th>
                 <th className="pb-3 font-semibold">Last run</th>
@@ -83,9 +83,9 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
                 <th className="pb-3 font-semibold text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24]">
+            <tbody className="divide-y divide-line">
               {schedules.map((s, idx) => (
-                <tr key={idx} className="hover:bg-[#181A20] transition-colors">
+                <tr key={idx} className="hover:bg-raised transition-colors">
                   <td className="py-3.5 text-white font-medium">{s.name}</td>
                   <td className="py-3.5 text-slate-300">{s.cron}</td>
                   <td className="py-3.5 text-slate-500">{s.lastRun}</td>
@@ -123,7 +123,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Nightly automated reboot"
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+                className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
                 value={newCron}
                 onChange={(e) => setNewCron(e.target.value)}
                 placeholder="0 4 * * *"
-                className="w-full bg-[#0D0E12] text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15]"
+                className="w-full bg-inset text-white text-xs font-mono px-3.5 py-2.5 rounded-lg border border-line focus:outline-none focus:border-gold"
               />
             </div>
 
@@ -152,24 +152,24 @@ export function ForgeSchedulesTab({ bot }: ForgeSchedulesTabProps) {
           <h3 className="text-sm font-bold text-white tracking-tight">Tasks</h3>
 
           <div className="space-y-2.5 text-xs font-mono">
-            <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-[#1E2027] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-inset border border-line flex items-center justify-between">
               <span className="text-slate-300">Send command</span>
-              <span className="px-2 py-0.5 rounded bg-[#181A20] text-slate-400">Console</span>
+              <span className="px-2 py-0.5 rounded bg-raised text-slate-400">Console</span>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-[#1E2027] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-inset border border-line flex items-center justify-between">
               <span className="text-slate-300">Power action</span>
-              <span className="px-2 py-0.5 rounded bg-[#181A20] text-slate-400">Restart</span>
+              <span className="px-2 py-0.5 rounded bg-raised text-slate-400">Restart</span>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-[#1E2027] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-inset border border-line flex items-center justify-between">
               <span className="text-slate-300">Create backup</span>
-              <span className="px-2 py-0.5 rounded bg-[#181A20] text-slate-400">Backups</span>
+              <span className="px-2 py-0.5 rounded bg-raised text-slate-400">Backups</span>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-[#1E2027] flex items-center justify-between">
+            <div className="p-2.5 rounded-lg bg-inset border border-line flex items-center justify-between">
               <span className="text-slate-300">Deploy from GitHub</span>
-              <span className="px-2 py-0.5 rounded bg-[#FACC15]/10 text-[#FACC15] border border-[#FACC15]/25 font-bold">New</span>
+              <span className="px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/25 font-bold">New</span>
             </div>
           </div>
 

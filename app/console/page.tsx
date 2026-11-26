@@ -65,7 +65,7 @@ function ConsoleContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#0D0E12] text-slate-100 font-sans">
+    <div className="flex min-h-screen bg-inset text-slate-100 font-sans">
       <Sidebar
         currentBotId={activeBot?.id || 'bot-1'}
         activeTab="console"
@@ -73,13 +73,13 @@ function ConsoleContent() {
         bots={bots}
       />
 
-      <div className="flex-1 flex flex-col md:pl-64 transition-all duration-200">
+      <div className="min-w-0 flex-1 flex flex-col md:pl-64 transition-all duration-200">
         <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">
           <Header title="Console" />
 
           {loading ? (
             <div className="py-24 flex items-center justify-center text-slate-500 font-mono text-xs gap-2">
-              <Loader2 className="w-5 h-5 animate-spin text-[#FACC15]" />
+              <Loader2 className="w-5 h-5 animate-spin text-gold" />
               <span>Connecting to server console...</span>
             </div>
           ) : !activeBot ? (
@@ -99,7 +99,7 @@ export default function ConsolePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen bg-[#0D0E12] items-center justify-center text-slate-400 font-mono text-xs">
+        <div className="flex min-h-screen bg-inset items-center justify-center text-slate-400 font-mono text-xs">
           Loading console...
         </div>
       }

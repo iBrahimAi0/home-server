@@ -37,7 +37,8 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
   }, [bot.id]);
 
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const panel = terminalEndRef.current?.parentElement;
+    if (panel) panel.scrollTop = panel.scrollHeight;
   }, [logs]);
 
   const handleClear = () => {
@@ -73,14 +74,12 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
     }
   };
 
-  const ramUsedMB = bot.ramUsageMB || 95.96;
-  const ramLimitMB = bot.ramLimitMB || 1515;
 
   return (
     <div className="space-y-4">
       {/* Output Terminal Card */}
       <div className="forge-card p-5 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1E2027]">
+        <div className="flex items-center justify-between pb-2 border-b border-line">
           <span className="text-sm font-bold text-white tracking-tight">Output</span>
           <div className="flex items-center gap-2">
             <button
@@ -99,7 +98,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
         </div>
 
         {/* Live Terminal Content */}
-        <div className="rounded-lg bg-[#0A0B0E] border border-[#1A1C22] p-4 font-mono text-xs h-[420px] overflow-y-auto space-y-1.5 select-text">
+        <div className="rounded-lg bg-canvas border border-line p-4 font-mono text-xs h-[420px] overflow-y-auto space-y-1.5 select-text">
           {logs.length === 0 ? (
             <div className="text-slate-500">[CONSOLE] Live standard output and error stream ready...</div>
           ) : (
@@ -112,7 +111,7 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
               return (
                 <div key={i} className="flex items-start gap-2 leading-relaxed">
                   {isDeploy ? (
-                    <span className="text-[#FACC15] shrink-0 font-bold">[DEPLOY]</span>
+                    <span className="text-gold shrink-0 font-bold">[DEPLOY]</span>
                   ) : isError ? (
                     <span className="text-rose-400 shrink-0 font-bold">[ERROR]</span>
                   ) : isMember ? (
@@ -137,71 +136,12 @@ export function ForgeConsoleTab({ bot }: ForgeConsoleTabProps) {
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
             placeholder="Type a command..."
-            className="w-full bg-[#0A0B0E] text-white placeholder-slate-500 px-3.5 py-2.5 text-xs font-mono rounded-lg border border-[#1A1C22] focus:outline-none focus:border-[#FACC15] transition-colors"
+            className="w-full bg-canvas text-white placeholder-slate-500 px-3.5 py-2.5 text-xs font-mono rounded-lg border border-line focus:outline-none focus:border-gold transition-colors"
           />
         </form>
       </div>
 
-      {/* 3 Sparkline Metrics at Bottom */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* CPU Sparkline */}
-        <div className="forge-card p-4 space-y-2">
-          <span className="text-xs text-slate-400">CPU usage</span>
-          <div className="text-lg font-bold font-mono text-white">
-            {bot.status === 'online' ? `${bot.cpuUsage || '0.47'}%` : '0.00%'} <span className="text-slate-500 text-sm font-normal">/ 150%</span>
-          </div>
-          {/* Yellow SVG Sparkline Wave */}
-          <div className="pt-2 h-12 w-full">
-            <svg viewBox="0 0 200 40" className="w-full h-full overflow-visible">
-              <path
-                d="M0,35 Q30,30 60,33 T120,25 T160,20 T200,32"
-                fill="none"
-                stroke="#FACC15"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* Memory Sparkline */}
-        <div className="forge-card p-4 space-y-2">
-          <span className="text-xs text-slate-400">Memory usage</span>
-          <div className="text-lg font-bold font-mono text-white">
-            {bot.status === 'online' ? `${ramUsedMB.toFixed(2)} MiB` : '0 MiB'} <span className="text-slate-500 text-sm font-normal">/ {(ramLimitMB / 1024).toFixed(2)} GiB</span>
-          </div>
-          <div className="pt-2 h-12 w-full">
-            <svg viewBox="0 0 200 40" className="w-full h-full overflow-visible">
-              <path
-                d="M0,28 Q40,29 80,28 T140,29 T200,28"
-                fill="none"
-                stroke="#FACC15"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {/* Network Sparkline */}
-        <div className="forge-card p-4 space-y-2">
-          <span className="text-xs text-slate-400">Network in / out</span>
-          <div className="text-lg font-bold font-mono text-white">
-            1.04 GiB <span className="text-slate-500 text-sm font-normal">/ 183.5 MiB</span>
-          </div>
-          <div className="pt-2 h-12 w-full">
-            <svg viewBox="0 0 200 40" className="w-full h-full overflow-visible">
-              <path
-                d="M0,32 Q50,34 90,28 T130,12 T170,26 T200,29"
-                fill="none"
-                stroke="#FACC15"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <div className="forge-card p-4 flex gap-5 text-sm"><span>CPU {bot.cpuUsage}%</span><span>Memory {bot.ramUsageMB} MiB</span></div>
     </div>
   );
 }

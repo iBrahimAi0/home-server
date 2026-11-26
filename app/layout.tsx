@@ -5,9 +5,6 @@ import { BRANDING } from "@/lib/branding";
 export const metadata: Metadata = {
   title: `${BRANDING.name} — ${BRANDING.subtitle}`,
   description: BRANDING.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 import { ToastProvider } from "@/components/ui/Toast";
@@ -21,7 +18,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         suppressHydrationWarning
-        className="bg-[#080B10] text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200"
+        className="min-h-screen font-sans antialiased"
       >
         <ToastProvider>{children}</ToastProvider>
       </body>

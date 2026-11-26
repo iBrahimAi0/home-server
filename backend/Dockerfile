@@ -10,10 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+RUN python3 -m venv /opt/forge-python
+ENV PATH="/opt/forge-python/bin:${PATH}"
+
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY . .
 

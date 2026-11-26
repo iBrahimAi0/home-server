@@ -95,9 +95,9 @@ export function UploadProjectModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-      <div className="flex flex-col w-full max-w-lg bg-[#0E121A] border border-[#1E273A] rounded-xl shadow-2xl overflow-hidden font-sans">
+      <div className="flex flex-col w-full max-w-lg bg-inset border border-line rounded-xl shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#131926] border-b border-[#1E273A] shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-panel border-b border-line shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <UploadCloud className="w-4 h-4" />
@@ -114,7 +114,7 @@ export function UploadProjectModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -140,7 +140,7 @@ export function UploadProjectModal({
             className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
               isDragOver
                 ? "border-indigo-500 bg-indigo-500/10"
-                : "border-[#222D40] hover:border-indigo-500/50 bg-[#0B0E14]"
+                : "border-line hover:border-indigo-500/50 bg-inset"
             }`}
           >
             <input
@@ -163,7 +163,7 @@ export function UploadProjectModal({
 
           {/* Selected File Card */}
           {file && (
-            <div className="p-3 rounded-lg bg-[#121724] border border-[#1E273A] flex items-center justify-between text-xs font-mono">
+            <div className="p-3 rounded-lg bg-panel border border-line flex items-center justify-between text-xs font-mono">
               <div className="flex items-center gap-2 overflow-hidden">
                 <FileCode2 className="w-4 h-4 text-indigo-400 shrink-0" />
                 <span className="text-white font-semibold truncate">
@@ -190,7 +190,7 @@ export function UploadProjectModal({
                 type="checkbox"
                 checked={runInstall}
                 onChange={(e) => setRunInstall(e.target.checked)}
-                className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                className="w-4 h-4 rounded border-line bg-raised accent-indigo-500 cursor-pointer"
               />
               <span>
                 Run <code className="text-indigo-300">npm install</code> /{" "}
@@ -204,18 +204,18 @@ export function UploadProjectModal({
                 type="checkbox"
                 checked={restart}
                 onChange={(e) => setRestart(e.target.checked)}
-                className="w-4 h-4 rounded border-[#232E44] bg-[#182030] accent-indigo-500 cursor-pointer"
+                className="w-4 h-4 rounded border-line bg-raised accent-indigo-500 cursor-pointer"
               />
               <span>Restart bot automatically once deployed</span>
             </label>
           </div>
 
           {/* Footer Controls */}
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#1E273A]">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-[#1A2232] transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-raised transition-colors cursor-pointer"
             >
               Cancel
             </button>

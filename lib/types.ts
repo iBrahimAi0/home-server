@@ -48,6 +48,7 @@ export interface BotCreatePayload {
   template?: string;
   installDependencies?: boolean;
   projectArchive?: File;
+  envText?: string;
 }
 
 export interface BotTemplateOption {

@@ -57,7 +57,7 @@ export function ForgeActivityTab({ bot }: ForgeActivityTabProps) {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-[#0D0E12] text-slate-300 text-xs font-mono px-3 py-1.5 rounded-lg border border-[#1E2027] focus:outline-none focus:border-[#FACC15] cursor-pointer"
+            className="bg-inset text-slate-300 text-xs font-mono px-3 py-1.5 rounded-lg border border-line focus:outline-none focus:border-gold cursor-pointer"
           >
             <option value="all">All events</option>
             <option value="server">Power events</option>
@@ -70,15 +70,15 @@ export function ForgeActivityTab({ bot }: ForgeActivityTabProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[#1E2027] text-slate-500 font-mono">
+              <tr className="border-b border-line text-slate-500 font-mono">
                 <th className="pb-3 font-semibold">Event</th>
                 <th className="pb-3 font-semibold">User</th>
                 <th className="pb-3 font-semibold text-right">When</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1C1E24] font-mono">
+            <tbody className="divide-y divide-line font-mono">
               {filtered.map((act, i) => (
-                <tr key={i} className="hover:bg-[#181A20] transition-colors">
+                <tr key={i} className="hover:bg-raised transition-colors">
                   <td className="py-3 text-slate-200">{act.event}</td>
                   <td className="py-3 text-slate-400">{act.user}</td>
                   <td className="py-3 text-slate-500 text-right">{act.when}</td>

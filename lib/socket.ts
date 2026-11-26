@@ -17,10 +17,7 @@ function getSocketServerUrl(): string {
   ) {
     return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
   }
-  if (typeof window !== "undefined" && window.location.hostname) {
-    return `http://${window.location.hostname}:3001`;
-  }
-  return "http://localhost:3001";
+  return window.location.origin;
 }
 
 class RealtimeClient {
@@ -34,13 +31,13 @@ class RealtimeClient {
 
   public connect() {
     if (typeof window === "undefined") return;
-    if (this.socket && this.socket.connected) return;
+    if (this.socket) return;
 
     const socketUrl = getSocketServerUrl();
 
     try {
       this.socket = io(socketUrl, {
-        transports: ["websocket", "polling"],
+        transports: ["polling"],
         reconnection: true,
         reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
