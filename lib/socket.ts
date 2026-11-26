@@ -37,6 +37,8 @@ class RealtimeClient {
 
     try {
       this.socket = io(socketUrl, {
+        path: "/forge-live",
+        addTrailingSlash: false,
         transports: ["polling"],
         reconnection: true,
         reconnectionAttempts: Infinity,

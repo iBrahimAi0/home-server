@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     const backend = process.env.FORGE_BACKEND_URL || "http://127.0.0.1:3001";
     return [
       { source: "/api/:path*", destination: backend + "/api/:path*" },
-      { source: "/socket.io/:path*", destination: backend + "/socket.io/:path*" },
+      { source: "/forge-live", destination: backend + "/socket.io/" },
     ];
   },
   eslint: {
