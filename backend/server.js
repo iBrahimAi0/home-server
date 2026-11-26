@@ -15,6 +15,7 @@ const { generalLimiter } = require("./middleware/rateLimiter");
 const errorHandler = require("./middleware/errorHandler");
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
+const HOST = process.env.FORGE_BACKEND_HOST || "0.0.0.0";
 const rawCorsOrigin = process.env.CORS_ORIGIN || "";
 
 // Parse configured origins or permit standard local network / localhost origins
@@ -216,10 +217,10 @@ async function bootstrap() {
   try {
     await botManager.init();
 
-    server.listen(PORT, "0.0.0.0", () => {
+    server.listen(PORT, HOST, () => {
       console.log(`===================================================`);
       console.log(`  🏠 NEXUSPANEL HOME SERVER BACKEND`);
-      console.log(`  Server listening on http://0.0.0.0:${PORT}`);
+      console.log(`  Server listening on http://${HOST}:${PORT}`);
       console.log(`  WebSocket / Socket.IO active`);
       console.log(`  Security Headers & Rate Limiting: Active`);
       console.log(`===================================================`);

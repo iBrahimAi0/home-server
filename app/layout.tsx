@@ -15,11 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body
-        suppressHydrationWarning
-        className="min-h-screen font-sans antialiased"
-      >
+    // Browser extensions can attach attributes to the document element before React hydrates.
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="min-h-screen font-sans antialiased">
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
